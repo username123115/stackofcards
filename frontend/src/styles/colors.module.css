@@ -1,0 +1,96 @@
+:root {
+	/* Primary colors */
+	--primary-100: #eaf1f8;
+	--primary-300: #a4b8d1;
+	--primary-500: #6b80a4;
+	--primary-700: #475b78;
+	--primary-900: #2a374f;
+
+	/* Neutral colors */
+	--neutral-100: #f4f3f6;
+	--neutral-300: #d8d6de;
+	--neutral-500: #a09ca8;
+	--neutral-700: #5c5a66;
+	--neutral-900: #302e38;
+
+	/* Accent colors */
+	--accent-100: #fdecef;
+	--accent-300: #f6c5d4;
+	--accent-500: #e995b0;
+	--accent-700: #c76b85;
+	--accent-900: #8f435b;
+}
+
+/* Export color classes */
+.primaryLight {
+	color: var(--primary-100);
+}
+
+.primary {
+	color: var(--primary-500);
+}
+
+.primaryDark {
+	color: var(--primary-700);
+}
+
+.neutralLight {
+	color: var(--neutral-100);
+}
+
+.neutral {
+	color: var(--neutral-500);
+}
+
+.neutralDark {
+	color: var(--neutral-700);
+}
+
+.accentLight {
+	color: var(--accent-100);
+}
+
+.accent {
+	color: var(--accent-500);
+}
+
+.accentDark {
+	color: var(--accent-700);
+}
+
+/* Background variants */
+.bgPrimaryLight {
+	background-color: var(--primary-100);
+}
+
+.bgPrimary {
+	background-color: var(--primary-500);
+}
+
+.bgPrimaryDark {
+	background-color: var(--primary-700);
+}
+
+.bgNeutralLight {
+	background-color: var(--neutral-100);
+}
+
+.bgNeutral {
+	background-color: var(--neutral-500);
+}
+
+.bgNeutralDark {
+	background-color: var(--neutral-700);
+}
+
+.bgAccentLight {
+	background-color: var(--accent-100);
+}
+
+.bgAccent {
+	background-color: var(--accent-500);
+}
+
+.bgAccentDark {
+	background-color: var(--accent-700);
+}

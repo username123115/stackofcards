@@ -1,3 +1,5 @@
+@import '../styles/colors.module.css';
+
 .entrance {
 	flex: 1;
 	display: flex;
@@ -29,6 +31,12 @@
 }
 
 .button {
+	composes: bgPrimary accent;
+	font-size: 1vw;
+	margin: 1rem;
+	border: 0;
+	padding: 8px;
 	padding: 1rem;
-	color: gray;
+	border-radius: 1em;
+
 }

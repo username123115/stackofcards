@@ -1,5 +1,5 @@
 import Entrance from './components/entrance.tsx'
-import styles from './app.module.css'
+import styles from './styles/app.module.css'
 
 function App() {
 

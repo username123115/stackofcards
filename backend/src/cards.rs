@@ -1,4 +1,7 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+use ts_rs::TS;
+
+#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[ts(export)]
 pub enum Suit {
     Hearts,
     Diamonds,
@@ -13,7 +16,8 @@ impl Suit {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[ts(export)]
 pub enum Rank {
     Two,
     Three,
@@ -39,7 +43,8 @@ impl Rank {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[ts(export)]
 pub struct Card {
     suit: Suit,
     rank: Rank,
@@ -51,14 +56,14 @@ impl Card {
     }
 }
 
+#[derive(TS)]
+#[ts(export)]
 pub struct Deck {
     pub cards: Vec<Card>,
 }
 
 impl Deck {
     pub fn new() -> Self {
-        use {Rank::*, Suit::*};
-
         let mut cards: Vec<Card> = Vec::new();
 
         for &rank in Rank::all().iter() {

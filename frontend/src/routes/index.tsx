@@ -9,10 +9,14 @@ export const Route = createFileRoute('/')({
 	component: RouteComponent,
 })
 
+function CreateGame() {
+	console.log("what the skibidi who's making a new game");
+}
+
 function RouteComponent() {
 	return (
 		<>
-			<Entrance />
+			<Entrance onCreate={CreateGame} />
 		</>
 	)
 }

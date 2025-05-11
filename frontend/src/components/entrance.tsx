@@ -1,9 +1,16 @@
 import { useState } from 'react';
 import styles from './components.module.css'
 
-function Entrance() {
+function Entrance({ onCreate = null }: { onCreate: (() => void) | null }) {
 	const [codeInput, setCodeInput] = useState<string>('');
 	const message = Validate(codeInput);
+
+	const handleCreateGameClicked = () => {
+		if (onCreate) {
+			onCreate();
+		}
+	}
+
 	return (
 		<>
 
@@ -30,7 +37,10 @@ function Entrance() {
 				</div>
 
 				<div className={styles.create}>
-					<button className={styles.gameButton}> Create Game </button>
+					<button
+						className={styles.gameButton}
+						onClick={handleCreateGameClicked}> Create Game
+					</button>
 
 				</div>
 

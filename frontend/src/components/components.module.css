@@ -20,7 +20,7 @@
 
 .join {
 	composes: card;
-	font-size: 2vw;
+	font-size: 2rem;
 }
 
 .create {
@@ -32,7 +32,7 @@
 .button {
 	composes: bgNeutralLight accent;
 
-	font-size: 1vw;
+	font-size: 1rem;
 	margin: 1rem;
 	border: 0;
 	padding: 8px;
@@ -71,6 +71,6 @@
 .info {
 	color: var(--accent-900);
 	text-align: center;
-	font-size: 1vw;
+	font-size: 1rem;
 
 }

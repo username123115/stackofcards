@@ -1,19 +1,23 @@
-import { createFileRoute } from '@tanstack/react-router'
-// Funny nvim plugin why do you error here
-// I'm actually going to crash out what in the skibidi rizz is this
-// It doesn't work in VSCode too chat is this real
-// Oh my gyatt I had to have the two referenced tsconfigs extend base
+import { createFileRoute, redirect, Navigate } from '@tanstack/react-router'
+import { useState } from 'react'
+
 import Entrance from '@components/entrance.tsx'
+// import { Route as createGameRoute } from './create-game'
+
 
 export const Route = createFileRoute('/')({
 	component: RouteComponent,
 })
 
-function CreateGame() {
-	console.log("what the skibidi who's making a new game");
-}
 
 function RouteComponent() {
+	const [pendingCreation, setPendingCreation] = useState<boolean>(false);
+	function CreateGame() {
+		setPendingCreation(true);
+	}
+	if (pendingCreation) {
+		return <Navigate to="/create-game" />
+	}
 	return (
 		<>
 			<Entrance onCreate={CreateGame} />

@@ -3,6 +3,10 @@ name = "backend"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "engine"
+path = "src/engine/bin/main.rs"
+
 [dependencies]
 
 uuid = { version = "1.16.0", features = ["v1", "serde"] }

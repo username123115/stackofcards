@@ -73,4 +73,9 @@ impl Deck {
         }
         Deck { cards }
     }
+
+    pub fn empty() -> Self {
+        let cards: Vec<Card> = Vec::new();
+        Deck { cards }
+    }
 }

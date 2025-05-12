@@ -1,4 +1,3 @@
-use crate::engine::ruleset;
 use chrono::{DateTime, Utc};
 use ts_rs::TS;
 use uuid::Uuid;
@@ -11,12 +10,4 @@ pub enum GameVisibility {
     InProgress,
     Finished,
     Aborted,
-}
-
-pub struct GameMeta<'a> {
-    game_id: Uuid,
-    ruleset: &'a ruleset::Ruleset,
-
-    code: u32,
-    current_players: u32,
 }

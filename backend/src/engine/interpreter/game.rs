@@ -1,5 +1,5 @@
-use crate::engine::{cards, game, ruleset};
-use std::cmp;
+use crate::engine::core::{cards, ruleset};
+use cards::Card;
 use std::collections::HashMap;
 
 use cards::Deck;
@@ -106,4 +106,39 @@ impl Game {
     pub fn player_count(&self) -> u32 {
         self.players.len().try_into().unwrap()
     }
+}
+
+pub enum ContextualPickError {
+    Mechanical(cards::PickError),
+    Violation(String),
+}
+
+pub enum ContextualAddError {
+    Mechanical(cards::AddError),
+    Violation(String),
+}
+
+pub enum ContextualTransferError {
+    Mechanical(cards::TransferError),
+    Violation(String),
+}
+
+// This is a card zone that obeys rules beyond physics
+pub trait ContextAwareZoneActions: cards::CardZone {
+    fn contextual_pick(&mut self, card: Card) -> Result<Card, ContextualPickError>;
+    fn can_contextual_pick(&self, card: Card) -> Result<Card, ContextualPickError>;
+
+    fn contextual_add(&mut self, card: Card) -> Result<(), ContextualAddError>;
+    fn can_contextual_add(&mut self, card: Card) -> Result<(), ContextualAddError>;
+
+    fn contextual_transfer<T: ContextAwareZoneActions>(
+        &mut self,
+        card: Card,
+        to: &mut T,
+    ) -> Result<(), ContextualTransferError>;
+    fn can_contextual_transfer<T: ContextAwareZoneActions>(
+        &self,
+        card: Card,
+        to: &T,
+    ) -> Result<(), ContextualTransferError>;
 }

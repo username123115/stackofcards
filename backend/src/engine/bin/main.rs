@@ -6,18 +6,3 @@ fn main() {
 
     println!("Hello, world!");
 }
-
-/*
-* General ideas
-*
-* Continuation: Support playing up until card exhaustion
-*/
-
-/*
-* Engine ideas
-*
-* Conditions: Win, Tie, Draw, Abort
-*
-* Continuation - Exits: Can the game continue if a player leaves?
-*
-*/

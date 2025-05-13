@@ -1,8 +1,9 @@
 //physical layer implementing card and decks
 
+use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[ts(export)]
 pub enum Suit {
     Hearts,
@@ -18,7 +19,7 @@ impl Suit {
     }
 }
 
-#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[ts(export)]
 pub enum Rank {
     Two,
@@ -45,7 +46,7 @@ impl Rank {
     }
 }
 
-#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[ts(export)]
 pub struct Card {
     suit: Suit,

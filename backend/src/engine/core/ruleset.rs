@@ -9,11 +9,13 @@ pub type ZoneId = String;
 pub type ZoneInstanceId = String;
 pub type PlayerInstanceId = String;
 
+pub type DSLVariableId = String;
+
 pub type StageId = String;
 pub type Tag = String;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct InitialCards {
+pub struct CardSet {
     suits: HashSet<cards::Suit>,
     ranks: HashSet<cards::Rank>,
 }
@@ -21,20 +23,8 @@ pub struct InitialCards {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Ruleset {
     pub player_range: Range<u32>,
-    pub starting_cards: InitialCards,
+    pub starting_cards: CardSet,
     pub zone_templates: HashMap<ZoneId, ZoneTemplate>, // zones
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum BuiltinCardList {
-    All,
-    None,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum CardList {
-    Builtin(BuiltinCardList),
-    Custom(Vec<cards::Card>),
 }
 
 use std::ops::Range;
@@ -59,183 +49,26 @@ pub struct PlayerTemplate {
     pub zones: HashMap<String, ZoneId>,
 }
 
-/*
-    ruleset implementation goals:
-      Go Fish
-      Poker
-      Dou dizhu
-
-    AKA person with no language theory foundation tries making a language
-
-    Should be a tree with actions?
-    One of the most important resources in a game is a Zone
-    The game needs to act on zones => Zones should be identifiable
-    Zones will be created dynamicaly by the game interpreter
-    Need a Zone describer that can identify a zone
-
-    What should the ruleset specify? What's important in a Game?
-
-    Initial set of cards - Won't change
-
-    Deck setup - these are a set of instructions to assign cards
-
-
-    Setup steps, user
-
-
-   Interpreter reads a ruleset for go fish
-
-   Ruleset:
-
-      ZoneDefs
-
-
-      Parsed tree set up
-         .deck[Zone node](tag = #deck, template = {cards: @all, init: shuffle, visibility: top})
-         .players[Zone container](tag = #players, template = {tag: #deck, cards: @empty, visibility: private, owner: @future}
-
-
-   Init:
-
-   Create a deck: +Zone tag: #deck; cards: @all
-   Tree:
-     #deck {2C, 2D, 2H, 2S, ..., AS}
-     #player []
-
-   range 2-5
-
-   four players join
-
-   Ruleset Builtin utilities (@)
-   @all : cardset -> represents all 52 playing cards
-
-   User input:
-
-   Tree structure:
-   Immutable tree defined at the beginning, each node can point to another node or a zone
-   container as their children
-
- rule layer dictates further restrictions on handling cards and zones defined in card layer
-
-
-
-
- General ideas
-
- Assumptions: Sequential play, players play in order one by one / only ask for one player to make
- a move at a time
-
- Continuation: Support playing up until card exhaustion
-
-
-
- Engine ideas
-
- Conditions: Win, Tie, Draw, Abort
-
-
-
- Continuation - Exits: Can the game continue if a player leaves?
- U
-
-
-*/
-
-/*
-* Card DSL
-*
-*
-*
-* Variables: During set up and other phases variables get initialized
-* Template Variables: Zone Template defines types, the interpreter will ask for a zone ID when
-*   - api
-*     - Templates
-*       - @DefineZone id ...args (Declare a new zone template, maps ) see ZoneTemplate
-*      - Zone Variables
-*       - @NewZone id
-*
-*Zone Variables:
-*
-*   - User uses api
-*   - '@declare deck id' -> Game will map a new variable called 'deck'
-*   - API: Expose zone `pick` and `add`,
-*   -
-* Player Variables:
-*
-* instructions
-* @NewZone create a zone from an existing template
-* @SetMode change how tunrs work TODO implement later
-*
-*
-* Actions and Contexts: Players can perform actions, a Context is a Block that accepts and allows user input (Actions)
-* Context
-*   Allowed action - Specify some actions that the player is allowed to take, then write handlers that can handle
-*   these Actions
-*
-*   Mandatory action - An action that must be taken by the player
-*
-* Mandatory
-*   O
-*
-* Action
-*   SelectRank
-*   SelectSuite
-*
-*   PickCard
-*
-* Checkpoint, Revert
-*   -
-*
-* TODO: There seems to exist a view approaches to a DSL
-* [Towards a Unified Language for Card Game Design](https://dl.acm.org/doi/pdf/10.1145/3582437.3587185)
-* and
-* [BGD](https://essay.utwente.nl/79157/1/Schroten_BA_ewi.pdf)
-*
-* I'll probably read these after I implement mine to look for improvements
-*
-*
-* Builtin Datatypes
-*   Arrays
-*   Functions?
-* Custom types? Lists? Filters?
-*
-*
-* implementation
-* Here is my wip implementation of Go Fish
-*
-* Setup,
-*   2-5 players
-*   cards [23456789JQKA][HDCS]
-*
-* ZoneTemplates,
-*   AllCards   [Globally owned, Shuffled, Private, 52 capacity]
-*   PlayerDeck [Player owned, Unordered, Private, No capacity]
-*
-* PlayerZones
-*   deck = PlayerDeck
-*
-* WinConditions {
-*   @player {
-*       pdeck(
-*   }
-* }
-*
-* Contexts
-* GoFishTurn = @player {
-*   rank = ActionSelectRank(suites ( zones (@player, "deck") ) )
-*   next = selectPlayer(Modulo(1))
-*
-*   if (zones (@player, "deck") )
-*
-* }
-*
-*
-*/
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 enum RulesetMode {
     Sequential,
     // TODO: Add simultaneous for something like rummy, but I haven't worked out requirements
+}
+
+// Everything we expose to our user, internal features like Zone info are set behind references
+#[derive(Debug, Serialize, Deserialize, Clone)]
+enum DSLValue {
+    Var(DSLVariableId),
+    Imm(DSLTypeInstance),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+enum DSLTypeInstance {
+    Number(Option<u32>),
+    Rank(Option<cards::Rank>),
+    Suit(Option<cards::Suit>),
+    ZoneRef(Option<ZoneInstanceId>),
+    PlayerRef(Option<PlayerInstanceId>),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -243,30 +76,77 @@ enum Instruction {
     SetMode { mode: RulesetMode },
     Block(Block),
 
+    Assign { src: DSLValue, dst: DSLVariableId },
+
     Equal,
     Return,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-enum Conditional {}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Block {
+    variables: HashMap<DSLVariableId, DSLValue>,
     block_type: BlockType,
     instructions: Vec<Instruction>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-enum Value {
-    Number,
-    Zone,
+enum BlockType {
+    Normal,
+    Checkpoint,
+    Context,
+}
+
+struct Conditional {
+    condition: Condition,
+    left: DSLValue,
+    right: DSLValue,
+
+    exec_if: Block,
+    exec_else: Option<Block>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-enum BlockType {
-    Checkpoint,
-    Context,
-    Conditional,
+enum Condition {
+    Equals,
+    GreaterThan,
+    GreaterThanEqual,
+    LessThan,
+    LessThanEqual,
+    NotEquals,
 }
 
 enum PlayerSpecifier {}
+
+mod example {
+    use super::*;
+
+    fn go_fish() {
+        let suits: HashSet<cards::Suit> = HashSet::from_iter(cards::Suit::all());
+        let ranks: HashSet<cards::Rank> = HashSet::from_iter(cards::Rank::all());
+        let starters = CardSet { suits, ranks };
+        let player_range: Range<u32> = 2..5;
+
+        let public_deck: ZoneTemplate = ZoneTemplate {
+            id: String::from("go_fish:template_public_deck"),
+            name: String::from("public_deck"),
+            owner: Owner::Game,
+            capacity: Some(52),
+            tags: HashSet::new(),
+        };
+
+        let player_deck: ZoneTemplate = ZoneTemplate {
+            id: String::from("go_fish:template_player_deck"),
+            name: String::from("player_deck"),
+            owner: Owner::Player,
+            capacity: None,
+            tags: HashSet::new(),
+        };
+
+        let mut var_mappings: HashMap<String, ZoneId> = HashMap::new();
+        var_mappings.insert(player_deck.name.clone(), player_deck.id.clone());
+
+        let player_def = PlayerTemplate {
+            zones: var_mappings,
+        };
+    }
+}

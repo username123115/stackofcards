@@ -167,4 +167,6 @@ GoFishTurn = @player {
 
 }
 
+# Handling Variables
 
+Only store type information, the runner will initialize these later

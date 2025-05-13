@@ -7,14 +7,21 @@ use std::collections::{HashMap, HashSet};
 
 pub type ZoneId = String;
 pub type ZoneInstanceId = String;
+pub type PlayerInstanceId = String;
 
 pub type StageId = String;
 pub type Tag = String;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct InitialCards {
+    suits: HashSet<cards::Suit>,
+    ranks: HashSet<cards::Rank>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Ruleset {
     pub player_range: Range<u32>,
-    pub cards: CardList,
+    pub starting_cards: InitialCards,
     pub zone_templates: HashMap<ZoneId, ZoneTemplate>, // zones
 }
 
@@ -47,11 +54,18 @@ pub struct ZoneTemplate {
     pub tags: HashSet<Tag>,
 }
 
+pub struct PlayerTemplate {
+    // zone name to a finished Zone, the interpreter will make a concrete player that maps these to finished zones
+    pub zones: HashMap<String, ZoneId>,
+}
+
 /*
     ruleset implementation goals:
       Go Fish
       Poker
       Dou dizhu
+
+    AKA person with no language theory foundation tries making a language
 
     Should be a tree with actions?
     One of the most important resources in a game is a Zone
@@ -133,14 +147,14 @@ pub struct ZoneTemplate {
 *
 *
 * Variables: During set up and other phases variables get initialized
-* Zone Variables: Zone Template defines types, the interpreter will ask for a zone ID when
+* Template Variables: Zone Template defines types, the interpreter will ask for a zone ID when
 *   - api
 *     - Templates
 *       - @DefineZone id ...args (Declare a new zone template, maps ) see ZoneTemplate
 *      - Zone Variables
 *       - @NewZone id
 *
-* Player Variables:
+*Zone Variables:
 *
 *   - User uses api
 *   - '@declare deck id' -> Game will map a new variable called 'deck'
@@ -152,21 +166,107 @@ pub struct ZoneTemplate {
 * @NewZone create a zone from an existing template
 * @SetMode change how tunrs work TODO implement later
 *
+*
+* Actions and Contexts: Players can perform actions, a Context is a Block that accepts and allows user input (Actions)
+* Context
+*   Allowed action - Specify some actions that the player is allowed to take, then write handlers that can handle
+*   these Actions
+*
+*   Mandatory action - An action that must be taken by the player
+*
+* Mandatory
+*   O
+*
+* Action
+*   SelectRank
+*   SelectSuite
+*
+*   PickCard
+*
+* Checkpoint, Revert
+*   -
+*
+* TODO: There seems to exist a view approaches to a DSL
+* [Towards a Unified Language for Card Game Design](https://dl.acm.org/doi/pdf/10.1145/3582437.3587185)
+* and
+* [BGD](https://essay.utwente.nl/79157/1/Schroten_BA_ewi.pdf)
+*
+* I'll probably read these after I implement mine to look for improvements
+*
+*
+* Builtin Datatypes
+*   Arrays
+*   Functions?
+* Custom types? Lists? Filters?
+*
+*
+* implementation
+* Here is my wip implementation of Go Fish
+*
+* Setup,
+*   2-5 players
+*   cards [23456789JQKA][HDCS]
+*
+* ZoneTemplates,
+*   AllCards   [Globally owned, Shuffled, Private, 52 capacity]
+*   PlayerDeck [Player owned, Unordered, Private, No capacity]
+*
+* PlayerZones
+*   deck = PlayerDeck
+*
+* WinConditions {
+*   @player {
+*       pdeck(
+*   }
+* }
+*
+* Contexts
+* GoFishTurn = @player {
+*   rank = ActionSelectRank(suites ( zones (@player, "deck") ) )
+*   next = selectPlayer(Modulo(1))
+*
+*   if (zones (@player, "deck") )
+*
+* }
+*
+*
 */
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 enum RulesetMode {
     Sequential,
     // TODO: Add simultaneous for something like rummy, but I haven't worked out requirements
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 enum Instruction {
-    NewZone { id: ZoneId },
-    //DefineZone { zone: ZoneTemplate },
     SetMode { mode: RulesetMode },
-    EnterCheckpoint,
-    ExitCheckpoint,
+    Block(Block),
+
     Equal,
     Return,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+enum Conditional {}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Block {
+    block_type: BlockType,
+    instructions: Vec<Instruction>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+enum Value {
+    Number,
+    Zone,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+enum BlockType {
+    Checkpoint,
+    Context,
+    Conditional,
 }
 
 enum PlayerSpecifier {}

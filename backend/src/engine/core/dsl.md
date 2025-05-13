@@ -1,3 +1,5 @@
+# Notes on design
+
   ruleset implementation goals:
     Go Fish
     Poker
@@ -75,14 +77,7 @@ onditions: Win, Tie, Draw, Abort
 
 ontinuation - Exits: Can the game continue if a player leaves?
 
-
-
-
-
-
-Card DSL
-
-
+## Card DSL AST Notes
 
 Variables: During set up and other phases variables get initialized
 Template Variables: Zone Template defines types, the interpreter will ask for a zone ID when
@@ -167,6 +162,51 @@ GoFishTurn = @player {
 
 }
 
-# Handling Variables
+## Handling Variables
 
 Only store type information, the runner will initialize these later
+
+
+# Concrete implementation
+
+Typed language that revolves around the concept of Zones
+
+# Exposed Datatypes
+
+Number - Signed 32 bit integer
+Rank - One of 13 ranks
+Suit - One of 4 suites
+ZoneRef - Reference to a Zone
+PlayerRef - Reference to a Player
+
+## Declaring
+
+let $ar : ; -> DSLVariable(
+
+Number: i32 = <s:r"[0-9]+"> => i32::from_str(s).unwrap();
+
+# Internal Datatypes
+
+A ruleset runtime is composed of a Card Set and multiple Zones
+## Runtime
+### Cardset
+
+# Guards
+Causes interpreter to log Actions, prevents other contexts from being entered (for asynchronous games like Rummy this forces players to wait)
+
+# Game loop
+
+At any stage, set up a list of contexts (List of actions + handler) and assign them to players
+
+Player sends over their actions, server blocks other contexts and executes associated context
+
+Repeat
+
+# Actions
+
+## Basic action
+
+Select from [List]
+Select from [Zone] 
+
+Transfer from [Zone] to [Zone] (Guarded, undo)

@@ -7,6 +7,9 @@ edition = "2024"
 name = "engine"
 path = "src/engine/bin/main.rs"
 
+[build-dependencies]
+lalrpop = "0.22.1"
+
 [dependencies]
 
 uuid = { version = "1.16.0", features = ["v1", "serde"] }
@@ -25,3 +28,5 @@ env-file-reader = "0.3.0"
 
 sqlx = { version = "0.8", features = [ "runtime-tokio-native-tls", "postgres", "uuid", "time" ] }
 
+
+lalrpop-util = { version = "0.21.0", features = ["lexer", "unicode"] }

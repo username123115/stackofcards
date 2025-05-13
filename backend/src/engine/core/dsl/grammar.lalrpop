@@ -1,0 +1,68 @@
+use std::str::FromStr;
+use crate::engine::core::dsl::ast::{
+    DSLTypeInstance, PlayerInstanceId, VariableDeclaration, ZoneInstanceId,
+};
+
+use crate::engine::core::cards::{Rank, Suit};
+
+grammar;
+
+match {
+    "let",
+    ":",
+    "=",
+    ";",
+	"(",
+	")",
+    "Number", "Rank", "Suit", "ZoneRef", "PlayerRef",
+    // Rank Literals
+    "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King",
+    // Suit Literals
+    "Hearts", "Diamonds", "Clubs", "Spades",
+    // Other terminals
+    r"[a-zA-Z_][a-zA-Z0-9_]*" => Identifier, // Variable names
+    r"-?\d+" => NumberString,                // Integer literals
+    r#""([^"\\]|\\.)*""# => StringLiteral,     // String literals
+    r"\s*" => { },
+}
+
+NumberLiteral: i32 = NumberString => i32::from_str(<>).unwrap_or(0);
+IdentifierString: String = Identifier => String::from(<>);
+
+
+SuitLiteral : Suit = {
+	"Hearts" => Suit::Hearts,
+	"Diamonds" => Suit::Diamonds,
+	"Clubs" => Suit::Clubs,
+	"Spades" => Suit::Spades,
+};
+
+RankLiteral : Rank = {
+	"Ace" => Rank::Ace,
+	"Two" => Rank::Two,
+	"Three" => Rank::Three,
+	"Four" => Rank::Four,
+	"Five" => Rank::Five,
+	"Six" => Rank::Six,
+	"Seven" => Rank::Seven,
+	"Eight" => Rank::Eight,
+	"Nine" => Rank::Nine,
+	"Ten" => Rank::Ten,
+	"Jack" => Rank::Jack,
+};
+
+// let var < : type = value > ;
+
+TypeInitializer : DSLTypeInstance = {
+	"Number" <init : ("=" <NumberLiteral>)? >=> DSLTypeInstance::Number(init),
+	"Rank" <init : ("=" <RankLiteral>)?> => DSLTypeInstance::Rank(init),
+	"Suit" <init : ("=" <SuitLiteral>)?> => DSLTypeInstance::Suit(init),
+}
+
+pub VariableDecl: VariableDeclaration = {
+	"let" <name:IdentifierString> ":" <value : TypeInitializer> ";" => VariableDeclaration {
+		name: name,
+		value: value,
+	}
+}
+

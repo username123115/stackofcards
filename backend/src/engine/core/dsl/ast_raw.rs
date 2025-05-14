@@ -25,6 +25,15 @@ pub struct BinOp {
     pub op: BinOps,
 }
 
+pub fn new_binop(a: Expression, op: BinOps, b: Expression) -> Expression {
+    let body = BinOp {
+        a: Box::new(a),
+        b: Box::new(b),
+        op,
+    };
+    Expression::BinOp(body)
+}
+
 pub enum BinOps {
     GreaterThan,
     GreaterEqual,
@@ -39,6 +48,7 @@ pub enum BinOps {
 // let name : type = expression
 pub struct VarDecl {
     pub var_type: TypeID,
+    pub var_name: VarID,
     pub value: Option<Expression>,
 }
 

@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 // Glob imports? What's that?
 use crate::engine::core::dsl::ast_raw::{
-	VarID, TypeID, Immediate, Literal, Expression, BinOp, BinOps, VarDecl, Statement, Conditional, Place, Assign, Block, BlockType,
+	VarID, TypeID, Immediate, Literal, Expression, BinOp, BinOps, VarDecl, Statement, Conditional, Place, Assign, Block, BlockType, new_binop,
 	};
 
 grammar;
@@ -11,6 +11,11 @@ match {
     "let",
     ":",
     "=",
+	"==",
+	"<",
+	"<=",
+	">",
+	">=",
     ";",
 	"(",
 	")",
@@ -91,6 +96,30 @@ pub Literal : Literal = {
 	PlayerLiteral => <>,
 }
 
-pub Factor : BinOps = {
-	"*" => BinOps::Multiply,
+pub Expression : Expression = CompExpr;
+
+CompExpr: Expression = {
+	<l:CompExpr> "==" <r:AddiExpr> => new_binop(l, BinOps::Equal, r),
+	<l:CompExpr> ">" <r:AddiExpr> => new_binop(l, BinOps::GreaterThan, r),
+	<l:CompExpr> ">=" <r:AddiExpr> => new_binop(l, BinOps::GreaterEqual, r),
+	<l:CompExpr> "<" <r:AddiExpr> => new_binop(l, BinOps::LesserThan, r),
+	<l:CompExpr> "<=" <r:AddiExpr> => new_binop(l, BinOps::LesserEqual, r),
+	AddiExpr,
 }
+
+AddiExpr : Expression = {
+	<l:AddiExpr> "+" <r:MultExpr> => new_binop(l, BinOps::Add, r),
+	<l:AddiExpr> "-" <r:MultExpr> => new_binop(l, BinOps::Subtract, r),
+	MultExpr,
+}
+
+MultExpr : Expression = {
+	<l:MultExpr> "*" <r:AtomExpr> => new_binop(l, BinOps::Multiply, r),
+	AtomExpr,
+}
+
+pub AtomExpr : Expression = {
+	Literal => Expression::Imm(<>),
+	Identifier => Expression::Var(VarID::from(<>)),
+}
+

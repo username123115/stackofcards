@@ -1,3 +1,4 @@
+/*
 #[cfg(test)]
 use crate::grammar::VariableDeclParser;
 
@@ -46,3 +47,4 @@ pub fn declare_variables() {
 
     */
 }
+*/

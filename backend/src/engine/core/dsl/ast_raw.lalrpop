@@ -1,0 +1,96 @@
+use std::str::FromStr;
+
+// Glob imports? What's that?
+use crate::engine::core::dsl::ast_raw::{
+	VarID, TypeID, Immediate, Literal, Expression, BinOp, BinOps, VarDecl, Statement, Conditional, Place, Assign, Block, BlockType,
+	};
+
+grammar;
+
+match {
+    "let",
+    ":",
+    "=",
+    ";",
+	"(",
+	")",
+	"#",
+	"`",
+	"*",
+	"-",
+	"+",
+	"true",
+	"false",
+    "Number", "Rank", "Suit", "Zone", "Player",
+    // Rank Literals
+    "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King",
+    // Suit Literals
+    "Hearts", "Diamonds", "Clubs", "Spades",
+    // Other terminals
+    r"[a-zA-Z_][a-zA-Z0-9_]*" => Identifier, // Variable names
+    r"-?\d+" => NumberString,                // Integer literals
+    r#""([^"\\]|\\.)*""# => StringLiteral,     // String literals
+	
+    r"\s*" => { },
+}
+
+
+
+RankString: &'input str = {
+    "Ace",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Jack",
+    "Queen",
+    "King",
+};
+
+SuitString: &'input str = {
+	"Hearts",
+	"Diamonds",
+	"Clubs",
+	"Spades",
+}
+
+pub NumberLiteral : Literal = NumberString => Literal::Number(String::from(<>));
+
+pub RankLiteral : Literal = {
+	<s:RankString> => Literal::RankLiteral(String::from(s)),
+}
+
+pub SuitLiteral : Literal = {
+	<s:SuitString> => Literal::SuitLiteral(String::from(s)),
+}
+
+pub BooleanLiteral : Literal = {
+	"true" => Literal::BooleanLiteral(String::from(<>)),
+	"false" => Literal::BooleanLiteral(String::from(<>)),
+}
+
+pub ZoneLiteral : Literal = {
+	"#" <s:Identifier> "#" => Literal::ZoneLiteral(String::from(<>)),
+}
+
+pub PlayerLiteral : Literal = {
+	"`" <s:Identifier> "`" => Literal::PlayerLiteral(String::from(<>)),
+}
+
+pub Literal : Literal = {
+	NumberLiteral => <>,
+	RankLiteral => <>,
+	SuitLiteral => <>,
+	BooleanLiteral => <>,
+	ZoneLiteral => <>,
+	PlayerLiteral => <>,
+}
+
+pub Factor : BinOps = {
+	"*" => BinOps::Multiply,
+}

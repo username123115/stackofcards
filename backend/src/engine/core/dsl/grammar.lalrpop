@@ -43,7 +43,7 @@ SuitLiteral : Suit = {
 };
 
 
-RankLiteral : Rank = {
+pub RankLiteral : Rank = {
 	"Ace" => Rank::Ace,
 	"Two" => Rank::Two,
 	"Three" => Rank::Three,
@@ -57,6 +57,7 @@ RankLiteral : Rank = {
 	"Jack" => Rank::Jack,
 };
 
+/*
 Value : DSLValue = {
 	IdentifierString => DSLValue::Var(<>),
 	NumberLiteral => DSLValue::Imm(DSLTypeInstance::Number(Some(<>))),
@@ -77,6 +78,7 @@ TypeInitializer : DSLTypeInstance = {
 	"Player" <init : ("=" <PlayerLiteral>)?> => DSLTypeInstance::PlayerRef(init),
 }
 
+// Value is a potential problem 
 pub VariableDecl: Statement = {
 	"let" <name:IdentifierString> ":" <value : TypeInitializer> ";" => Statement::Declare {
 		id: name,
@@ -86,3 +88,4 @@ pub VariableDecl: Statement = {
 
 Assignment : Statement = <dst:IdentifierString> "=" <src:Value> ";" => Statement::Assign { src, dst };
 
+*/

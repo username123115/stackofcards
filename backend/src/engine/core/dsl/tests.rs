@@ -36,4 +36,13 @@ pub fn declare_variables() {
     assert!(VariableDeclParser::new().parse("let x : Rank;").is_ok());
     assert!(VariableDeclParser::new().parse("let x : Zone;").is_ok());
     assert!(VariableDeclParser::new().parse("let x : Player;").is_ok());
+
+    /*
+    Blocks
+    {
+        let x : Number = 3;
+        let m : Suit = 8;
+    }
+
+    */
 }

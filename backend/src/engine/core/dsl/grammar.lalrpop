@@ -42,7 +42,10 @@ SuitLiteral : Suit = {
 	"Spades" => Suit::Spades,
 };
 
-Value : DSLValue = IdentifierString => DSLValue::Var(<>);
+Value : DSLValue = {
+	IdentifierString => DSLValue::Var(<>),
+	NumberLiteral => DSLValue::Imm(DSLTypeInstance::Number(Some(<>))),
+};
 
 RankLiteral : Rank = {
 	"Ace" => Rank::Ace,

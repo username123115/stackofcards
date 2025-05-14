@@ -210,3 +210,12 @@ Select from [List]
 Select from [Zone] 
 
 Transfer from [Zone] to [Zone] (Guarded, undo)
+
+
+# Progress
+
+## 5/13
+
+Have been scratching my head around how I should call built in functions, maybe due to lack of language features implemented
+
+Going to focus on getting blocks, expressions, and conditionals solidified before I think about these built ins again

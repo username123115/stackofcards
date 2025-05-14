@@ -1,8 +1,16 @@
-### BUILTIN OBECTS
+### stdlib
 
-Context: Exposes current game information
-let player : Player;
+objects {
+	obj Context {
+		//potentially put Builtin functions in these objects
 
+		}
+
+	obj Action {
+		
+	}
+
+}
 
 ###
 

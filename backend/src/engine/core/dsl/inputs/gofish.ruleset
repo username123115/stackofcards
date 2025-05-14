@@ -1,0 +1,27 @@
+### BUILTIN OBECTS
+
+Context: Exposes current game information
+let player : Player;
+
+
+###
+
+let allowedSuits : Container[Suit];
+
+allowedSuits.add([Hearts, Diamonds, Clubs, Spades])
+let allowedRanks : Container[Ranks] = [Two, Three, Four, Five, Six, Seven, Eight, Nine, Jack, Queen, King, Ace]
+
+
+fn playerTurn(p : Context) {
+  let current_deck : Zone = p.player.getZone(#deck#);
+  let ranks : Container[Suit] = current_deck.contents.ranks;
+
+  let target : Rank = p.action.choice(ranks, "Request a rank from next player")
+
+  let next : Player = p.nextplayer();
+  let next_deck : Zone = next.getZone(#deck#);
+
+  if (target in next_deck.suits) {
+    next_deck.transfer(
+  }
+}

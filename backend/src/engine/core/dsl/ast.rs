@@ -133,5 +133,17 @@ pub mod tests {
                 .parse("let myRank : Rank = Ace;")
                 .is_ok()
         );
+
+        assert!(
+            VariableDeclParser::new()
+                .parse("let deck : Zone = #deck#;")
+                .is_ok()
+        );
+
+        assert!(
+            VariableDeclParser::new()
+                .parse("let player0 : Player = `soc_player_0`;")
+                .is_ok()
+        );
     }
 }

@@ -1,6 +1,6 @@
 use std::str::FromStr;
 use crate::engine::core::dsl::ast::{
-    DSLTypeInstance, PlayerInstanceId, VariableDeclaration, ZoneInstanceId,
+    DSLTypeInstance, PlayerInstanceId, VariableDeclaration, ZoneInstanceId, DSLValue,
 };
 
 use crate::engine::core::cards::{Rank, Suit};
@@ -14,7 +14,9 @@ match {
     ";",
 	"(",
 	")",
-    "Number", "Rank", "Suit", "ZoneRef", "PlayerRef",
+	"#",
+	"`",
+    "Number", "Rank", "Suit", "Zone", "Player",
     // Rank Literals
     "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King",
     // Suit Literals
@@ -23,12 +25,15 @@ match {
     r"[a-zA-Z_][a-zA-Z0-9_]*" => Identifier, // Variable names
     r"-?\d+" => NumberString,                // Integer literals
     r#""([^"\\]|\\.)*""# => StringLiteral,     // String literals
+	
     r"\s*" => { },
 }
 
 NumberLiteral: i32 = NumberString => i32::from_str(<>).unwrap_or(0);
 IdentifierString: String = Identifier => String::from(<>);
 
+ZoneLiteral: String = "#" <s:Identifier> "#" => String::from(s);
+PlayerLiteral: String = "`" <s:Identifier> "`" => String::from(s);
 
 SuitLiteral : Suit = {
 	"Hearts" => Suit::Hearts,
@@ -36,6 +41,8 @@ SuitLiteral : Suit = {
 	"Clubs" => Suit::Clubs,
 	"Spades" => Suit::Spades,
 };
+
+Value : DSLValue = IdentifierString => DSLValue::Var(<>);
 
 RankLiteral : Rank = {
 	"Ace" => Rank::Ace,
@@ -57,6 +64,8 @@ TypeInitializer : DSLTypeInstance = {
 	"Number" <init : ("=" <NumberLiteral>)? >=> DSLTypeInstance::Number(init),
 	"Rank" <init : ("=" <RankLiteral>)?> => DSLTypeInstance::Rank(init),
 	"Suit" <init : ("=" <SuitLiteral>)?> => DSLTypeInstance::Suit(init),
+	"Zone" <init : ("=" <ZoneLiteral>)?> => DSLTypeInstance::ZoneRef(init),
+	"Player" <init : ("=" <PlayerLiteral>)?> => DSLTypeInstance::PlayerRef(init),
 }
 
 pub VariableDecl: VariableDeclaration = {

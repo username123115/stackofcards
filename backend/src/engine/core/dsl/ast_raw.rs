@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
 pub type VarID = String;
 pub type TypeID = String;
 
 pub type Immediate = Literal;
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Literal {
     Number(String),
     StringLiteral(String),
@@ -13,12 +15,14 @@ pub enum Literal {
     RankLiteral(String),
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Expression {
     BinOp(BinOp),
     Imm(Immediate),
     Var(VarID),
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BinOp {
     pub a: Box<Expression>,
     pub b: Box<Expression>,
@@ -34,6 +38,7 @@ pub fn new_binop(a: Expression, op: BinOps, b: Expression) -> Expression {
     Expression::BinOp(body)
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum BinOps {
     GreaterThan,
     GreaterEqual,
@@ -46,12 +51,14 @@ pub enum BinOps {
 }
 
 // let name : type = expression
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VarDecl {
     pub var_type: TypeID,
     pub var_name: VarID,
     pub value: Option<Expression>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Statement {
     Block(Block),
     Decl(VarDecl),
@@ -60,26 +67,31 @@ pub enum Statement {
     Return,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Conditional {
     pub condition: Expression,
     pub exec_if: Block,
     pub exec_else: Option<Block>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Place {
     Var(VarID),
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Assign {
     pub from: Expression,
     pub to: Place,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Block {
     pub block_type: BlockType,
     pub instructions: Vec<Statement>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum BlockType {
     Normal,
     Checkpoint,

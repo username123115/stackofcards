@@ -102,7 +102,7 @@ pub enum BlockType {
 pub mod tests {
     use crate::ast_raw::{
         BooleanLiteralParser, ExpressionParser, LiteralParser, NumberLiteralParser,
-        RankLiteralParser, SuitLiteralParser,
+        RankLiteralParser, StatementListParser, SuitLiteralParser,
     };
 
     //TODO: Surely this construction can be automated
@@ -148,5 +148,32 @@ pub mod tests {
                 .parse("variable + other > Card")
                 .is_ok()
         );
+    }
+
+    #[test]
+    pub fn statement_list() {
+        //assert!(StatementListParser::new().parse("") allow or not allow
+        assert!(StatementListParser::new().parse("myVar = 10;").is_ok());
+        assert!(
+            StatementListParser::new()
+                .parse("let x : N = 1; y = 2; if z > 0 { z = z - 1; };")
+                .is_ok()
+        ); // Multiple statements
+        assert!(
+            StatementListParser::new()
+                .parse("let a : N; { a = 1; }; a = 2; if a == 2 {};")
+                .is_ok()
+        ); // Mix of statement types
+
+        assert!(
+            StatementListParser::new()
+                .parse("myVar = 10; otherVar = 20")
+                .is_err()
+        ); // Missing semicolon
+        assert!(
+            StatementListParser::new()
+                .parse("myVar = 10 extra; otherVar = 20;")
+                .is_err()
+        ); // Invalid statement in list
     }
 }

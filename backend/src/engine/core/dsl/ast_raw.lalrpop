@@ -2,7 +2,21 @@ use std::str::FromStr;
 
 // Glob imports? What's that?
 use crate::engine::core::dsl::ast_raw::{
-	VarID, TypeID, Immediate, Literal, Expression, BinOp, BinOps, VarDecl, Statement, Conditional, Place, Assign, Block, BlockType, new_binop,
+	VarID,
+	TypeID,
+	Immediate,
+	Literal,
+	Expression,
+	BinOp,
+	BinOps,
+	VarDecl,
+	Statement,
+	Conditional,
+	Place,
+	Assign,
+	Block,
+	BlockType,
+	new_binop,
 	};
 
 grammar;

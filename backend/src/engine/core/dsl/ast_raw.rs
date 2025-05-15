@@ -100,7 +100,10 @@ pub enum BlockType {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::ast_raw::{NumberLiteralParser, RankLiteralParser, SuitLiteralParser};
+    use crate::ast_raw::{
+        BooleanLiteralParser, ExpressionParser, LiteralParser, NumberLiteralParser,
+        RankLiteralParser, SuitLiteralParser,
+    };
 
     //TODO: Surely this construction can be automated
     #[test]
@@ -122,5 +125,28 @@ pub mod tests {
         assert!(NumberLiteralParser::new().parse("-324").is_ok());
         assert!(NumberLiteralParser::new().parse("0").is_ok());
         assert!(NumberLiteralParser::new().parse("51x191").is_err());
+    }
+
+    #[test]
+    pub fn bool_literal() {
+        assert!(BooleanLiteralParser::new().parse("true").is_ok());
+        assert!(BooleanLiteralParser::new().parse("false").is_ok());
+    }
+
+    pub fn zone_literal() {
+        assert!(LiteralParser::new().parse("#deck#").is_ok());
+        assert!(LiteralParser::new().parse("#discardPile#").is_ok());
+    }
+
+    #[test]
+    pub fn expression() {
+        assert!(ExpressionParser::new().parse("variable").is_ok());
+        assert!(ExpressionParser::new().parse("Hearts").is_ok());
+
+        assert!(
+            ExpressionParser::new()
+                .parse("variable + other > Card")
+                .is_ok()
+        );
     }
 }

@@ -131,6 +131,7 @@ pub Statement : Statement = {
 	<b:Block> ";" => Statement::Block(b),
 	VarDecl => Statement::Decl(<>),
 	Assign => Statement::Assign(<>),
+	Conditional => Statement::Conditional(<>),
 }
 
 pub VarDecl : VarDecl = {

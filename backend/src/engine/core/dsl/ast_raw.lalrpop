@@ -158,8 +158,8 @@ pub Block : Block = {
 }
 
 pub StatementList : Vec<Statement> = {
+
 	Statement => Vec::from([<>]),
-	// TODO: This is ~~probably~~ very idiotic
-	<l : StatementList> <s : Statement> => {let mut n = l.clone(); n.push(s); n},
+	<l : StatementList> <s : Statement> => {let mut vec = l; vec.push(s); vec},
 }
 

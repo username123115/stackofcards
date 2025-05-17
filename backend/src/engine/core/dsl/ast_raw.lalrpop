@@ -1,6 +1,5 @@
 use std::str::FromStr;
 
-// Glob imports? What's that?
 use crate::engine::core::dsl::ast_raw::{
 	VarID,
 	TypeID,
@@ -10,6 +9,8 @@ use crate::engine::core::dsl::ast_raw::{
 	BinOp,
 	BinOps,
 	VarDecl,
+	FuncDecl,
+	FuncParam,
 	Statement,
 	Conditional,
 	Place,
@@ -28,6 +29,8 @@ match {
     ":",
     "=",
 	"==",
+	"->",
+	"fn",
 	"<",
 	"<=",
 	">",
@@ -42,6 +45,7 @@ match {
 	"*",
 	"-",
 	"+",
+	",",
 	"true",
 	"false",
 	"return",
@@ -151,10 +155,37 @@ pub Statement : Statement = {
 	"return" ";" => Statement::Return,
 }
 
-pub VarDecl : VarDecl = {
-	"let" <i:Identifier> ":" <t:Identifier> <init : ("=" <Expression>)?> ";" => VarDecl { var_type: TypeID::from(t), var_name : VarID::from(i), value : init },
-
+DeclType : TypeID = {
+	":" <t:Identifier> => TypeID::from(t),
 }
+
+DeclValue : Expression = {
+	"=" <e: Expression> => e,
+}
+
+pub VarDecl : VarDecl = {
+	"let" <i:Identifier> <t:DeclType?> <init : DeclValue?> ";" => VarDecl { var_type: t, var_name : VarID::from(i), value : init },
+}
+
+pub FuncParam : FuncParam = {
+	<i:Identifier> <t:DeclType> <init: DeclValue?> => FuncParam {var_type : TypeID::from(t), var_name : VarID::from(i), value : init},
+}
+
+pub FuncParamList : Vec<FuncParam> = {
+	FuncParam => Vec::from([<>]),
+	<l: FuncParamList> "," <f: FuncParam> => { let mut vec = l; vec.push(f); vec},
+}
+
+pub FuncReturn : TypeID = {
+	"->" <t: Identifier> => {TypeID::from(t)},
+}
+
+pub FuncDecl : FuncDecl = {
+	"fn" <name: Identifier> "(" <params: FuncParamList?>  ")" <ret: FuncReturn?> <contents: Block> ";"=> {
+		FuncDecl { name : VarID::from(name), arguments : params.unwrap_or_else(|| Vec::new()), return_type : ret, body: contents }
+	},
+}
+
 
 pub Assign : Assign = {
 	<p:Place> "=" <e:Expression> ";" => Assign { from : e, to: p},

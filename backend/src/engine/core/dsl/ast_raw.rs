@@ -53,9 +53,24 @@ pub enum BinOps {
 // let name : type = expression
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VarDecl {
+    pub var_type: Option<TypeID>, // Infer types later on
+    pub var_name: VarID,
+    pub value: Option<Expression>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FuncParam {
     pub var_type: TypeID,
     pub var_name: VarID,
     pub value: Option<Expression>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FuncDecl {
+    pub name: VarID,
+    pub arguments: Vec<FuncParam>,
+    pub body: Block,
+    pub return_type: Option<TypeID>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -64,6 +79,7 @@ pub enum Statement {
     Decl(VarDecl),
     Assign(Assign),
     Conditional(Conditional),
+    FuncDecl(FuncDecl),
     Return,
 }
 
@@ -300,7 +316,7 @@ pub mod tests {
     }
 
     #[test]
-    pub fn test_conditional() {
+    pub fn conditional() {
         let parser = ConditionalParser::new();
 
         // Valid conditional statements
@@ -365,6 +381,96 @@ pub mod tests {
             parser,
             false,
             "Incorrectly parsed invalid conditional (missing trailing semicolon)"
+        );
+    }
+    #[test]
+    pub fn func_decl() {
+        use crate::ast_raw::FuncDeclParser;
+        let parser = FuncDeclParser::new();
+
+        // Valid function declarations
+        let input1 = "fn myFunc(param1 : Type1) -> ReturnType { let a = 24; return; };";
+        let input2 = "fn anotherFunc() -> bool { return; };"; // No parameters
+        let input3 = "fn thirdFunc(a : N, b : S) { a = b; };"; // Multiple parameters, no return type
+        let input4 = "fn emptyFunc() {};"; // Empty body
+        let input5 = "fn complexFunc(p1 : T1 = 1, p2 : T2 = false) -> T3 { if p1 > 0 { p2 = true; }; return; };"; // Params with default values, conditional in body
+
+        // Invalid function declarations
+        let input6 = "fn invalidFunc param1 : Type1) -> ReturnType { let a = 24; };"; // Missing opening parenthesis
+        let input7 = "fn invalidFunc(param1 : Type1 -> ReturnType { let a = 24; };"; // Missing closing parenthesis
+        let input8 = "fn invalidFunc(param1) -> ReturnType { let a = 24; };"; // Missing parameter type
+        let input9 = "fn invalidFunc(param1 : Type1) -> { let a = 24; };"; // Missing return type name
+        let input10 = "fn invalidFunc(param1 : Type1) -> ReturnType let a = 24; };"; // Missing body braces
+        let input11 = "fn invalidFunc(param1 : Type1) -> ReturnType { let a = 24; }"; // Missing trailing semicolon
+        let input12 = "invalidFunc(param1 : Type1) -> ReturnType { let a = 24; };"; // Missing 'fn' keyword
+
+        assert_parse_result!(input1, parser, true, "Failed to parse valid func decl 1");
+        assert_parse_result!(
+            input2,
+            parser,
+            true,
+            "Failed to parse valid func decl 2 (no params)"
+        );
+        assert_parse_result!(
+            input3,
+            parser,
+            true,
+            "Failed to parse valid func decl 3 (multiple params, no return)"
+        );
+        assert_parse_result!(
+            input4,
+            parser,
+            true,
+            "Failed to parse valid func decl 4 (empty body)"
+        );
+        assert_parse_result!(
+            input5,
+            parser,
+            true,
+            "Failed to parse valid func decl 5 (params with defaults)"
+        );
+
+        assert_parse_result!(
+            input6,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 6 (missing '(')"
+        );
+        assert_parse_result!(
+            input7,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 7 (missing ')'"
+        );
+        assert_parse_result!(
+            input8,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 8 (missing param type)"
+        );
+        assert_parse_result!(
+            input9,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 9 (missing return type name)"
+        );
+        assert_parse_result!(
+            input10,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 10 (missing body braces)"
+        );
+        assert_parse_result!(
+            input11,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 11 (missing trailing ';')"
+        );
+        assert_parse_result!(
+            input12,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 12 (missing 'fn')"
         );
     }
 }

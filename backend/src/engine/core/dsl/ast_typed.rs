@@ -11,6 +11,10 @@ pub type DSLVariableId = String;
 pub type StageId = String;
 pub type Tag = String;
 
+pub enum BuiltinType {
+    Number,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CardSet {
     pub suits: HashSet<cards::Suit>,

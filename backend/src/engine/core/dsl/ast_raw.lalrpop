@@ -138,6 +138,7 @@ MultExpr : Expression = {
 }
 
 pub AtomExpr : Expression = {
+	"(" <e:Expression> ")" => e,
 	Literal => Expression::Imm(<>),
 	Identifier => Expression::Var(VarID::from(<>)),
 }

@@ -248,9 +248,12 @@ pub mod tests {
             true,
             "Failed to parse arithmetic expression"
         );
-        // Note: The provided grammar doesn't explicitly handle parentheses in AtomExpr directly.
-        // This test might fail depending on how the grammar handles precedence without them.
-        // assert_parse_result!("(1 + 2) * 3", parser, true, "Failed to parse parenthesized expression");
+        assert_parse_result!(
+            "(1 + 2) * 3",
+            parser,
+            true,
+            "Failed to parse parenthesized expression"
+        );
         assert_parse_result!(
             "invalid + expression = ",
             parser,

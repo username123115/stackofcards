@@ -44,6 +44,7 @@ match {
 	"+",
 	"true",
 	"false",
+	"return",
     "Number", "Rank", "Suit", "Zone", "Player",
     // Rank Literals
     "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King",
@@ -146,6 +147,7 @@ pub Statement : Statement = {
 	VarDecl => Statement::Decl(<>),
 	Assign => Statement::Assign(<>),
 	Conditional => Statement::Conditional(<>),
+	"return" ";" => Statement::Return,
 }
 
 pub VarDecl : VarDecl = {
@@ -168,6 +170,11 @@ pub Conditional : Conditional = {
 
 pub Block : Block = {
 	"{" <l:StatementList> "}" => Block { block_type : BlockType::Normal, instructions : l},
+	"{" "}" => { 
+		let empty : Vec<Statement> = Vec::new();
+		Block { block_type : BlockType::Normal, instructions : empty }
+	},
+
 	
 }
 

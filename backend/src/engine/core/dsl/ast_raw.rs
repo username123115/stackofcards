@@ -132,7 +132,6 @@ pub mod tests {
         };
     }
 
-    //TODO: Surely this construction can be automated
     #[test]
     pub fn rank_literal() {
         let parser = RankLiteralParser::new();

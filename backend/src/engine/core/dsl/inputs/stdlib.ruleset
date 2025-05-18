@@ -1,0 +1,59 @@
+mod std {
+	obj CardSet {
+		suites : Suite[],
+		ranks : Rank[],
+	}
+
+	enum ZoneOwner {
+		Player,
+		Game,
+	}
+
+	impl Array<T> {
+		
+		fn filter(self : array[T], filter_function : (T) -> Boolean) {
+			let n = [];
+
+		},
+	}
+
+	obj ZoneInstance {
+		identifier : Zone,
+		fn getCards() -> Card[] {
+			return @zone_contents(identifier);
+		},
+		fn addCard(card : Card) {
+			@add_to_zone(suite = card.suite, rank = card.rank);
+		},
+		fn pickCard(card : Card) -> Card {
+			@pick_from_zone(suite = card.suite, rank = card.rank);
+
+		}
+	}
+
+	fn TransferZone(transfer  : Card, from : ZoneInstance, to : ZoneInstance) {
+		let card = 
+	}
+
+
+
+	obj ZoneDecl {
+		name: String,
+
+	}
+
+	obj ZoneObj {
+		decl: ZoneDecl,
+		
+	}
+
+	fn fromZone(z : Zone) -> 
+
+	obj Game {
+		allowedCards : CardSet[]
+	}
+
+	fn startGame(game : Game) {
+		@start(
+	}
+};

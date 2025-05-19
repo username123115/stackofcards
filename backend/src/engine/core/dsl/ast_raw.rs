@@ -9,11 +9,7 @@ pub struct Place {
     pub location: Vec<VarID>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum TypeSpecifier {
-    Concrete(TypeIdentifier),
-    Generic(TypeIdentifier),
-}
+pub type GenericList = Option<Vec<String>>;
 
 // Either a generic, object, or built in type
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -30,14 +26,14 @@ pub enum TypeModifier {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ObjectProperty {
-    object_type: TypeSpecifier,
+    object_type: TypeIdentifier,
     name: VarID,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ObjectDecl {
     name: VarID,
-    generics: Vec<TypeID>,
+    generics: GenericList,
     properties: Vec<ObjectProperty>,
     methods: Vec<FuncDecl>,
 }

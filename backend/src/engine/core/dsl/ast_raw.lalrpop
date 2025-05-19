@@ -16,6 +16,7 @@ use crate::engine::core::dsl::ast_raw::{
 	Place,
 	Assign,
 	Block,
+	GenericList,
 	new_binop,
 	};
 
@@ -214,8 +215,8 @@ pub StatementList : Vec<Statement> = {
 	<l : StatementList> <s : Statement> => {let mut vec = l; vec.push(s); vec},
 }
 
-pub GenericList : Vec<String> = {
-	"<" <l: InnerGenericList> ">" => l,
+pub GenericList : GenericList = {
+	<gl: ("<" <InnerGenericList> ">")?> => gl,
 }
 
 pub InnerGenericList : Vec<String> = {

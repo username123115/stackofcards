@@ -183,8 +183,8 @@ pub FuncReturn : TypeID = {
 }
 
 pub FuncDecl : FuncDecl = {
-	"fn" <name: Identifier> "(" <params: FuncParamList?>  ")" <ret: FuncReturn?> <contents: Block> ";"=> {
-		FuncDecl { name : VarID::from(name), arguments : params.unwrap_or_else(|| Vec::new()), return_type : ret, body: contents }
+	"fn" <name: Identifier> <generics: GenericList> "(" <params: FuncParamList?>  ")" <ret: FuncReturn?> <contents: Block> ";"=> {
+		FuncDecl { name : VarID::from(name), generics, arguments : params.unwrap_or_else(|| Vec::new()), return_type : ret, body: contents }
 	},
 }
 

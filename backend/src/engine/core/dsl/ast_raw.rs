@@ -103,6 +103,7 @@ pub struct FuncParam {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FuncDecl {
     pub name: VarID,
+    pub generics: GenericList,
     pub arguments: Vec<FuncParam>,
     pub body: Block,
     pub return_type: Option<TypeID>,
@@ -153,7 +154,8 @@ pub struct Block {
 pub mod tests {
     use crate::ast_raw::{
         BooleanLiteralParser, ConditionalParser, ExpressionParser, LiteralParser,
-        NumberLiteralParser, RankLiteralParser, StatementListParser, SuitLiteralParser,
+        NumberLiteralParser, PlaceParser, RankLiteralParser, StatementListParser,
+        SuitLiteralParser,
     };
 
     macro_rules! assert_parse_result {
@@ -274,6 +276,37 @@ pub mod tests {
             parser,
             false,
             "Incorrectly parsed malformed player"
+        );
+    }
+
+    #[test]
+    pub fn place() {
+        let parser = PlaceParser::new();
+        assert_parse_result!("myVar", parser, true, "Failed to parse simple variable");
+        assert_parse_result!(
+            "obj.property",
+            parser,
+            true,
+            "Failed to parse dotted property access"
+        );
+        assert_parse_result!(
+            "a.b.c.d",
+            parser,
+            true,
+            "Failed to parse multi-level dotted access"
+        );
+        // These next tests will fail until array indexing is implemented
+        assert_parse_result!(
+            "myArr[0]",
+            parser,
+            false,
+            "Incorrectly parsed array indexing"
+        );
+        assert_parse_result!(
+            "obj.list[idx]",
+            parser,
+            false,
+            "Incorrectly parsed dotted access with indexing"
         );
     }
 
@@ -423,21 +456,27 @@ pub mod tests {
         use crate::ast_raw::FuncDeclParser;
         let parser = FuncDeclParser::new();
 
-        // Valid function declarations
+        // Valid function declarations (including generics)
         let input1 = "fn myFunc(param1 : Type1) -> ReturnType { let a = 24; return; };";
         let input2 = "fn anotherFunc() -> bool { return; };"; // No parameters
         let input3 = "fn thirdFunc(a : N, b : S) { a = b; };"; // Multiple parameters, no return type
         let input4 = "fn emptyFunc() {};"; // Empty body
         let input5 = "fn complexFunc(p1 : T1 = 1, p2 : T2 = false) -> T3 { if p1 > 0 { p2 = true; }; return; };"; // Params with default values, conditional in body
+        let input6 = "fn genericFunc<T>(arg : T) {};"; // Function with one generic
+        let input7 = "fn multiGenericFunc<K, V>(key : K, value : V) -> bool { return; };"; // Function with multiple generics
+        let input8 = "fn funcWithGenericParamAndReturn<A, B>(a : A) -> B {};"; // Function with generic param and return
 
         // Invalid function declarations
-        let input6 = "fn invalidFunc param1 : Type1) -> ReturnType { let a = 24; };"; // Missing opening parenthesis
-        let input7 = "fn invalidFunc(param1 : Type1 -> ReturnType { let a = 24; };"; // Missing closing parenthesis
-        let input8 = "fn invalidFunc(param1) -> ReturnType { let a = 24; };"; // Missing parameter type
-        let input9 = "fn invalidFunc(param1 : Type1) -> { let a = 24; };"; // Missing return type name
-        let input10 = "fn invalidFunc(param1 : Type1) -> ReturnType let a = 24; };"; // Missing body braces
-        let input11 = "fn invalidFunc(param1 : Type1) -> ReturnType { let a = 24; }"; // Missing trailing semicolon
-        let input12 = "invalidFunc(param1 : Type1) -> ReturnType { let a = 24; };"; // Missing 'fn' keyword
+        let input9 = "fn invalidFunc param1 : Type1) -> ReturnType { let a = 24; };"; // Missing opening parenthesis
+        let input10 = "fn invalidFunc(param1 : Type1 -> ReturnType { let a = 24; };"; // Missing closing parenthesis
+        let input11 = "fn invalidFunc(param1) -> ReturnType { let a = 24; };"; // Missing parameter type
+        let input12 = "fn invalidFunc(param1 : Type1) -> { let a = 24; };"; // Missing return type name
+        let input13 = "fn invalidFunc(param1 : Type1) -> ReturnType let a = 24; };"; // Missing body braces
+        let input14 = "fn invalidFunc(param1 : Type1) -> ReturnType { let a = 24; }"; // Missing trailing semicolon
+        let input15 = "invalidFunc(param1 : Type1) -> ReturnType { let a = 24; };"; // Missing 'fn' keyword
+        let input16 = "fn invalidGenericFunc<T {};"; // Missing '>' in generic list
+        let input17 = "fn invalidGenericFunc<> {};"; // Empty generic list (usually disallowed by compilers, grammar might allow)
+        let input18 = "fn invalidGenericFunc<T,> {};"; // Trailing comma in generic list
 
         assert_parse_result!(input1, parser, true, "Failed to parse valid func decl 1");
         assert_parse_result!(
@@ -464,48 +503,84 @@ pub mod tests {
             true,
             "Failed to parse valid func decl 5 (params with defaults)"
         );
-
         assert_parse_result!(
             input6,
             parser,
-            false,
-            "Incorrectly parsed invalid func decl 6 (missing '(')"
+            true,
+            "Failed to parse valid func decl 6 (one generic)"
         );
         assert_parse_result!(
             input7,
             parser,
-            false,
-            "Incorrectly parsed invalid func decl 7 (missing ')'"
+            true,
+            "Failed to parse valid func decl 7 (multiple generics)"
         );
         assert_parse_result!(
             input8,
             parser,
-            false,
-            "Incorrectly parsed invalid func decl 8 (missing param type)"
+            true,
+            "Failed to parse valid func decl 8 (generic param and return)"
         );
+
         assert_parse_result!(
             input9,
             parser,
             false,
-            "Incorrectly parsed invalid func decl 9 (missing return type name)"
+            "Incorrectly parsed invalid func decl 9 (missing '(')"
         );
         assert_parse_result!(
             input10,
             parser,
             false,
-            "Incorrectly parsed invalid func decl 10 (missing body braces)"
+            "Incorrectly parsed invalid func decl 10 (missing ')'"
         );
         assert_parse_result!(
             input11,
             parser,
             false,
-            "Incorrectly parsed invalid func decl 11 (missing trailing ';')"
+            "Incorrectly parsed invalid func decl 11 (missing param type)"
         );
         assert_parse_result!(
             input12,
             parser,
             false,
-            "Incorrectly parsed invalid func decl 12 (missing 'fn')"
+            "Incorrectly parsed invalid func decl 12 (missing return type name)"
+        );
+        assert_parse_result!(
+            input13,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 13 (missing body braces)"
+        );
+        assert_parse_result!(
+            input14,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 14 (missing trailing ';')"
+        );
+        assert_parse_result!(
+            input15,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 15 (missing 'fn')"
+        );
+        assert_parse_result!(
+            input16,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 16 (missing '>')"
+        );
+        assert_parse_result!(
+            input17,
+            parser,
+            false,
+            "Incorrectly parsed invalid func decl 17 (empty generics <>)"
+        );
+        assert_parse_result!(
+            input18,
+            parser,
+            false, // Grammar should prevent trailing comma
+            "Incorrectly parsed invalid func decl 18 (trailing comma in generics)"
         );
     }
 }

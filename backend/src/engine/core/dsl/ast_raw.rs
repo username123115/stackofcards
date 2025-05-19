@@ -92,14 +92,14 @@ pub enum BinOps {
 // let name : type = expression
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VarDecl {
-    pub var_type: Option<TypeID>, // Infer types later on
+    pub var_type: Option<Place>, // Infer types later on
     pub var_name: VarID,
     pub value: Option<Expression>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FuncParam {
-    pub var_type: TypeID,
+    pub var_type: Place,
     pub var_name: VarID,
     pub value: Option<Expression>,
 }

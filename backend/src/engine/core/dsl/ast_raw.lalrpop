@@ -155,8 +155,8 @@ pub Statement : Statement = {
 	"return" ";" => Statement::Return,
 }
 
-DeclType : TypeID = {
-	":" <t:Identifier> => TypeID::from(t),
+DeclType : Place = {
+	":" <p:Place> => p,
 }
 
 DeclValue : Expression = {
@@ -164,17 +164,13 @@ DeclValue : Expression = {
 }
 
 pub VarDecl : VarDecl = {
-	"let" <i:Identifier> <t:DeclType?> <init : DeclValue?> ";" => VarDecl { var_type: t, var_name : VarID::from(i), value : init },
+	"let" <i:Identifier> <p:DeclType?> <init : DeclValue?> ";" => VarDecl { var_type: p, var_name : VarID::from(i), value : init },
 }
 
 pub FuncParam : FuncParam = {
-	<i:Identifier> <t:DeclType> <init: DeclValue?> => FuncParam {var_type : TypeID::from(t), var_name : VarID::from(i), value : init},
+	<name:Identifier> <t:DeclType> <init: DeclValue?> => FuncParam {var_type : t, var_name : VarID::from(name), value : init},
 }
 
-pub FuncParamList : Vec<FuncParam> = {
-	FuncParam => Vec::from([<>]),
-	<l: FuncParamList> "," <f: FuncParam> => { let mut vec = l; vec.push(f); vec},
-}
 
 pub FuncReturn : TypeID = {
 	"->" <t: Identifier> => {TypeID::from(t)},
@@ -212,10 +208,21 @@ pub IdentifierList : Vec<String> = {
 	<l: IdentifierList> "." <i: Identifier> => {let mut vec = l; vec.push(String::from(i)); vec},
 }
 
-
 pub StatementList : Vec<Statement> = {
 
 	Statement => Vec::from([<>]),
 	<l : StatementList> <s : Statement> => {let mut vec = l; vec.push(s); vec},
 }
 
+pub GenericList : Vec<String> = {
+	"<" <l: InnerGenericList> ">" => l,
+}
+
+pub InnerGenericList : Vec<String> = {
+	Identifier => Vec::from([String::from(<>)]),
+	<l: InnerGenericList> "," <g: Identifier> => {let mut vec = l; vec.push(String::from(g)); vec},
+}
+pub FuncParamList : Vec<FuncParam> = {
+	FuncParam => Vec::from([<>]),
+	<l: FuncParamList> "," <f: FuncParam> => { let mut vec = l; vec.push(f); vec},
+}

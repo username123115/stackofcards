@@ -22,20 +22,26 @@ pub struct TypeIdentifier {
 pub enum TypeModifier {
     Regular,
     Array,
+    Function,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ObjectProperty {
-    object_type: TypeIdentifier,
-    name: VarID,
+    pub object_type: TypeIdentifier,
+    pub name: VarID,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ObjectDecl {
-    name: VarID,
-    generics: GenericList,
-    properties: Vec<ObjectProperty>,
-    methods: Vec<FuncDecl>,
+    pub name: VarID,
+    pub generics: GenericList,
+    pub contents: ObjectDeclContents,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ObjectDeclContents {
+    pub properties: Vec<ObjectProperty>,
+    pub methods: Vec<FuncDecl>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -284,7 +290,7 @@ pub mod tests {
         let parser = PlaceParser::new();
         assert_parse_result!("myVar", parser, true, "Failed to parse simple variable");
         assert_parse_result!(
-            "obj.property",
+            "object.property",
             parser,
             true,
             "Failed to parse dotted property access"

@@ -18,6 +18,7 @@ use crate::engine::core::dsl::ast_raw::{
 	Block,
 	GenericList,
 	ObjectDecl,
+	ObjectDeclContents,
 	ObjectProperty,
 	TypeModifier,
 	TypeIdentifier,
@@ -28,6 +29,7 @@ grammar;
 
 match {
     "let",
+	"obj",
 	"if",
 	"else",
     ":",
@@ -204,6 +206,29 @@ pub Block : Block = {
 		Block { instructions : empty }
 	},
 }
+
+pub ObjectDecl : ObjectDecl = {
+	"obj" <name: Identifier> <gl: GenericList> <contents : ObjectDeclContents> ";" => ObjectDecl {name : VarID::from(name), generics : gl, contents : contents}
+}
+
+pub ObjectDeclContents : ObjectDeclContents = {
+	"{" <o:InnerObjectDecl> "}" ";" => o,
+	"{" "}" ";" => ObjectDeclContents { properties : Vec::new(), methods : Vec::new() },
+}
+
+pub ObjectProperty : ObjectProperty = {
+	<name: Identifier> ":" <t: TypeIdentifier> => ObjectProperty { object_type : t, name : VarID::from(name) },
+}
+
+InnerObjectDecl : ObjectDeclContents = {
+	ObjectProperty => ObjectDeclContents { properties : Vec::from([<>]), methods : Vec::new() },
+	FuncDecl => ObjectDeclContents { properties : Vec::new(), methods : Vec::from([<>]) },
+	<i: InnerObjectDecl> <o: ObjectProperty> => {let mut inner = i; inner.properties.push(o); inner },
+	<i: InnerObjectDecl> <f: FuncDecl> => {let mut inner = i; inner.methods.push(f); inner },
+}
+
+
+
 
 pub Place : Place = {
 	IdentifierList => Place { location : <> },

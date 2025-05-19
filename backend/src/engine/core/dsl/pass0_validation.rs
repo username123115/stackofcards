@@ -13,8 +13,15 @@
 * Type resolution:
 *   Resolve Literals to their types (Card -> BuiltinTypes::Card)
 *
+*
 * Place resolution:
 *   Do variables point to
+*
+*
+* Symbol table
+* Tree built alongside source tree: Begin at root node: Modules are nodes, each node has it's
+* position (e.g. ["card", "std", "node"]) than during access climb up these nodes)
+*
 */
 
 pub struct Declarations {}

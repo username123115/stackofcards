@@ -11,6 +11,8 @@ use crate::engine::core::dsl::ast_raw::{
 	VarDecl,
 	FuncDecl,
 	FuncParam,
+	FuncCall,
+	FuncArg,
 	Statement,
 	Conditional,
 	Place,
@@ -153,6 +155,7 @@ pub AtomExpr : Expression = {
 	"(" <e:Expression> ")" => e,
 	Literal => Expression::Imm(<>),
 	Place => Expression::Var(<>),
+	FuncCall => Expression::FuncCall(<>),
 }
 
 pub Statement : Statement = {
@@ -160,6 +163,7 @@ pub Statement : Statement = {
 	VarDecl => Statement::Decl(<>),
 	Assign => Statement::Assign(<>),
 	Conditional => Statement::Conditional(<>),
+	ObjectDecl => Statement::ObjectDecl(<>),
 	"return" ";" => Statement::Return,
 }
 
@@ -190,6 +194,14 @@ pub FuncDecl : FuncDecl = {
 	},
 }
 
+pub FuncArg : FuncArg = {
+	<param : Identifier> "=" <e : Expression> => FuncArg { param_name : Some(VarID::from(param)), value : e },
+	<Expression> => FuncArg { param_name : None, value : <> },
+}
+
+pub FuncCall : FuncCall =  {
+	<i : Identifier> "(" <args : FuncArgList? > ")" ";" => FuncCall { name : VarID::from(i), arguments : args.unwrap_or(Vec::new()) },
+}
 
 pub Assign : Assign = {
 	<p:Place> "=" <e:Expression> ";" => Assign { from : e, to: p},
@@ -227,9 +239,6 @@ InnerObjectDecl : ObjectDeclContents = {
 	<i: InnerObjectDecl> <f: FuncDecl> => {let mut inner = i; inner.methods.push(f); inner },
 }
 
-
-
-
 pub Place : Place = {
 	IdentifierList => Place { location : <> },
 }
@@ -261,4 +270,9 @@ pub InnerGenericList : Vec<String> = {
 pub FuncParamList : Vec<FuncParam> = {
 	FuncParam => Vec::from([<>]),
 	<l: FuncParamList> "," <f: FuncParam> => { let mut vec = l; vec.push(f); vec},
+}
+
+pub FuncArgList : Vec<FuncArg> = {
+	FuncArg => Vec::from([<>]),
+	<l: FuncArgList> "," <f: FuncArg> => { let mut vec = l; vec.push(f); vec},
 }

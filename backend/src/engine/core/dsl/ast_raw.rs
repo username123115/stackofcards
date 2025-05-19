@@ -60,7 +60,7 @@ pub enum Expression {
     BinOp(BinOp),
     Imm(Immediate),
     Var(Place),
-    Call(),
+    FuncCall(FuncCall),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -134,6 +134,7 @@ pub enum Statement {
     Assign(Assign),
     Conditional(Conditional),
     FuncDecl(FuncDecl),
+    ObjectDecl(ObjectDecl),
     Return,
 }
 

@@ -22,6 +22,8 @@
 * Tree built alongside source tree: Begin at root node: Modules are nodes, each node has it's
 * position (e.g. ["card", "std", "node"]) than during access climb up these nodes)
 *
+* During evaluation this tree builds differently as different parts of the language are entered
+*
 */
 
 pub struct Declarations {}

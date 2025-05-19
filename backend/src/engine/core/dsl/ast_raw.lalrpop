@@ -22,7 +22,6 @@ use crate::engine::core::dsl::ast_raw::{
 	ObjectDecl,
 	ObjectDeclContents,
 	ObjectProperty,
-	TypeModifier,
 	TypeIdentifier,
 	new_binop,
 	};
@@ -249,8 +248,9 @@ pub IdentifierList : Vec<String> = {
 }
 
 pub TypeIdentifier : TypeIdentifier = {
-	<p: Place> "[]" => TypeIdentifier { name : p, modifier : TypeModifier::Array },
-	<Place> => TypeIdentifier { name : <>, modifier : TypeModifier::Regular },
+	<p: Place> "[]" => TypeIdentifier::Array(p),
+	<Place> => TypeIdentifier::Regular(<>),
+
 }
 
 pub StatementList : Vec<Statement> = {

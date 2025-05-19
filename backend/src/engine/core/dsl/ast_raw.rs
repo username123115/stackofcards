@@ -11,18 +11,10 @@ pub struct Place {
 
 pub type GenericList = Option<Vec<String>>;
 
-// Either a generic, object, or built in type
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TypeIdentifier {
-    pub name: Place,
-    pub modifier: TypeModifier,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum TypeModifier {
-    Regular,
-    Array,
-    Function,
+pub enum TypeIdentifier {
+    Regular(Place),
+    Array(Place),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

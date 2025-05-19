@@ -17,6 +17,10 @@ use crate::engine::core::dsl::ast_raw::{
 	Assign,
 	Block,
 	GenericList,
+	ObjectDecl,
+	ObjectProperty,
+	TypeModifier,
+	TypeIdentifier,
 	new_binop,
 	};
 
@@ -47,6 +51,7 @@ match {
 	"+",
 	",",
 	".",
+	"[]",
 	"true",
 	"false",
 	"return",
@@ -207,6 +212,11 @@ pub Place : Place = {
 pub IdentifierList : Vec<String> = {
 	Identifier => Vec::from([String::from(<>)]),
 	<l: IdentifierList> "." <i: Identifier> => {let mut vec = l; vec.push(String::from(i)); vec},
+}
+
+pub TypeIdentifier : TypeIdentifier = {
+	<p: Place> "[]" => TypeIdentifier { name : p, modifier : TypeModifier::Array },
+	<Place> => TypeIdentifier { name : <>, modifier : TypeModifier::Regular },
 }
 
 pub StatementList : Vec<Statement> = {

@@ -161,8 +161,8 @@ pub Statement : Statement = {
 	"return" ";" => Statement::Return,
 }
 
-DeclType : Place = {
-	":" <p:Place> => p,
+DeclType : TypeIdentifier = {
+	":" <t:TypeIdentifier> => t,
 }
 
 DeclValue : Expression = {

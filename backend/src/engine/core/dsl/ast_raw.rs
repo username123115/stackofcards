@@ -5,6 +5,44 @@ pub type TypeID = String;
 pub type Immediate = Literal;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Place {
+    pub location: Vec<VarID>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum TypeSpecifier {
+    Concrete(TypeIdentifier),
+    Generic(TypeIdentifier),
+}
+
+// Either a generic, object, or built in type
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TypeIdentifier {
+    pub name: Place,
+    pub modifier: TypeModifier,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum TypeModifier {
+    Regular,
+    Array,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ObjectProperty {
+    object_type: TypeSpecifier,
+    name: VarID,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ObjectDecl {
+    name: VarID,
+    generics: Vec<TypeID>,
+    properties: Vec<ObjectProperty>,
+    methods: Vec<FuncDecl>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Literal {
     Number(String),
     StringLiteral(String),
@@ -19,7 +57,8 @@ pub enum Literal {
 pub enum Expression {
     BinOp(BinOp),
     Imm(Immediate),
-    Var(VarID),
+    Var(Place),
+    Call(),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -74,6 +113,18 @@ pub struct FuncDecl {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FuncCall {
+    pub name: VarID,
+    pub arguments: Vec<FuncArg>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FuncArg {
+    pub param_name: Option<VarID>,
+    pub value: Expression,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Statement {
     Block(Block),
     Decl(VarDecl),
@@ -91,27 +142,15 @@ pub struct Conditional {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum Place {
-    Var(VarID),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Assign {
     pub from: Expression,
     pub to: Place,
 }
 
+//TODO: Unlikely to need block types
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Block {
-    pub block_type: BlockType,
     pub instructions: Vec<Statement>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum BlockType {
-    Normal,
-    Checkpoint,
-    Context,
 }
 
 #[cfg(test)]

@@ -31,8 +31,11 @@ mod std {
 		}
 	}
 
-	fn TransferZone(transfer  : Card, from : ZoneInstance, to : ZoneInstance) {
-		let card = 
+	fn TransferZone(transfer : Card, from : ZoneInstance, to : ZoneInstance) {
+		// Guard tells the interpreter to undo changes if any of the below fail
+		@guard();
+		to.addCard(
+		@unguard();
 	}
 
 

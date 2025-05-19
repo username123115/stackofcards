@@ -16,7 +16,6 @@ use crate::engine::core::dsl::ast_raw::{
 	Place,
 	Assign,
 	Block,
-	BlockType,
 	new_binop,
 	};
 
@@ -46,6 +45,7 @@ match {
 	"-",
 	"+",
 	",",
+	".",
 	"true",
 	"false",
 	"return",
@@ -144,7 +144,7 @@ MultExpr : Expression = {
 pub AtomExpr : Expression = {
 	"(" <e:Expression> ")" => e,
 	Literal => Expression::Imm(<>),
-	Identifier => Expression::Var(VarID::from(<>)),
+	Place => Expression::Var(<>),
 }
 
 pub Statement : Statement = {
@@ -191,24 +191,27 @@ pub Assign : Assign = {
 	<p:Place> "=" <e:Expression> ";" => Assign { from : e, to: p},
 }
 
-
-pub Place : Place = {
-	<Identifier> => Place::Var(VarID::from(<>)),
-}
-
 pub Conditional : Conditional = {
 	"if" <e:Expression> <t:Block> <f : ("else" <Block>)?>";" => Conditional { condition : e, exec_if : t, exec_else : f },
 }
 
 pub Block : Block = {
-	"{" <l:StatementList> "}" => Block { block_type : BlockType::Normal, instructions : l},
+	"{" <l:StatementList> "}" => Block { instructions : l},
 	"{" "}" => { 
 		let empty : Vec<Statement> = Vec::new();
-		Block { block_type : BlockType::Normal, instructions : empty }
+		Block { instructions : empty }
 	},
-
-	
 }
+
+pub Place : Place = {
+	IdentifierList => Place { location : <> },
+}
+
+pub IdentifierList : Vec<String> = {
+	Identifier => Vec::from([String::from(<>)]),
+	<l: IdentifierList> "." <i: Identifier> => {let mut vec = l; vec.push(String::from(i)); vec},
+}
+
 
 pub StatementList : Vec<Statement> = {
 

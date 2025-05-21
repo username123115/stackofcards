@@ -13,6 +13,7 @@ use crate::engine::core::dsl::ast_raw::{
 	FuncParam,
 	FuncCall,
 	FuncArg,
+	FuncSignature,
 	Statement,
 	Conditional,
 	Place,
@@ -112,11 +113,11 @@ pub BooleanLiteral : Literal = {
 }
 
 pub ZoneLiteral : Literal = {
-	"#" <s:Identifier> "#" => Literal::ZoneLiteral(String::from(<>)),
+	"#" <s:IdentifierString> "#" => Literal::ZoneLiteral(<>),
 }
 
 pub PlayerLiteral : Literal = {
-	"`" <s:Identifier> "`" => Literal::PlayerLiteral(String::from(<>)),
+	"`" <s:IdentifierString> "`" => Literal::PlayerLiteral(<>),
 }
 
 pub Literal : Literal = {
@@ -175,31 +176,31 @@ DeclValue : Expression = {
 }
 
 pub VarDecl : VarDecl = {
-	"let" <i:Identifier> <p:DeclType?> <init : DeclValue?> ";" => VarDecl { var_type: p, var_name : VarID::from(i), value : init },
+	"let" <i:IdentifierString> <p:DeclType?> <init : DeclValue?> ";" => VarDecl { var_type: p, var_name : i, value : init },
 }
 
 pub FuncParam : FuncParam = {
-	<name:Identifier> <t:DeclType> <init: DeclValue?> => FuncParam {var_type : t, var_name : VarID::from(name), value : init},
+	<name:IdentifierString> <t:DeclType> <init: DeclValue?> => FuncParam {var_type : t, var_name : name, value : init},
 }
 
 
-pub FuncReturn : TypeID = {
-	"->" <t: Identifier> => {TypeID::from(t)},
+pub FuncReturn : TypeIdentifier = {
+	"->" <t: TypeIdentifier> => t,
 }
 
 pub FuncDecl : FuncDecl = {
-	"fn" <name: Identifier> <generics: GenericList> "(" <params: FuncParamList?>  ")" <ret: FuncReturn?> <contents: Block> ";"=> {
-		FuncDecl { name : VarID::from(name), generics, arguments : params.unwrap_or_else(|| Vec::new()), return_type : ret, body: contents }
+	"fn" <name: IdentifierString> <generics: GenericList> "(" <params: CommaList<FuncParam>?>  ")" <ret: FuncReturn?> <contents: Block> ";"=> {
+		FuncDecl { name, generics, arguments : params.unwrap_or_else(|| Vec::new()), return_type : ret, body: contents }
 	},
 }
 
 pub FuncArg : FuncArg = {
-	<param : Identifier> "=" <e : Expression> => FuncArg { param_name : Some(VarID::from(param)), value : e },
+	<param : IdentifierString> "=" <e : Expression> => FuncArg { param_name : Some(param), value : e },
 	<Expression> => FuncArg { param_name : None, value : <> },
 }
 
 pub FuncCall : FuncCall =  {
-	<i : Identifier> "(" <args : FuncArgList? > ")" ";" => FuncCall { name : VarID::from(i), arguments : args.unwrap_or(Vec::new()) },
+	<name : IdentifierString> "(" <args : CommaList<FuncArg>? > ")" ";" => FuncCall { name, arguments : args.unwrap_or(Vec::new()) },
 }
 
 pub Assign : Assign = {
@@ -219,7 +220,7 @@ pub Block : Block = {
 }
 
 pub ObjectDecl : ObjectDecl = {
-	"obj" <name: Identifier> <gl: GenericList> <contents : ObjectDeclContents> ";" => ObjectDecl {name : VarID::from(name), generics : gl, contents : contents}
+	"obj" <name: IdentifierString> <gl: GenericList> <contents : ObjectDeclContents> ";" => ObjectDecl {name, generics : gl, contents : contents}
 }
 
 pub ObjectDeclContents : ObjectDeclContents = {
@@ -228,7 +229,7 @@ pub ObjectDeclContents : ObjectDeclContents = {
 }
 
 pub ObjectProperty : ObjectProperty = {
-	<name: Identifier> ":" <t: TypeIdentifier> => ObjectProperty { object_type : t, name : VarID::from(name) },
+	<name: IdentifierString> ":" <t: TypeIdentifier> => ObjectProperty { object_type : t, name},
 }
 
 InnerObjectDecl : ObjectDeclContents = {
@@ -253,6 +254,10 @@ pub TypeIdentifier : TypeIdentifier = {
 
 }
 
+pub IdentifierString : String = {
+	Identifier => String::from(<>),
+}
+
 pub StatementList : Vec<Statement> = {
 
 	Statement => Vec::from([<>]),
@@ -263,16 +268,17 @@ pub GenericList : GenericList = {
 	<gl: ("<" <InnerGenericList> ">")?> => gl,
 }
 
+
 pub InnerGenericList : Vec<String> = {
 	Identifier => Vec::from([String::from(<>)]),
 	<l: InnerGenericList> "," <g: Identifier> => {let mut vec = l; vec.push(String::from(g)); vec},
 }
-pub FuncParamList : Vec<FuncParam> = {
-	FuncParam => Vec::from([<>]),
-	<l: FuncParamList> "," <f: FuncParam> => { let mut vec = l; vec.push(f); vec},
-}
 
-pub FuncArgList : Vec<FuncArg> = {
-	FuncArg => Vec::from([<>]),
-	<l: FuncArgList> "," <f: FuncArg> => { let mut vec = l; vec.push(f); vec},
+
+CommaList<T> : Vec<T> = {
+	T => Vec::from([<>]),
+	<mut l: CommaList<T>> "," <e: T> => {
+		l.push(e);
+		l
+	}
 }

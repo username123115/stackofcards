@@ -103,8 +103,15 @@ pub struct FuncDecl {
     pub name: VarID,
     pub generics: GenericList,
     pub arguments: Vec<FuncParam>,
+
     pub body: Block,
-    pub return_type: Option<TypeID>,
+    pub return_type: Option<TypeIdentifier>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FuncSignature {
+    pub arguments: Vec<TypeIdentifier>,
+    pub return_type: Option<TypeIdentifier>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

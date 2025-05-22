@@ -251,6 +251,7 @@ pub IdentifierList : Vec<String> = {
 pub TypeIdentifier : TypeIdentifier = {
 	<p: Place> "[]" => TypeIdentifier::Array(p),
 	<Place> => TypeIdentifier::Regular(<>),
+	<FuncSignature> => TypeIdentifier::FuncSignature(Box::new(<>)),
 
 }
 
@@ -265,15 +266,14 @@ pub StatementList : Vec<Statement> = {
 }
 
 pub GenericList : GenericList = {
-	<gl: ("<" <InnerGenericList> ">")?> => gl,
+	<gl: ("<" <CommaList<IdentifierString>> ">")?> => gl,
 }
 
-
-pub InnerGenericList : Vec<String> = {
-	Identifier => Vec::from([String::from(<>)]),
-	<l: InnerGenericList> "," <g: Identifier> => {let mut vec = l; vec.push(String::from(g)); vec},
+pub FuncSignature : FuncSignature = {
+	"(" <arguments: CommaList<TypeIdentifier>?> ")" <return_type: ("->" <TypeIdentifier>)?> => {
+		FuncSignature { arguments : arguments.unwrap_or_else(|| Vec::new()), return_type }
+	},
 }
-
 
 CommaList<T> : Vec<T> = {
 	T => Vec::from([<>]),

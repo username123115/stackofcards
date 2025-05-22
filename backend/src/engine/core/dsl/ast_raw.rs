@@ -15,6 +15,7 @@ pub type GenericList = Option<Vec<String>>;
 pub enum TypeIdentifier {
     Regular(Place),
     Array(Place),
+    FuncSignature(Box<FuncSignature>),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

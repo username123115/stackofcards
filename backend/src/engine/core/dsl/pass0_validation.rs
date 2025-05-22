@@ -66,6 +66,8 @@ enum AnyType {
     Array(Box<AnyType>),
 }
 
+use std::cmp::{Eq, PartialEq};
+#[derive(PartialEq, Eq, Hash)]
 enum SymbolIdentifier {
     Named(String),
     Anonymous(u64),
@@ -76,15 +78,16 @@ struct Variable {
     //TODO: Initialize variables
 }
 
+struct Object {
+    variables: HashMap<String, Variable>,
+    generics: HashSet<String>,
+}
+
 // top level declarations in a block
 struct SymbolSpace {
     objects: HashMap<String, Object>,
     variables: HashMap<String, Variable>,
     generics: HashSet<String>,
-}
-
-struct Object {
-    declarations: HashMap<String, AnyType>,
 }
 
 impl SymbolSpace {
@@ -114,6 +117,56 @@ impl SymbolTree {
             value: SymbolSpace::new(),
         }
     }
+}
+
+impl SymbolTree {
+    // add a child to tree, turning it from a Leaf to a Node if it wasn't already
+    // TODO: Return an error if child already exists
+    fn add_child(&mut self, identifier: SymbolIdentifier, tree: SymbolTree) {
+        // oh my gyatt this finally works
+        match &mut self.children {
+            Some(children) => {
+                children.insert(identifier, tree);
+            }
+            None => {
+                let mut new_child = HashMap::new();
+                new_child.insert(identifier, tree);
+                self.children = Some(new_child);
+            }
+        }
+    }
+}
+
+fn resolve_block(
+    block: &raw::Block,
+    global_tree: Option<&SymbolTree>,
+) -> Result<SymbolTree, String> {
+    let mut tree = SymbolTree::new();
+    let mut block_count = 0;
+
+    for statement in &block.instructions {
+        use raw::Statement;
+        match statement {
+            Statement::Block(blk) => {
+                //TODO: some blocks are named, check rules first and use String identifier
+                let identity = SymbolIdentifier::Anonymous(block_count);
+                let context = match global_tree {
+                    Option::Some(tree_ref) => tree_ref,
+                    Option::None => &tree,
+                };
+
+                //TODO: return the err instead
+                let child: SymbolTree = resolve_block(&blk, Option::Some(context)).unwrap();
+                tree.add_child(identity, child);
+
+                block_count += 1;
+            }
+
+            _ => return Err(String::from("🙁")),
+        }
+    }
+
+    Ok(tree)
 }
 
 fn resolve_expression(expression: &raw::Expression) -> Result<AnyType, String> {

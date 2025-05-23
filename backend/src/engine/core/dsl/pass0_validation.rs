@@ -98,6 +98,11 @@ impl SymbolSpace {
             generics: HashSet::new(),
         }
     }
+
+    // TODO: Errors for duplicated variables in same symbol space
+    fn add_variable(&mut self, name: String, variable: Variable) {
+        self.variables.insert(name, variable);
+    }
 }
 
 struct SymbolPath {
@@ -142,28 +147,33 @@ fn resolve_block(
     global_tree: Option<&SymbolTree>,
 ) -> Result<SymbolTree, String> {
     let mut tree = SymbolTree::new();
-    let mut block_count = 0;
+
+    let mut pending_blocks: Vec<&raw::Block> = Vec::new();
 
     for statement in &block.instructions {
         use raw::Statement;
         match statement {
-            Statement::Block(blk) => {
-                //TODO: some blocks are named, check rules first and use String identifier
-                let identity = SymbolIdentifier::Anonymous(block_count);
-                let context = match global_tree {
-                    Option::Some(tree_ref) => tree_ref,
-                    Option::None => &tree,
-                };
-
-                //TODO: return the err instead
-                let child: SymbolTree = resolve_block(&blk, Option::Some(context)).unwrap();
-                tree.add_child(identity, child);
-
-                block_count += 1;
-            }
+            Statement::Block(blk) => pending_blocks.push(&blk),
 
             _ => return Err(String::from("🙁")),
         }
+    }
+
+    // Take care of blocks last
+    let mut block_count = 0;
+    for pending in &pending_blocks {
+        // TODO: Handle special blocks wrt nesting rules + non numeric identities
+        let identity = SymbolIdentifier::Anonymous(block_count);
+        let context = match global_tree {
+            Option::Some(tree_ref) => tree_ref,
+            Option::None => &tree,
+        };
+
+        //TODO: return the err instead
+        let child: SymbolTree = resolve_block(pending, Option::Some(context)).unwrap();
+        tree.add_child(identity, child);
+
+        block_count += 1;
     }
 
     Ok(tree)

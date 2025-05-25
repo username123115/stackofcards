@@ -105,7 +105,7 @@ enum AnyType {
     Base(BaseType),
 
     // Doesn't have default value, should transformed into some other type first
-    Generic(SymbolPath),
+    Generic(String),
 
     // TODO: Give these default values
     FunctionSignature,

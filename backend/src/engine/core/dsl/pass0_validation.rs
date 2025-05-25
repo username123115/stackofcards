@@ -26,20 +26,22 @@
 *
 */
 
+use crate::engine::core::cards;
 use crate::engine::core::dsl::ast_raw as raw;
+
 use std::collections::{HashMap, HashSet};
 
 impl raw::Literal {
     fn to_type(&self) -> BaseType {
         use raw::Literal;
         match self {
-            Literal::Number(_) => BaseType::Number,
-            Literal::StringLiteral(_) => BaseType::String,
-            Literal::BooleanLiteral(_) => BaseType::Boolean,
-            Literal::PlayerLiteral(_) => BaseType::PlayerRef,
-            Literal::ZoneLiteral(_) => BaseType::ZoneRef,
-            Literal::SuitLiteral(_) => BaseType::Suite,
-            Literal::RankLiteral(_) => BaseType::Rank,
+            Literal::Number(_) => BaseType::Number(None),
+            Literal::StringLiteral(_) => BaseType::String(None),
+            Literal::BooleanLiteral(_) => BaseType::Boolean(None),
+            Literal::PlayerLiteral(_) => BaseType::PlayerRef(None),
+            Literal::ZoneLiteral(_) => BaseType::ZoneRef(None),
+            Literal::SuitLiteral(_) => BaseType::Suit(None),
+            Literal::RankLiteral(_) => BaseType::Rank(None),
         }
     }
 }
@@ -49,13 +51,13 @@ struct SymbolIndex {
 }
 
 enum BaseType {
-    ZoneRef,
-    PlayerRef,
-    Number,
-    String,
-    Rank,
-    Suite,
-    Boolean,
+    ZoneRef(Option<String>),
+    PlayerRef(Option<String>),
+    Number(Option<u32>),
+    String(Option<String>),
+    Rank(Option<cards::Rank>),
+    Suit(Option<cards::Suit>),
+    Boolean(Option<bool>),
 }
 
 enum AnyType {
@@ -84,6 +86,7 @@ struct Object {
 }
 
 // top level declarations in a block
+
 struct SymbolSpace {
     objects: HashMap<String, Object>,
     variables: HashMap<String, Variable>,
@@ -128,7 +131,6 @@ impl SymbolTree {
     // add a child to tree, turning it from a Leaf to a Node if it wasn't already
     // TODO: Return an error if child already exists
     fn add_child(&mut self, identifier: SymbolIdentifier, tree: SymbolTree) {
-        // oh my gyatt this finally works
         match &mut self.children {
             Some(children) => {
                 children.insert(identifier, tree);
@@ -154,6 +156,7 @@ fn resolve_block(
         use raw::Statement;
         match statement {
             Statement::Block(blk) => pending_blocks.push(&blk),
+            Statement::Decl(dcl) => (),
 
             _ => return Err(String::from("🙁")),
         }
@@ -169,8 +172,7 @@ fn resolve_block(
             Option::None => &tree,
         };
 
-        //TODO: return the err instead
-        let child: SymbolTree = resolve_block(pending, Option::Some(context)).unwrap();
+        let child: SymbolTree = resolve_block(pending, Option::Some(context))?;
         tree.add_child(identity, child);
 
         block_count += 1;

@@ -89,11 +89,6 @@ impl raw::Literal {
     }
 }
 
-#[derive(Debug)]
-struct SymbolIndex {
-    location: Vec<String>,
-}
-
 #[derive(Debug, PartialEq, Eq)]
 enum BaseType {
     ZoneRef(Option<String>),
@@ -108,10 +103,19 @@ enum BaseType {
 #[derive(Debug)]
 enum AnyType {
     Base(BaseType),
-    Object(SymbolIndex),
-    Generic(SymbolIndex),
+
+    // Doesn't have default value, should transformed into some other type first
+    Generic(SymbolIdentifier),
+
+    // TODO: Give these default values
     FunctionSignature,
+    Object(SymbolIdentifier),
     Array(Box<AnyType>),
+}
+
+#[derive(Debug)]
+struct ObjectInstance {
+    created_from: SymbolIdentifier,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -125,7 +129,7 @@ struct Variable {
     //TODO: Initialize variables
 }
 
-struct Object {
+struct ObjectDeclaration {
     variables: HashMap<String, Variable>,
     generics: HashSet<String>,
 }
@@ -133,7 +137,7 @@ struct Object {
 // top level declarations in a block
 
 struct SymbolSpace {
-    objects: HashMap<String, Object>,
+    objects: HashMap<String, ObjectDeclaration>,
     variables: HashMap<String, Variable>,
     generics: HashSet<String>,
 }

@@ -29,6 +29,7 @@
 use crate::engine::core::cards;
 use crate::engine::core::dsl::ast_raw as raw;
 
+use std::cmp::{Eq, PartialEq};
 use std::collections::{HashMap, HashSet};
 
 impl raw::Literal {
@@ -44,12 +45,56 @@ impl raw::Literal {
             Literal::RankLiteral(_) => BaseType::Rank(None),
         }
     }
+    fn to_type_value(&self) -> Result<BaseType, String> {
+        use raw::Literal;
+        match self {
+            Literal::Number(s) => s
+                .parse::<u32>()
+                .map(|val| BaseType::Number(Some(val)))
+                .map_err(|e| format!("Failed to parse number literal '{}': {}", s, e)),
+            Literal::StringLiteral(s) => Ok(BaseType::String(Some(s.clone()))),
+            Literal::BooleanLiteral(s) => s
+                .parse::<bool>()
+                .map(|val| BaseType::Boolean(Some(val)))
+                .map_err(|e| format!("Failed to parse boolean literal '{}': {}", s, e)),
+
+            // Parser should have already stripped surrounding characters, these can be treated as
+            // special String literals basically
+            Literal::PlayerLiteral(s) => Ok(BaseType::PlayerRef(Some(s.clone()))),
+            Literal::ZoneLiteral(s) => Ok(BaseType::ZoneRef(Some(s.clone()))),
+            Literal::SuitLiteral(s) => match s.as_str() {
+                "Hearts" => Ok(BaseType::Suit(Some(cards::Suit::Hearts))),
+                "Diamonds" => Ok(BaseType::Suit(Some(cards::Suit::Diamonds))),
+                "Spades" => Ok(BaseType::Suit(Some(cards::Suit::Spades))),
+                "Clubs" => Ok(BaseType::Suit(Some(cards::Suit::Clubs))),
+                _ => Err(format!("Unknown suit literal: {}", s)),
+            },
+            Literal::RankLiteral(s) => match s.as_str() {
+                "Two" => Ok(BaseType::Rank(Some(cards::Rank::Two))),
+                "Three" => Ok(BaseType::Rank(Some(cards::Rank::Three))),
+                "Four" => Ok(BaseType::Rank(Some(cards::Rank::Four))),
+                "Five" => Ok(BaseType::Rank(Some(cards::Rank::Five))),
+                "Six" => Ok(BaseType::Rank(Some(cards::Rank::Six))),
+                "Seven" => Ok(BaseType::Rank(Some(cards::Rank::Seven))),
+                "Eight" => Ok(BaseType::Rank(Some(cards::Rank::Eight))),
+                "Nine" => Ok(BaseType::Rank(Some(cards::Rank::Nine))),
+                "Ten" => Ok(BaseType::Rank(Some(cards::Rank::Ten))),
+                "Jack" => Ok(BaseType::Rank(Some(cards::Rank::Jack))),
+                "Queen" => Ok(BaseType::Rank(Some(cards::Rank::Queen))),
+                "King" => Ok(BaseType::Rank(Some(cards::Rank::King))),
+                "Ace" => Ok(BaseType::Rank(Some(cards::Rank::Ace))),
+                _ => Err(format!("Unknown rank literal: {}", s)),
+            },
+        }
+    }
 }
 
+#[derive(Debug)]
 struct SymbolIndex {
     location: Vec<String>,
 }
 
+#[derive(Debug, PartialEq, Eq)]
 enum BaseType {
     ZoneRef(Option<String>),
     PlayerRef(Option<String>),
@@ -60,6 +105,7 @@ enum BaseType {
     Boolean(Option<bool>),
 }
 
+#[derive(Debug)]
 enum AnyType {
     Base(BaseType),
     Object(SymbolIndex),
@@ -68,8 +114,7 @@ enum AnyType {
     Array(Box<AnyType>),
 }
 
-use std::cmp::{Eq, PartialEq};
-#[derive(PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 enum SymbolIdentifier {
     Named(String),
     Anonymous(u64),
@@ -186,5 +231,128 @@ fn resolve_expression(expression: &raw::Expression) -> Result<AnyType, String> {
     match expression {
         Expression::Imm(imm) => Result::Ok(AnyType::Base(imm.to_type())),
         _ => Result::Err(String::from("unimplemented")),
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use crate::engine::core::dsl::ast_raw as raw;
+
+    #[test]
+    fn test_literal_to_type() {
+        assert_eq!(
+            raw::Literal::Number("123".to_string()).to_type(),
+            BaseType::Number(None)
+        );
+        assert_eq!(
+            raw::Literal::StringLiteral("hello".to_string()).to_type(),
+            BaseType::String(None)
+        );
+        assert_eq!(
+            raw::Literal::BooleanLiteral("true".to_string()).to_type(),
+            BaseType::Boolean(None)
+        );
+        // Note: Raw AST player/zone literals now contain the inner string, not the delimiters
+        assert_eq!(
+            raw::Literal::PlayerLiteral("player1".to_string()).to_type(),
+            BaseType::PlayerRef(None)
+        );
+        assert_eq!(
+            raw::Literal::ZoneLiteral("deck".to_string()).to_type(),
+            BaseType::ZoneRef(None)
+        );
+        assert_eq!(
+            raw::Literal::SuitLiteral("Hearts".to_string()).to_type(),
+            BaseType::Suit(None)
+        );
+        assert_eq!(
+            raw::Literal::RankLiteral("Ace".to_string()).to_type(),
+            BaseType::Rank(None)
+        );
+    }
+
+    #[test]
+    fn test_literal_to_type_value() {
+        // Test valid values
+        assert_eq!(
+            raw::Literal::Number("123".to_string())
+                .to_type_value()
+                .unwrap(),
+            BaseType::Number(Some(123))
+        );
+        assert_eq!(
+            raw::Literal::StringLiteral("hello".to_string())
+                .to_type_value()
+                .unwrap(),
+            BaseType::String(Some("hello".to_string()))
+        );
+        assert_eq!(
+            raw::Literal::BooleanLiteral("true".to_string())
+                .to_type_value()
+                .unwrap(),
+            BaseType::Boolean(Some(true))
+        );
+        assert_eq!(
+            raw::Literal::BooleanLiteral("false".to_string())
+                .to_type_value()
+                .unwrap(),
+            BaseType::Boolean(Some(false))
+        );
+        // Player literal string is the inner value from the parser
+        assert_eq!(
+            raw::Literal::PlayerLiteral("player1".to_string())
+                .to_type_value()
+                .unwrap(),
+            BaseType::PlayerRef(Some("player1".to_string()))
+        );
+        // Zone literal string is the inner value from the parser
+        assert_eq!(
+            raw::Literal::ZoneLiteral("deck".to_string())
+                .to_type_value()
+                .unwrap(),
+            BaseType::ZoneRef(Some("deck".to_string()))
+        );
+        assert_eq!(
+            raw::Literal::SuitLiteral("Hearts".to_string())
+                .to_type_value()
+                .unwrap(),
+            BaseType::Suit(Some(cards::Suit::Hearts))
+        );
+        assert_eq!(
+            raw::Literal::RankLiteral("Ace".to_string())
+                .to_type_value()
+                .unwrap(),
+            BaseType::Rank(Some(cards::Rank::Ace))
+        );
+
+        // Test invalid values (parsing errors, not format errors handled here)
+        assert!(
+            raw::Literal::Number("abc".to_string())
+                .to_type_value()
+                .is_err()
+        );
+        assert!(
+            raw::Literal::BooleanLiteral("True".to_string())
+                .to_type_value()
+                .is_err()
+        ); // Capitalized
+        assert!(
+            raw::Literal::BooleanLiteral("falsey".to_string())
+                .to_type_value()
+                .is_err()
+        );
+        // Player/Zone literals with invalid *content* (if applicable to game logic) would be checked here,
+        // but malformed syntax (`player1`, `#deck`, etc.) should be caught by the parser.
+        assert!(
+            raw::Literal::SuitLiteral("Clubs!".to_string())
+                .to_type_value()
+                .is_err()
+        ); // Invalid suit name
+        assert!(
+            raw::Literal::RankLiteral("Joker".to_string())
+                .to_type_value()
+                .is_err()
+        ); // Invalid rank name
     }
 }

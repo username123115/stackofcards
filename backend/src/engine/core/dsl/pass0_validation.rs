@@ -105,11 +105,11 @@ enum AnyType {
     Base(BaseType),
 
     // Doesn't have default value, should transformed into some other type first
-    Generic(SymbolIdentifier),
+    Generic(SymbolPath),
 
     // TODO: Give these default values
     FunctionSignature,
-    Object(SymbolIdentifier),
+    Object(SymbolPath),
     Array(Box<AnyType>),
 }
 
@@ -122,6 +122,11 @@ struct ObjectInstance {
 enum SymbolIdentifier {
     Named(String),
     Anonymous(u64),
+}
+
+#[derive(Debug, PartialEq, Eq, Hash)]
+struct SymbolPath {
+    path: Vec<SymbolIdentifier>,
 }
 
 struct Variable {
@@ -155,10 +160,6 @@ impl SymbolSpace {
     fn add_variable(&mut self, name: String, variable: Variable) {
         self.variables.insert(name, variable);
     }
-}
-
-struct SymbolPath {
-    path: Vec<SymbolIdentifier>,
 }
 
 struct SymbolTree {

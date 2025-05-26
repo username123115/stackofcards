@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from './components.module.css'
+import styles from './entrance.module.css'
 
 function Entrance({ onCreate = null }: { onCreate: (() => void) | null }) {
 	const [codeInput, setCodeInput] = useState<string>('');

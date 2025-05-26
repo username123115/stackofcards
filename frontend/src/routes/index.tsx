@@ -20,7 +20,7 @@ function RouteComponent() {
 	}
 	return (
 		<>
-			<Entrance onCreate={CreateGame} />
+			<Entrance triggerCreate={CreateGame} />
 		</>
 	)
 }

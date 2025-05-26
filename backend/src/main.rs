@@ -1,4 +1,9 @@
-use axum::{Router, response::Html, routing::get, serve};
+use axum::{
+    Router,
+    response::Html,
+    routing::{get, post},
+    serve,
+};
 use sqlx::postgres::PgPoolOptions;
 
 use backend::v1;
@@ -13,7 +18,8 @@ async fn main() {
     let app = Router::new()
         .route("/v1/hello", get(hello))
         .route("/v1/test", get(v1::object_test::handler))
-        .route("/v1/rulesets", get(v1::rulesets::get));
+        .route("/v1/rulesets", get(v1::rulesets::get))
+        .route("/v1/rulesets", post(v1::rulesets::post));
 
     let config = backend::config::Config::from_env();
 

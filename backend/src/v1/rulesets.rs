@@ -1,11 +1,13 @@
-use axum::Json;
+use axum::{Json, http::StatusCode, response::IntoResponse};
 
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+use tracing::{info, instrument};
+
 pub type RulesetIdentifier = u64;
 
-#[derive(TS, Serialize, Deserialize, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub struct RulesetDescriber {
     pub name: String,
@@ -47,6 +49,33 @@ pub fn get_rulesets() -> Vec<RulesetDescriber> {
     Vec::from(examples)
 }
 
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+pub struct GameInfo {
+    pub code: u32,
+}
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+pub struct GameCreateRequest {
+    pub id: RulesetIdentifier,
+}
+
 pub async fn get() -> Json<Vec<RulesetDescriber>> {
     Json(get_rulesets())
+}
+/*
+curl -X POST localhost:5173/v1/rulesets \
+-H "Content-Type: application/json" \
+-d '{"id": 100}' \
+-i
+*/
+
+#[instrument]
+#[axum::debug_handler]
+pub async fn post(Json(game): Json<GameCreateRequest>) -> Result<Json<GameInfo>, StatusCode> {
+    info!("Game requested");
+    if (game.id != 100) {
+        return Err(StatusCode::NOT_FOUND);
+    }
+    let new_game = GameInfo { code: 123456 };
+    Ok(Json(new_game))
 }

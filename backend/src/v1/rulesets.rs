@@ -50,11 +50,13 @@ pub fn get_rulesets() -> Vec<RulesetDescriber> {
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub struct GameInfo {
     pub code: u32,
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub struct GameCreateRequest {
     pub id: RulesetIdentifier,
 }
@@ -73,7 +75,7 @@ curl -X POST localhost:5173/v1/rulesets \
 #[axum::debug_handler]
 pub async fn post(Json(game): Json<GameCreateRequest>) -> Result<Json<GameInfo>, StatusCode> {
     info!("Game requested");
-    if (game.id != 100) {
+    if (game.id != 101) {
         return Err(StatusCode::NOT_FOUND);
     }
     let new_game = GameInfo { code: 123456 };

@@ -1,4 +1,3 @@
-import styles from './components.module.css'
 import type { RulesetDescriber } from '@bindings/RulesetDescriber'
 
 function CreateGame({ rulesets = [] }: { rulesets: Array<RulesetDescriber> }) {

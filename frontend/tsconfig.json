@@ -2,10 +2,12 @@
   "compilerOptions": {
 	"baseUrl": ".",
     "paths": {
-      "@components/*": ["./src/components/*"]
+      "@components/*": ["./src/components/*"],
+	  "@bindings/*": ["../backend/bindings/*"]
     }
   },
   "files": [],
+  // This fixed intellisense wrt path aliases for me
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

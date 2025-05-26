@@ -1,4 +1,6 @@
 import styles from './components.module.css'
+
+
 function CreateGame() {
 	return (
 		<>

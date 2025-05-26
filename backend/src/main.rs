@@ -12,7 +12,8 @@ async fn main() {
 
     let app = Router::new()
         .route("/v1/hello", get(hello))
-        .route("/v1/test", get(v1::object_test::handler));
+        .route("/v1/test", get(v1::object_test::handler))
+        .route("/v1/rulesets", get(v1::rulesets::get));
 
     let config = backend::config::Config::from_env();
 

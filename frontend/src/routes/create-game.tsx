@@ -5,7 +5,9 @@ export const Route = createFileRoute('/create-game')({
 	component: RouteComponent,
 })
 
+
 function RouteComponent() {
+	//async function fetchGameList(): 
 	return (
 		<>
 			<CreateGame />

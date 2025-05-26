@@ -1,0 +1,37 @@
+@import '../styles/colors.module.css';
+
+.rulesetContainer {
+	display: flex;
+	list-style-type: none;
+	gap: 10px;
+}
+
+.title {
+	text-align: center;
+}
+
+.rulesetElement {
+	background-color: var(--neutral-700);
+	border-radius: 10px;
+	padding: 10px;
+	text-align: center;
+	color: var(--accent-100);
+	transition: color 0.1s, background-color 0.1s;
+	border-style: none;
+}
+
+.rulesetElement:hover {
+	background-color: var(--accent-100);
+	color: var(--neutral-700);
+}
+
+.rulesetElement:active {
+	background-color: var(--accent-100);
+	color: var(--neutral-700);
+}
+
+.rulesetElement:active {
+	background-color: var(--primary-100);
+	color: var(--accent-100);
+	opacity: 0.8;
+}

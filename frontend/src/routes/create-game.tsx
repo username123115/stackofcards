@@ -1,7 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
 import axios from 'axios';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query'
+import { createFileRoute } from '@tanstack/react-router'
 import type { RulesetDescriber } from '@bindings/RulesetDescriber'
 
 import CreateGame from '@components/create_game'
@@ -10,23 +11,31 @@ export const Route = createFileRoute('/create-game')({
 	component: RouteComponent,
 })
 
-function RouteComponent() {
-	async function fetchGameList(): Promise<Array<RulesetDescriber>> {
-		try {
-			const response = await axios.get<Array<RulesetDescriber>>('v1/rulesets');
-			return response.data;
-		} catch (error) {
-			if (axios.isAxiosError(error)) {
-				throw new Error(error.response?.data?.message || error.message || 'Failed to acquire rulesets');
-			} else {
-				throw new Error("Unexpected error");
-			}
+async function fetchGameList(): Promise<Array<RulesetDescriber>> {
+	try {
+		const response = await axios.get<Array<RulesetDescriber>>('v1/rulesets');
+		return response.data;
+	} catch (error) {
+		if (axios.isAxiosError(error)) {
+			throw new Error(error.response?.data?.message || error.message || 'Failed to acquire rulesets');
+		} else {
+			throw new Error("Unexpected error");
 		}
-
 	}
 
-	const rulesets = useQuery({ queryKey: ['rulesets'], queryFn: fetchGameList })
+}
 
+function RouteComponent() {
+
+	const rulesets = useQuery({ queryKey: ['/v1/rulesets'], queryFn: fetchGameList })
+	const [ruleset, setRuleset] = useState<RulesetDescriber | null>(null);
+
+	// User has choosen a ruleset?
+	if (ruleset) {
+		return <span> Todo: make a request to server </span>
+	}
+
+	// Ask user to choose a ruleset instead
 	if (rulesets.status === 'pending') {
 		return <span> Fetching lists... </span>
 	}
@@ -36,7 +45,7 @@ function RouteComponent() {
 
 	return (
 		<>
-			<CreateGame rulesets={rulesets.data} />
+			<CreateGame rulesets={rulesets.data} selectRuleset={(ruleset) => setRuleset(ruleset)} />
 
 		</>
 	)

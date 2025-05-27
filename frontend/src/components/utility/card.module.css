@@ -2,32 +2,48 @@
 
 .cardContainer {
 	list-style: none;
+	display: flex;
+	padding: 0;
+}
+
+.cardContainer li {
+	width: 75px;
 }
 
 .card {
 	border-radius: 5px;
+	border-style: solid;
+	border-width: 1px;
 	width: 100px;
 	height: 150px;
 	padding: 10px;
 	background-color: var(--neutral-100);
-	color: var(--accent-300);
-	margin: 10px;
+	color: var(--accent-500);
 
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 
 	position: relative;
+	bottom: 0px;
+
+	transition: bottom 0.1s;
+	z-index: 0;
+
+	/* position: absolute; */
 }
 
 .card:hover {
-	opacity: 0.8;
+	/* opacity: 0.8; */
+	z-index: 1;
+	bottom: 30px;
 }
 
 .symbol {
 	display: block;
 }
 
+/* TODO: switch from aligning text to aligning block itself*/
 .rank {
 	composes: symbol;
 	text-align: right;

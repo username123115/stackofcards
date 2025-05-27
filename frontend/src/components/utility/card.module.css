@@ -1,4 +1,39 @@
-.card {
-	border-radius: 1px;
+@import '../../styles/colors.module.css';
 
+.cardContainer {
+	list-style: none;
+}
+
+.card {
+	border-radius: 5px;
+	width: 100px;
+	height: 150px;
+	padding: 10px;
+	background-color: var(--neutral-100);
+	color: var(--accent-300);
+	margin: 10px;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	position: relative;
+}
+
+.card:hover {
+	opacity: 0.8;
+}
+
+.symbol {
+	display: block;
+}
+
+.rank {
+	composes: symbol;
+	text-align: right;
+}
+
+.suit {
+	composes: symbol;
+	text-align: left;
 }

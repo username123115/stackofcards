@@ -15,13 +15,15 @@ function CardContainer() {
 
 	const listItems = examples.contents.map((card, index) =>
 		<li key={index.toString()}>
-			<CardDisplay card={card} />
+			<div>
+				<CardDisplay card={card} />
+			</div>
 		</li>
 	);
 
 	return (
 		<>
-			<ul>
+			<ul className={styles.cardContainer}>
 				{listItems}
 			</ul>
 		</>
@@ -31,9 +33,9 @@ function CardContainer() {
 function CardDisplay({ card }: { card: Card }) {
 	return (
 		<>
-			<div>
-				<p> {card.rank} </p>
-				<p> {card.suit} </p>
+			<div className={styles.card}>
+				<div className={styles.rank}> {card.rank} </div>
+				<div className={styles.suit}> {card.suit} </div>
 			</div>
 		</>
 	)

@@ -3,6 +3,7 @@
 	"baseUrl": ".",
     "paths": {
       "@components/*": ["./src/components/*"],
+	  "@client/*": ["./src/client/*"],
 	  "@bindings/*": ["../backend/bindings/*"]
     }
   },

@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as TestImport } from './routes/test'
 import { Route as CreateGameImport } from './routes/create-game'
+import { Route as CardsImport } from './routes/cards'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -26,6 +27,12 @@ const TestRoute = TestImport.update({
 const CreateGameRoute = CreateGameImport.update({
   id: '/create-game',
   path: '/create-game',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CardsRoute = CardsImport.update({
+  id: '/cards',
+  path: '/cards',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -44,6 +51,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/cards': {
+      id: '/cards'
+      path: '/cards'
+      fullPath: '/cards'
+      preLoaderRoute: typeof CardsImport
       parentRoute: typeof rootRoute
     }
     '/create-game': {
@@ -67,12 +81,14 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/test': typeof TestRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/test': typeof TestRoute
 }
@@ -80,27 +96,30 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/test': typeof TestRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create-game' | '/test'
+  fullPaths: '/' | '/cards' | '/create-game' | '/test'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create-game' | '/test'
-  id: '__root__' | '/' | '/create-game' | '/test'
+  to: '/' | '/cards' | '/create-game' | '/test'
+  id: '__root__' | '/' | '/cards' | '/create-game' | '/test'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CardsRoute: typeof CardsRoute
   CreateGameRoute: typeof CreateGameRoute
   TestRoute: typeof TestRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CardsRoute: CardsRoute,
   CreateGameRoute: CreateGameRoute,
   TestRoute: TestRoute,
 }
@@ -116,12 +135,16 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/cards",
         "/create-game",
         "/test"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/cards": {
+      "filePath": "cards.tsx"
     },
     "/create-game": {
       "filePath": "create-game.tsx"

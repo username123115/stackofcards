@@ -17,6 +17,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@components': path.resolve(__dirname, './src/components'),
+			'@client': path.resolve(__dirname, './src/client'),
 			'@bindings': path.resolve(__dirname, '../backend/bindings'),
 		},
 

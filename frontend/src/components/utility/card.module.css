@@ -11,7 +11,9 @@
 	width: 75px;
 }
 
-.cardMoveRight {}
+.cardMoveRight {
+	margin-left: 40px;
+}
 
 .card {
 	border-radius: 5px;
@@ -31,7 +33,7 @@
 	position: relative;
 	bottom: 0px;
 
-	transition: bottom 0.1s;
+	transition: bottom 0.1s, margin 0.5s;
 	z-index: 1;
 
 	/* position: absolute; */

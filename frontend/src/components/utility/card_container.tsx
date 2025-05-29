@@ -3,7 +3,6 @@ import { useState } from 'react'
 import type { Rank, Suit, Card, Zone } from '@client/zones'
 import type { DragEvent } from 'react'
 
-type renderableCard = Card | null;
 
 function CardContainer() {
 
@@ -18,16 +17,7 @@ function CardContainer() {
 		id: "Deck",
 	}
 
-	const [toRender, setToRender] = useState<Array<renderableCard>>(examples.contents);
-
-	const listItems = toRender.map((card, index) => {
-		if (!card) {
-			return (
-				<li key={index.toString()}>
-					<PlaceholderCard />
-				</li>
-			)
-		}
+	const listItems = examples.contents.map((card) => {
 		return (
 			<li key={card.id.toString()}>
 				<div>
@@ -48,12 +38,8 @@ function CardContainer() {
 	)
 }
 
-// Ghost card to be shown when dragging over cards
-function PlaceholderCard() {
-	return (
-		<div className={styles.card} />
-	)
-}
+type CardSpacerMode = "left" | "normal" | "right"
+//function Spacer(
 
 function PlayingCard({ card }: { card: Card }) {
 
@@ -71,6 +57,8 @@ function PlayingCard({ card }: { card: Card }) {
 
 	function handleDragOver(event: DragEvent<HTMLDivElement>) {
 		const otherId = event.dataTransfer.getData("text/plain");
+
+		// Ignore if self
 		if (card.id === otherId) {
 			return;
 		}
@@ -78,13 +66,22 @@ function PlayingCard({ card }: { card: Card }) {
 		const myWidth = event.currentTarget.offsetWidth;
 		//Determine which direction to offset this card
 		const dragRatio = offX / myWidth;
+
+		//TODO
+		event.currentTarget.classList.add(styles.cardMoveRight);
+
 		console.log(`Move ${otherId} to ${card.id}: ${offX} / ${myWidth}`);
 	}
+
+	function handleDragLeave(event: DragEvent<HTMLDivElement>) {
+		event.currentTarget.classList.remove(styles.cardMoveRight, styles.cardMoveLeft);
+	}
+
 
 
 	return (
 		<>
-			<div className={styles.card} draggable={true} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragOver={handleDragOver}>
+			<div className={styles.card} draggable={true} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragOver={handleDragOver} onDragLeave={handleDragLeave}>
 				<div className={styles.rank}> {card.rank} </div>
 				<div className={styles.suit}> {card.suit} </div>
 			</div >

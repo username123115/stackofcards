@@ -6,9 +6,12 @@
 	padding: 0;
 }
 
+/* This forces cards to overlap */
 .cardContainer li {
 	width: 75px;
 }
+
+.cardMoveRight {}
 
 .card {
 	border-radius: 5px;
@@ -19,6 +22,7 @@
 	padding: 10px;
 	background-color: var(--neutral-100);
 	color: var(--accent-500);
+	cursor: move;
 
 	display: flex;
 	flex-direction: column;
@@ -28,16 +32,24 @@
 	bottom: 0px;
 
 	transition: bottom 0.1s;
-	z-index: 0;
+	z-index: 1;
 
 	/* position: absolute; */
 }
 
 .card:hover {
 	/* opacity: 0.8; */
-	z-index: 1;
-	bottom: 30px;
+	z-index: 2;
+	bottom: 5px;
 }
+
+.cardDragging {
+	bottom: 30px;
+	opacity: 0.6;
+	z-index: 0;
+}
+
+.card:select {}
 
 .symbol {
 	display: block;

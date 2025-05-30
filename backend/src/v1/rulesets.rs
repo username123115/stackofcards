@@ -73,6 +73,7 @@ curl -X POST localhost:5173/v1/rulesets \
 
 #[instrument]
 #[axum::debug_handler]
+// Spawn a game task and associate it with a code
 pub async fn post(Json(game): Json<GameCreateRequest>) -> Result<Json<GameInfo>, StatusCode> {
     info!("Game requested");
     if (game.id != 101) {

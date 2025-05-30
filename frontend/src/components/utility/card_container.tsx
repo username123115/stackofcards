@@ -90,4 +90,9 @@ function PlayingCard({ card }: { card: Card }) {
 
 }
 
+function CardDropArea({ card }: { card: Card }) {
+	<div>
+	</div>
+}
+
 export default CardContainer

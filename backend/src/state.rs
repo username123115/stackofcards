@@ -10,77 +10,136 @@ pub type GameTx = mpsc::UnboundedSender<PlayerRequest>;
 pub type RoomMap = Arc<Mutex<HashMap<u64, GameTx>>>;
 pub type PlayerId = String;
 
+pub type GameTx = mpsc::UnboundedSender<PlayerRequest>;
+pub type RoomMap = Arc<Mutex<HashMap<u64, GameTx>>>;
+pub type PlayerId = String;
+
 #[derive(Clone)]
 pub struct AppState {
     pub rooms: RoomMap,
 }
 
+#[derive(Clone, Debug)]
 pub enum PlayerRole {
     Spectating,
-    Playing(u64), //Current player order
+    Playing(u64),
 }
 
+#[derive(Clone, Debug)]
 pub struct PlayerInformation {
-    role: PlayerRole,
-    nickname: String,
-    player_id: PlayerId,
-    last_heartbeat: u64,
-    tx: mpsc::UnboundedSender<GameAction>,
+    pub role: PlayerRole,
+    pub nickname: String,
+    pub player_id: PlayerId,
+    pub tx: mpsc::UnboundedSender<GameAction>,
 }
 
+#[derive(Debug, Clone)] // Added Clone as it might be needed for broadcasting
 pub enum GameAction {
     SetCards,
     Layout,
     CurrentPlayers,
     Private,
-    Heartbeat,
     JoinResult(Result<(), String>),
+    TimerTick(u64), // Added a GameAction to notify players about the timer
+                    // Add other game-specific actions here
 }
 
-pub enum GameState {
+#[derive(Debug, Copy, Clone)] // Added Copy, Clone
+pub enum GameStatus {
     Waiting,
     Started,
 }
 
-pub struct WebGame {
+struct WebGameState {
     connections: HashMap<PlayerId, PlayerInformation>,
     player_order: Vec<PlayerId>,
-    state: GameState,
+    status: GameStatus,
+}
+
+impl WebGameState {
+    pub fn process_request(&mut self, msg: &PlayerRequest) {
+        if self.process_player_exists_or_joining(msg) {
+            match msg {
+                _ => (), //Todo, implement
+            }
+        }
+    }
+
+    fn process_player_exists_or_joining(&mut self, msg: &PlayerRequest) -> bool {
+        match &msg.request_type {
+            PlayerRequestType::Join(info) => {
+                // -- Basic Sanity checks
+                let tx = info.tx.clone();
+                if info.player_id != msg.player_id {
+                    tx.send(GameAction::JoinResult(Err(String::from(
+                        "IDs are mismatched",
+                    ))))
+                    .unwrap_or(()); //Ignore result if unable to send
+                    return false;
+                }
+                if self.connections.contains_key(&info.player_id) {
+                    tx.send(GameAction::JoinResult(Err(String::from(
+                        "ID already exists",
+                    ))))
+                    .unwrap_or(());
+                    return false;
+                }
+                // -- Add player to existing connections
+                //
+                let player_role: PlayerRole = match self.status {
+                    //TODO: Game specific logic here
+                    GameStatus::Waiting => {
+                        PlayerRole::Playing(self.player_order.len().try_into().unwrap())
+                    }
+
+                    GameStatus::Started => PlayerRole::Spectating,
+                };
+                let mut new_info = info.clone();
+                new_info.role = player_role;
+                self.connections
+                    .insert(new_info.player_id.clone(), new_info.clone());
+                return true;
+            }
+            _ => (),
+        }
+        self.connections.contains_key(&msg.player_id)
+    }
+}
+
+pub struct WebGame {
+    state: Mutex<WebGameState>,
 
     rx: mpsc::UnboundedReceiver<PlayerRequest>,
 }
 
 impl WebGame {
-    pub async fn play(mut self) {
-        while let Some(mut msg) = self.rx.recv().await {
-            // Target joining players
+    pub fn new() -> (Self, mpsc::UnboundedSender<PlayerRequest>) {
+        let (tx, rx) = mpsc::unbounded_channel::<PlayerRequest>();
 
-            if self.player_exists_or_joining(&mut msg) {
-                continue;
-            }
+        let state = WebGameState {
+            connections: HashMap::new(),
+            player_order: Vec::new(),
+            status: GameStatus::Waiting,
+        };
 
-            let pending_player = self.connections.get(&msg.player_id);
-
-            match msg.request_type {
-                PlayerRequestType::Join(_) => (), // Joining is already handled
-                _ => (),
-            }
-        }
+        (
+            Self {
+                state: Mutex::new(state),
+                rx: rx,
+            },
+            tx,
+        )
     }
 
-    pub fn player_exists_or_joining(&mut self, msg: &mut PlayerRequest) -> bool {
-        match &mut msg.request_type {
-            PlayerRequestType::Join(info) => {
-                let tx = info.tx.clone();
-                if info.player_id != msg.player_id {
-                    tx.send(GameAction::JoinResult(Result::Err(String::from(
-                        "IDs are mismatched",
-                    ))));
+    pub async fn run(mut self) {
+        loop {
+            tokio::select! {
+                Some(msg) = self.rx.recv() => {
+                    let mut state = self.state.lock().unwrap();
+                    state.process_request(&msg);
                 }
             }
-            _ => (),
         }
-        true
     }
 }
 
@@ -109,22 +168,10 @@ pub async fn start_room(rooms: RoomMap) -> Result<u64, String> {
         return Result::Err(String::from("Failed to get available room"));
     }
 
-    let (tx, mut rx) = mpsc::unbounded_channel::<PlayerRequest>();
+    let (game, tx) = WebGame::new();
 
     room_map.insert(room_id, tx);
     Result::Ok(room_id)
-}
-
-impl WebGame {}
-
-pub async fn game_loop(mut rx: mpsc::UnboundedReceiver<PlayerRequest>) {
-    while let Some(msg) = rx.recv().await {
-        //Do stuff here
-        match msg.request_type {
-            PlayerRequestType::Join(_) => (),
-            _ => (),
-        }
-    }
 }
 
 fn random_number() -> u64 {

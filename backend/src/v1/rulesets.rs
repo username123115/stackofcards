@@ -1,8 +1,9 @@
-use axum::{Json, http::StatusCode, response::IntoResponse};
+use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+use crate::state;
 use tracing::{info, instrument};
 
 pub type RulesetIdentifier = u64;
@@ -52,7 +53,7 @@ pub fn get_rulesets() -> Vec<RulesetDescriber> {
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub struct GameInfo {
-    pub code: u32,
+    pub code: u64,
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -74,11 +75,23 @@ curl -X POST localhost:5173/v1/rulesets \
 #[instrument]
 #[axum::debug_handler]
 // Spawn a game task and associate it with a code
-pub async fn post(Json(game): Json<GameCreateRequest>) -> Result<Json<GameInfo>, StatusCode> {
+pub async fn post(
+    State(state): State<state::AppState>,
+    Json(game): Json<GameCreateRequest>,
+) -> impl IntoResponse {
     info!("Game requested");
+
+    //TODO: Custom games
     if (game.id != 101) {
         return Err(StatusCode::NOT_FOUND);
     }
-    let new_game = GameInfo { code: 123456 };
-    Ok(Json(new_game))
+
+    let code = state::start_room(state.rooms);
+    match code {
+        Ok(room_id) => {
+            let new_game = GameInfo { code: room_id };
+            return Ok(Json(new_game));
+        }
+        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
+    }
 }

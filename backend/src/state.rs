@@ -13,11 +13,6 @@ pub type RoomMap = Arc<Mutex<HashMap<u64, GameTx>>>;
 pub type PlayerId = String;
 
 #[derive(Clone, Debug)]
-pub struct AppState {
-    pub rooms: RoomMap,
-}
-
-#[derive(Clone, Debug)]
 pub struct PlayerConnection {
     pub info: PlayerInformation,
     pub tx: mpsc::UnboundedSender<GameFeedback>,
@@ -45,17 +40,17 @@ pub enum GameStatus {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct GamePlayers {
+    pub players: Vec<PlayerInformation>,
+    pub order: Vec<PlayerId>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct GameFeedback {
     pub actions: Option<Vec<GameAction>>,
     pub private_actions: Option<Vec<GameAction>>,
     pub players: Option<GamePlayers>,
     pub status: GameStatus,
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct GamePlayers {
-    pub players: Vec<PlayerInformation>,
-    pub order: Vec<PlayerId>,
 }
 
 impl GameFeedback {
@@ -239,6 +234,11 @@ impl WebGame {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct AppState {
+    pub rooms: RoomMap,
+}
+
 impl AppState {
     // Generates a random room, starting it and returning it's associated code
     #[tracing::instrument]
@@ -263,6 +263,11 @@ impl AppState {
         tokio::spawn(game.run());
         info!("Room ready, spawned with id {room_id}");
         Result::Ok(room_id)
+    }
+
+    pub fn has_room(&self, room_id: u64) -> bool {
+        let room_map = self.rooms.lock().unwrap();
+        room_map.contains_key(&room_id)
     }
 }
 

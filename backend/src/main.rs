@@ -33,6 +33,7 @@ async fn main() {
         .route("/v1/test", get(v1::object_test::handler))
         .route("/v1/rulesets", get(v1::rulesets::get))
         .route("/v1/rulesets", post(v1::rulesets::post))
+        .route("/v1/games/{game_code}", get(v1::games::game_code_get))
         .with_state(state);
 
     let config = backend::config::Config::from_env();

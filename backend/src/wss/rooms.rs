@@ -13,17 +13,34 @@ use axum::{
 
 use crate::state;
 use tokio::sync::mpsc;
+use tracing::{info, instrument};
 
-async fn join(
+async fn join_handler(
     room: u64,
     ws: WebSocketUpgrade,
     State(state): State<state::AppState>,
 ) -> impl IntoResponse {
-    String::from("todo")
+    let rooms_map = state.rooms.lock().unwrap();
+    let game_tx_option = rooms_map.get(&room).cloned();
+    // Drop lock
+    drop(rooms_map);
+
+    if let Some(game_tx) = game_tx_option {
+        info!("Room {room} found, upgrading connection");
+    }
 }
 
-//async fn handle_create_websocket(
+pub struct WebgameClient {
+    pub ws: WebSocket,
+    pub tx: mpsc::UnboundedSender<state::PlayerRequest>,
+    pub rx: mpsc::UnboundedReceiver<state::GameAction>,
+}
 
-fn random_number() -> u64 {
-    4
+impl WebgameClient {
+    pub fn join(
+        ws: WebSocket,
+        tx: mpsc::UnboundedReceiver<state::PlayerRequest>,
+    ) -> Result<Self, String> {
+        Err("Unimplemented".into())
+    }
 }

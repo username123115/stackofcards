@@ -62,15 +62,16 @@ pub struct GameCreateRequest {
     pub id: RulesetIdentifier,
 }
 
-pub async fn get() -> Json<Vec<RulesetDescriber>> {
-    Json(get_rulesets())
-}
 /*
 curl -X POST localhost:5173/v1/rulesets \
 -H "Content-Type: application/json" \
 -d '{"id": 100}' \
 -i
 */
+
+pub async fn get() -> Json<Vec<RulesetDescriber>> {
+    Json(get_rulesets())
+}
 
 #[instrument]
 #[axum::debug_handler]
@@ -86,7 +87,7 @@ pub async fn post(
         return Err(StatusCode::NOT_FOUND);
     }
 
-    let code = state::start_room(state.rooms);
+    let code = state.start_room();
     match code {
         Ok(room_id) => {
             let new_game = GameInfo { code: room_id };

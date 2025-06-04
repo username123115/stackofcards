@@ -59,19 +59,23 @@ function Join({ submitCode = null }: { submitCode: ((code: Number) => void) | nu
 	}
 
 	let playerInfoMessage: String | null = "";
+	let enableInput: Boolean = true;
 
 	if (pendingCode) {
+		enableInput = false;
 		const status = gameExistsQuery.status;
 		if (status === 'pending') {
 			playerInfoMessage = "Finding game...";
 		} else if (status === 'error') {
 			playerInfoMessage = `Error: ${gameExistsQuery.error.message}`;
-		}
-		const exists = gameExistsQuery.data!;
-		playerInfoMessage = `Game exists: ${exists}`;
+		} else {
+			enableInput = true;
+			const exists = gameExistsQuery.data!;
+			playerInfoMessage = `Game exists: ${exists}`;
 
-		if (exists && submitCode) {
-			submitCode(pendingCode);
+			if (exists && submitCode) {
+				submitCode(pendingCode);
+			}
 		}
 	}
 

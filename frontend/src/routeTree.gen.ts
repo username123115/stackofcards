@@ -15,6 +15,7 @@ import { Route as TestImport } from './routes/test'
 import { Route as CreateGameImport } from './routes/create-game'
 import { Route as CardsImport } from './routes/cards'
 import { Route as IndexImport } from './routes/index'
+import { Route as GamesGameIdImport } from './routes/games/$gameId'
 
 // Create/Update Routes
 
@@ -39,6 +40,12 @@ const CardsRoute = CardsImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const GamesGameIdRoute = GamesGameIdImport.update({
+  id: '/games/$gameId',
+  path: '/games/$gameId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -74,6 +81,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestImport
       parentRoute: typeof rootRoute
     }
+    '/games/$gameId': {
+      id: '/games/$gameId'
+      path: '/games/$gameId'
+      fullPath: '/games/$gameId'
+      preLoaderRoute: typeof GamesGameIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -84,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/test': typeof TestRoute
+  '/games/$gameId': typeof GamesGameIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -91,6 +106,7 @@ export interface FileRoutesByTo {
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/test': typeof TestRoute
+  '/games/$gameId': typeof GamesGameIdRoute
 }
 
 export interface FileRoutesById {
@@ -99,14 +115,15 @@ export interface FileRoutesById {
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/test': typeof TestRoute
+  '/games/$gameId': typeof GamesGameIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cards' | '/create-game' | '/test'
+  fullPaths: '/' | '/cards' | '/create-game' | '/test' | '/games/$gameId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cards' | '/create-game' | '/test'
-  id: '__root__' | '/' | '/cards' | '/create-game' | '/test'
+  to: '/' | '/cards' | '/create-game' | '/test' | '/games/$gameId'
+  id: '__root__' | '/' | '/cards' | '/create-game' | '/test' | '/games/$gameId'
   fileRoutesById: FileRoutesById
 }
 
@@ -115,6 +132,7 @@ export interface RootRouteChildren {
   CardsRoute: typeof CardsRoute
   CreateGameRoute: typeof CreateGameRoute
   TestRoute: typeof TestRoute
+  GamesGameIdRoute: typeof GamesGameIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -122,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   CardsRoute: CardsRoute,
   CreateGameRoute: CreateGameRoute,
   TestRoute: TestRoute,
+  GamesGameIdRoute: GamesGameIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -137,7 +156,8 @@ export const routeTree = rootRoute
         "/",
         "/cards",
         "/create-game",
-        "/test"
+        "/test",
+        "/games/$gameId"
       ]
     },
     "/": {
@@ -151,6 +171,9 @@ export const routeTree = rootRoute
     },
     "/test": {
       "filePath": "test.tsx"
+    },
+    "/games/$gameId": {
+      "filePath": "games/$gameId.tsx"
     }
   }
 }

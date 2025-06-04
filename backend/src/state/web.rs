@@ -9,8 +9,6 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 use tracing::{error, info};
 
-pub type GameTx = mpsc::UnboundedSender<WebgameRequest>;
-pub type RoomMap = Arc<Mutex<HashMap<u64, GameTx>>>;
 #[derive(Clone, Debug)]
 pub struct WebGamePlayer {
     pub info: player::PlayerInformation,
@@ -25,8 +23,8 @@ pub enum WebgameRequestType {
 }
 
 pub struct WebgameRequest {
-    request_type: WebgameRequestType,
-    player_id: player::PlayerId,
+    pub request_type: WebgameRequestType,
+    pub player_id: player::PlayerId,
 }
 
 //
@@ -58,12 +56,12 @@ impl WebGameState {
     }
 
     #[tracing::instrument]
-    pub fn broadcast_private(&mut self, actions: HashMap<player::PlayerId, Vec<game::GameAction>>) {
+    pub fn broadcast(&mut self, private_actions: HashMap<player::PlayerId, Vec<game::GameAction>>) {
         let public = self.snapshot();
 
         for (player_id, player) in &mut self.connections {
             let copy = game::GameSnapshot {
-                private_actions: actions.get(player_id).cloned(),
+                private_actions: private_actions.get(player_id).cloned(),
                 ..public.clone()
             };
             if let Err(e) = player.tx.send(copy) {
@@ -123,7 +121,7 @@ impl WebGameState {
                     connection.info.player_id.clone(),
                     vec![game::GameAction::JoinResult(Ok(()))],
                 );
-                self.broadcast_private(join_ack);
+                self.broadcast(join_ack);
 
                 return true;
             }

@@ -2,7 +2,6 @@ import { createFileRoute, redirect, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import Entrance from '@components/entrance.tsx'
-// import { Route as createGameRoute } from './create-game'
 
 
 export const Route = createFileRoute('/')({
@@ -10,17 +9,23 @@ export const Route = createFileRoute('/')({
 })
 
 
+
 function RouteComponent() {
+	const [pendingCode, setPendingCode] = useState<Number | null>(null);
 	const [pendingCreation, setPendingCreation] = useState<boolean>(false);
-	function CreateGame() {
-		setPendingCreation(true);
-	}
+	const handleTriggerCreate = () => setPendingCreation(true);
+	const handleSubmitCode = (code: Number) => setPendingCode(code);
+
 	if (pendingCreation) {
 		return <Navigate to="/create-game" />
 	}
 	return (
 		<>
-			<Entrance triggerCreate={CreateGame} />
+			<Entrance
+				triggerCreate={handleTriggerCreate}
+				submitCode={handleSubmitCode}
+
+			/>
 		</>
 	)
 }

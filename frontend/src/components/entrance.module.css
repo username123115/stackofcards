@@ -1,5 +1,10 @@
 @import '../styles/colors.module.css';
 
+.input {
+	border-radius: 5px;
+	color: var(--accent-500);
+}
+
 .entrance {
 	flex: 1;
 	display: flex;
@@ -38,8 +43,6 @@
 	padding: 8px;
 	padding: 1rem;
 	border-radius: 1em;
-
-
 }
 
 .button:hover {

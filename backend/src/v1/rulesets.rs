@@ -77,7 +77,7 @@ pub async fn get() -> Json<Vec<RulesetDescriber>> {
 #[axum::debug_handler]
 // Spawn a game task and associate it with a code
 pub async fn post(
-    State(state): State<state::AppState>,
+    State(state): State<state::app::AppState>,
     Json(game): Json<GameCreateRequest>,
 ) -> impl IntoResponse {
     info!("Game requested");

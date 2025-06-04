@@ -18,7 +18,7 @@ use tracing::{info, instrument};
 async fn join_handler(
     room: u64,
     ws: WebSocketUpgrade,
-    State(state): State<state::AppState>,
+    State(state): State<state::app::AppState>,
 ) -> impl IntoResponse {
     let rooms_map = state.rooms.lock().unwrap();
     let game_tx_option = rooms_map.get(&room).cloned();
@@ -32,14 +32,14 @@ async fn join_handler(
 
 pub struct WebgameClient {
     pub ws: WebSocket,
-    pub tx: mpsc::UnboundedSender<state::PlayerRequest>,
-    pub rx: mpsc::UnboundedReceiver<state::GameAction>,
+    pub tx: mpsc::UnboundedSender<state::web::WebgameRequest>,
+    pub rx: mpsc::UnboundedReceiver<state::game::GameAction>,
 }
 
 impl WebgameClient {
     pub fn join(
         ws: WebSocket,
-        tx: mpsc::UnboundedReceiver<state::PlayerRequest>,
+        tx: mpsc::UnboundedReceiver<state::web::WebgameRequest>,
     ) -> Result<Self, String> {
         Err("Unimplemented".into())
     }

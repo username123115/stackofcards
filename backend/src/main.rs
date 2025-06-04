@@ -12,7 +12,7 @@ use axum::{
 };
 use sqlx::postgres::PgPoolOptions;
 
-use backend::{state::AppState, v1, wss};
+use backend::{state::app::AppState, v1, wss};
 
 use tracing::{Level, event, info};
 use tracing_subscriber;

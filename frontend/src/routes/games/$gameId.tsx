@@ -1,6 +1,7 @@
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { connectToGame } from '@client/websocket'
+import { useEffect, useRef } from 'react'
 
+import { connectToGame } from '@client/websocket'
 import type { GameSnapshot } from '@bindings/GameSnapshot'
 
 export const Route = createFileRoute('/games/$gameId')({
@@ -22,7 +23,35 @@ function RouteComponent() {
 	const { gameId } = Route.useParams();
 	const code = Number(gameId);
 
-	const socket = connectToGame(code, onSnapshot, onErrorCallback, onCloseCallback);
+	const socket = useRef<WebSocket | null>(null);
+	const began = useRef<Boolean>(false);
+
+	useEffect(() => {
+		if (!socket.current) {
+			socket.current = connectToGame(code, onSnapshot, onErrorCallback, onCloseCallback);
+		}
+
+		return () => {
+			/* if (socket.current) {
+				console.log("disconnecting");
+				if (socket.current.readyState === 1) {
+					socket.current.close()
+					socket.current = null;
+				} else {
+					socket.current.addEventListener('open', () => {
+						socket.current?.close();
+						socket.current = null;
+					});
+				}
+			} */
+		}
+
+	}, [code]);
+
+	/* if (socket.current) {
+		socket.current.send("Arbitrary string to start the game");
+	} */
+
 
 	//TODO: This should be passed as some parameter
 	const username: String = "ninebitcomputer";

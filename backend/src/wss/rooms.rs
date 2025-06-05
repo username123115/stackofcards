@@ -36,7 +36,30 @@ pub async fn join_handler(
     if let Some(game_tx) = game_tx_option {
         info!("Room {room} found, upgrading connection");
 
-        return ws.on_upgrade(|websocket| async move {
+        return ws.on_upgrade(|mut websocket| async move {
+            /* // React strict mode makes two websockets each time a room is entered
+            // The first websocket will get closed, but will cause a player to be created and immediately disconnected
+            // To prevent this, have a player send something over the web socket before creating a
+            // client
+
+            info!("Waiting for client to confirm they exist");
+            let mut use_this_socket: bool = false;
+            while (!use_this_socket) {
+                let ws_msg = websocket.recv().await;
+
+                match ws_msg {
+                    Some(Ok(msg)) => use_this_socket = true,
+                    Some(Err(err)) => {
+                        tracing::error!("Error receiving message from websocket connection: {err}");
+                        return;
+                    }
+                    None => {
+                        tracing::info!("Player disconnected before a client could be created");
+                        return;
+                    }
+                }
+            } */
+
             match WebgameClient::join(websocket, game_tx) {
                 Ok(client) => {
                     info!("Spawning a client");

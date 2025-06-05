@@ -56,6 +56,7 @@ pub struct WebgameClient {
     pub tx: mpsc::UnboundedSender<state::web::WebgameRequest>,
     pub rx: mpsc::UnboundedReceiver<state::game::GameSnapshot>,
     pub uuid: Uuid,
+    pub running: bool,
 }
 
 impl WebgameClient {
@@ -72,6 +73,7 @@ impl WebgameClient {
             tx: tx.clone(),
             rx,
             uuid,
+            running: true,
         };
 
         let join_request = state::web::WebgameRequest {
@@ -100,16 +102,17 @@ impl WebgameClient {
     }
 
     pub fn leave_game(&mut self) {
+        self.running = false;
         self.send_request(state::web::WebgameRequestType::Disconnect);
     }
 
     fn on_game_connection_lost(&mut self) {
-        tracing::error!("Unexpectedly disconected from game!");
+        tracing::error!("Sending to a disconnected channel");
+        // Don't call leave_game, there is no game to send the disconnect messsage to
+        self.running = false;
     }
 
     // Forward any snapshots
-    // TODO: Handle cases where we need to disconnect the player (aka automatically send a
-    // WebGameRequest) on their behalf
     async fn handle_connection_rx(&mut self, snapshot: &state::game::GameSnapshot) {
         match serde_json::to_string(&snapshot) {
             Ok(json_msg) => {
@@ -122,7 +125,6 @@ impl WebgameClient {
         }
     }
 
-    //TODO: Add join guards, limit the power of a WebGameRequest
     async fn handle_connection_tx(&mut self, request: Option<Result<Message, axum::Error>>) {
         match request {
             Some(Ok(message)) => self.handle_websocket_message(message).await,
@@ -164,7 +166,7 @@ impl WebgameClient {
     pub async fn handle_connection(mut self) {
         let client_uuid = self.uuid;
         tracing::info!("Starting websocket handler for client {client_uuid}");
-        loop {
+        while self.running {
             tokio::select! {
                 //TODO: may need to add a timeout? Also maybe drop snapshots and take only most
                 //recent
@@ -172,5 +174,7 @@ impl WebgameClient {
                 ws_msg = self.ws.recv() => {self.handle_connection_tx(ws_msg).await}
             }
         }
+
+        tracing::info!("Exiting the game!");
     }
 }

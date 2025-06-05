@@ -10,13 +10,37 @@ use tokio::sync::mpsc;
 use tracing::{error, info};
 
 #[derive(Clone, Debug)]
-pub struct WebGamePlayer {
-    pub info: player::PlayerInformation,
+enum WebGameConnection {
+    Connected(mpsc::UnboundedSender<game::GameSnapshot>),
+    Disconnected(u64),
+}
+
+#[derive(Clone, Debug)]
+struct WebGamePlayer {
+    nickname: String,
+    conn: WebGameConnection,
+}
+
+impl WebGamePlayer {
+    fn to_pinfo(&self, player_id: &player::PlayerId) -> player::PlayerInformation {
+        player::PlayerInformation {
+            nickname: self.nickname.clone(),
+            player_id: player_id.clone(),
+            disconnected: match self.conn {
+                WebGameConnection::Connected(_) => None,
+                WebGameConnection::Disconnected(elapsed) => Some(elapsed),
+            },
+        }
+    }
+}
+
+pub struct WebgameJoin {
+    pub nickname: Option<String>,
     pub tx: mpsc::UnboundedSender<game::GameSnapshot>,
 }
 
 pub enum WebgameRequestType {
-    Join(WebGamePlayer),
+    Join(WebgameJoin),
     Disconnect,
     GameCommand(game::GameCommand),
 }
@@ -47,7 +71,7 @@ impl WebGameState {
                 players: self
                     .connections
                     .iter()
-                    .map(|(_, v)| v.info.clone())
+                    .map(|(pid, v)| v.to_pinfo(pid))
                     .collect(),
                 order: self.player_order.clone(),
             }),
@@ -55,19 +79,49 @@ impl WebGameState {
     }
 
     #[tracing::instrument]
-    pub fn broadcast(&mut self, private_actions: HashMap<player::PlayerId, Vec<game::GameAction>>) {
+    pub fn broadcast(
+        &mut self,
+        private_actions: Option<HashMap<player::PlayerId, Vec<game::GameAction>>>,
+    ) {
         let public = self.snapshot();
 
         for (player_id, player) in &mut self.connections {
-            let copy = game::GameSnapshot {
-                private_actions: private_actions.get(player_id).cloned(),
-                ..public.clone()
-            };
-            if let Err(e) = player.tx.send(copy) {
-                info!("Broadcast to closed channel!, panicking! {e}");
-                panic!("Broadcast to closed channel!, panicking! {e}");
+            if let WebGameConnection::Connected(tx) = player.conn.clone() {
+                let copy = game::GameSnapshot {
+                    private_actions: match &private_actions {
+                        Some(p_actions) => p_actions.get(player_id).cloned(),
+                        None => None,
+                    },
+                    ..public.clone()
+                };
+                if let Err(e) = tx.send(copy) {
+                    info!("Broadcast to closed channel!, removing player! {e}");
+                    //TODO: This shouldn't happen at all and results in annoying behaviors if it
+                    //does, maybe panic instead? The Client associated with this tx should
+                    //initiate a disconnect before dropping the receiver
+                    player.conn = WebGameConnection::Disconnected(0);
+                }
             }
         }
+    }
+
+    fn broadcast_join_acc(&mut self, player_id: &player::PlayerId) {
+        let mut join_ack: HashMap<player::PlayerId, Vec<game::GameAction>> = HashMap::new();
+        join_ack.insert(
+            player_id.clone(),
+            vec![game::GameAction::JoinResult(Ok(()))],
+        );
+        self.broadcast(Some(join_ack));
+    }
+
+    // Remove a connection if previously set
+    pub fn disconnect_player(&mut self, player_id: &player::PlayerId) {
+        if let Some(player) = self.connections.get_mut(player_id) {
+            if let WebGameConnection::Connected(_) = player.conn {
+                player.conn = WebGameConnection::Disconnected(0);
+            }
+        }
+        self.broadcast(None);
     }
 
     // If this function blocks I'm going to crash out
@@ -75,6 +129,7 @@ impl WebGameState {
         if self.process_player_exists_or_joining(msg) {
             match msg.request_type {
                 WebgameRequestType::Join(_) => (),
+                WebgameRequestType::Disconnect => self.disconnect_player(&msg.player_id),
                 _ => (), //Todo, implement
             }
         }
@@ -85,44 +140,58 @@ impl WebGameState {
     // If a player id is found in list of active connections, return True
     fn process_player_exists_or_joining(&mut self, msg: &WebgameRequest) -> bool {
         match &msg.request_type {
-            WebgameRequestType::Join(connection) => {
-                // -- Basic Sanity checks
-                let tx = connection.tx.clone();
-                if connection.info.player_id != msg.player_id {
-                    let mut error = game::GameSnapshot::new();
-                    error.add_private_action(game::GameAction::JoinResult(Err(
-                        "ID's mismatch".into()
-                    )));
+            WebgameRequestType::Join(request) => {
+                let tx = request.tx.clone();
 
-                    tx.send(error).unwrap_or(()); //Ignore result if unable to send
-                    return false;
+                // Previously added player try reconnecting them unless they already have a
+                // connection somehow
+                if let Some(player) = self.connections.get_mut(&msg.player_id) {
+                    match player.conn.clone() {
+                        WebGameConnection::Connected(original_tx) => {
+                            if original_tx.is_closed() {
+                                tracing::warn!(
+                                    "Player is able to rejoin, but only because TX was not properly cleaned"
+                                );
+                                player.conn = WebGameConnection::Connected(tx);
+                                self.broadcast_join_acc(&msg.player_id);
+                                return true;
+                            } else {
+                                let mut error = game::GameSnapshot::new();
+                                error.add_private_action(game::GameAction::JoinResult(Err(
+                                    "ID already exists".into(),
+                                )));
+                                tx.send(error).unwrap_or(());
+                                return false;
+                            }
+                        }
+                        WebGameConnection::Disconnected(_) => {
+                            player.conn = WebGameConnection::Connected(tx);
+                            self.broadcast_join_acc(&msg.player_id);
+                            return true;
+                        }
+                    }
+                } else {
+                    // Add player to connections and broadcast addition, additionally informing newly
+                    // added player of success
+                    //TODO: More fine grained join logic
+                    if let game::GameStatus::Waiting = self.status {
+                        self.player_order.push(msg.player_id.clone());
+                    }
+                    self.connections.insert(
+                        msg.player_id.clone(),
+                        WebGamePlayer {
+                            nickname: match &request.nickname {
+                                Some(nick) => nick.clone(),
+                                //TODO: Add some sort of random nickname generator
+                                None => "Anonymous Player".into(),
+                            },
+                            conn: WebGameConnection::Connected(tx),
+                        },
+                    );
+
+                    self.broadcast_join_acc(&msg.player_id);
+                    return true;
                 }
-                if self.connections.contains_key(&connection.info.player_id) {
-                    let mut error = game::GameSnapshot::new();
-                    error.add_private_action(game::GameAction::JoinResult(Err(
-                        "ID already exists".into(),
-                    )));
-                    tx.send(error).unwrap_or(());
-                    return false;
-                }
-
-                // Add player to connections and broadcast addition, additionally informing newly
-                // added player of success
-                //TODO: More fine grained join logic
-                if let game::GameStatus::Waiting = self.status {
-                    self.player_order.push(connection.info.player_id.clone());
-                }
-                self.connections
-                    .insert(connection.info.player_id.clone(), connection.clone());
-
-                let mut join_ack: HashMap<player::PlayerId, Vec<game::GameAction>> = HashMap::new();
-                join_ack.insert(
-                    connection.info.player_id.clone(),
-                    vec![game::GameAction::JoinResult(Ok(()))],
-                );
-                self.broadcast(join_ack);
-
-                return true;
             }
             _ => (),
         }

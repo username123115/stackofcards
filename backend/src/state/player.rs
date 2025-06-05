@@ -7,6 +7,7 @@ use ts_rs::TS;
 pub struct PlayerInformation {
     pub nickname: String,
     pub player_id: PlayerId,
+    pub disconnected: Option<u64>, //Seconds since last disconnected
 }
 
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]

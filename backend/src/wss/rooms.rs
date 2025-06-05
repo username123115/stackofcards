@@ -66,7 +66,7 @@ impl WebgameClient {
         //TODO: W/db UUID can be gleaned from a user
         let uuid = Uuid::new_v4();
 
-        let (tx_self, mut rx) = mpsc::unbounded_channel::<state::game::GameSnapshot>();
+        let (tx_self, rx) = mpsc::unbounded_channel::<state::game::GameSnapshot>();
         let new_client = Self {
             ws,
             tx: tx.clone(),
@@ -75,11 +75,8 @@ impl WebgameClient {
         };
 
         let join_request = state::web::WebgameRequest {
-            request_type: state::web::WebgameRequestType::Join(state::web::WebGamePlayer {
-                info: state::player::PlayerInformation {
-                    nickname: "TODO".into(),
-                    player_id: uuid.into(),
-                },
+            request_type: state::web::WebgameRequestType::Join(state::web::WebgameJoin {
+                nickname: None, //TODO
                 tx: tx_self,
             }),
             player_id: uuid.into(),

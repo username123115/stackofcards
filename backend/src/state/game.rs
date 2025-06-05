@@ -1,7 +1,9 @@
 use super::player;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
+#[ts(export)]
 // Game tells player that something about it has changed
 pub enum GameAction {
     SetCards,
@@ -10,19 +12,22 @@ pub enum GameAction {
     JoinResult(Result<(), String>),
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
+#[ts(export)]
 // Player tells game that it has done something
-// TODO: Wrap some code
+// TODO: Engine impl
 pub enum GameCommand {}
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(TS, Debug, Copy, Clone, Serialize, Deserialize)]
+#[ts(export)]
 pub enum GameStatus {
     Waiting,
     Started,
     Invalid,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
+#[ts(export)]
 pub struct GameSnapshot {
     pub actions: Option<Vec<GameAction>>,
     pub private_actions: Option<Vec<GameAction>>,

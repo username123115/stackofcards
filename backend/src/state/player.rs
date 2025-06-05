@@ -1,13 +1,16 @@
 use serde::{Deserialize, Serialize};
 pub type PlayerId = String;
+use ts_rs::TS;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(TS, Clone, Debug, Serialize, Deserialize)]
+#[ts(export)]
 pub struct PlayerInformation {
     pub nickname: String,
     pub player_id: PlayerId,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
+#[ts(export)]
 pub struct PlayerSnapshot {
     pub players: Vec<PlayerInformation>,
     pub order: Vec<PlayerId>,

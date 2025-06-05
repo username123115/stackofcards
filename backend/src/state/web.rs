@@ -17,9 +17,9 @@ pub struct WebGamePlayer {
 
 pub enum WebgameRequestType {
     Join(WebGamePlayer),
-    Update,
     Disconnect,
     Heartbeat,
+    GameCommand(game::GameCommand),
 }
 
 pub struct WebgameRequest {

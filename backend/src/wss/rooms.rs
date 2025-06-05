@@ -9,7 +9,7 @@ use uuid::Uuid;
 use axum::{
     Json,
     extract::{
-        State, WebSocketUpgrade,
+        Path, State, WebSocketUpgrade,
         ws::{Message, WebSocket},
     },
     http::StatusCode,
@@ -22,8 +22,9 @@ use tracing::{info, instrument};
 
 use serde_json;
 
-async fn join_handler(
-    room: u64,
+#[instrument]
+pub async fn join_handler(
+    Path(room): Path<u64>,
     ws: WebSocketUpgrade,
     State(state): State<state::app::AppState>,
 ) -> impl IntoResponse {
@@ -34,6 +35,18 @@ async fn join_handler(
 
     if let Some(game_tx) = game_tx_option {
         info!("Room {room} found, upgrading connection");
+
+        return ws.on_upgrade(|websocket| async move {
+            match WebgameClient::join(websocket, game_tx) {
+                Ok(client) => {
+                    info!("Spawning a client");
+                    tokio::spawn(client.handle_connection());
+                }
+                Err(e) => tracing::error!("Client failed to join room: {e}"),
+            };
+        });
+    } else {
+        (StatusCode::NOT_FOUND, "Room not found").into_response()
     }
 }
 
@@ -140,7 +153,16 @@ impl WebgameClient {
                 tracing::info!("Websocket closing");
                 self.leave_game();
             }
-            Message::Text(request) => (),
+            Message::Text(request) => {
+                match serde_json::from_str::<state::game::GameCommand>(&request) {
+                    Ok(command) => {
+                        self.send_request(state::web::WebgameRequestType::GameCommand(command))
+                    }
+                    Err(e) => {
+                        tracing::warn!("Failed to deserialize client message {request}: {e}");
+                    }
+                }
+            }
         }
     }
 

@@ -2,12 +2,18 @@ use super::player;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+// Game tells player that something about it has changed
 pub enum GameAction {
     SetCards,
     Layout,
     Private,
     JoinResult(Result<(), String>),
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+// Player tells game that it has done something
+// TODO: Wrap some code
+pub enum GameCommand {}
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum GameStatus {

@@ -1,5 +1,5 @@
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import { connectToGame } from '@client/websocket'
 import type { GameSnapshot } from '@bindings/GameSnapshot'
@@ -10,51 +10,45 @@ export const Route = createFileRoute('/games/$gameId')({
 
 function RouteComponent() {
 
+
+	const { gameId } = Route.useParams();
+	const code = Number(gameId);
+
+	const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
+	const [playerId, setPlayerId] = useState<String | null>(null);
+
+	const socket = useRef<WebSocket | null>(null);
+
 	function onSnapshot(snapshot: GameSnapshot) {
 		console.info(snapshot);
+		setSnapshot(snapshot);
 	}
 
 	function onErrorCallback(error: Event) {
 	}
 
 	function onCloseCallback() {
+		socket.current = null;
 	}
 
-	const { gameId } = Route.useParams();
-	const code = Number(gameId);
-
-	const socket = useRef<WebSocket | null>(null);
-	const began = useRef<Boolean>(false);
-
+	//TODO: Socket won't clean up unless 
 	useEffect(() => {
 		if (!socket.current) {
 			socket.current = connectToGame(code, onSnapshot, onErrorCallback, onCloseCallback);
 		}
 
 		return () => {
-			/* if (socket.current) {
-				console.log("disconnecting");
-				if (socket.current.readyState === 1) {
-					socket.current.close()
-					socket.current = null;
-				} else {
-					socket.current.addEventListener('open', () => {
-						socket.current?.close();
-						socket.current = null;
-					});
-				}
-			} */
 		}
 
 	}, [code]);
 
-	/* if (socket.current) {
-		socket.current.send("Arbitrary string to start the game");
-	} */
-
-
-	//TODO: This should be passed as some parameter
-	const username: String = "ninebitcomputer";
-
-	return <div>{`Playing game ${code}`}</div>
+	if (socket.current) {
+		if (snapshot) {
+			return <div> Connected </div>
+		} else {
+			return <div> Waiting on game status </div>
+		}
+	} else {
+		return <div> Couldn't connect to game </div>
+	}
 }

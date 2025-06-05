@@ -109,7 +109,7 @@ impl WebGameState {
         let mut join_ack: HashMap<player::PlayerId, Vec<game::GameAction>> = HashMap::new();
         join_ack.insert(
             player_id.clone(),
-            vec![game::GameAction::JoinResult(Ok(()))],
+            vec![game::GameAction::JoinResult(Ok(player_id.clone()))],
         );
         self.broadcast(Some(join_ack));
     }

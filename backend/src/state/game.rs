@@ -9,7 +9,7 @@ pub enum GameAction {
     SetCards,
     Layout,
     Private,
-    JoinResult(Result<(), String>),
+    JoinResult(Result<player::PlayerId, String>),
 }
 
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]

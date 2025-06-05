@@ -144,11 +144,9 @@ impl WebgameClient {
                 if let Err(e) = self.ws.send(Message::Pong(payload)).await {
                     tracing::error!("Failed to send pong to client");
                     self.leave_game();
-                } else {
-                    self.send_request(state::web::WebgameRequestType::Heartbeat);
                 }
             }
-            Message::Pong(_) => self.send_request(state::web::WebgameRequestType::Heartbeat),
+            Message::Pong(_) => (),
             Message::Close(_) => {
                 tracing::info!("Websocket closing");
                 self.leave_game();

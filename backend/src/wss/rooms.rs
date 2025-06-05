@@ -8,7 +8,10 @@ use uuid::Uuid;
 
 use axum::{
     Json,
-    extract::{State, WebSocketUpgrade, ws::WebSocket},
+    extract::{
+        State, WebSocketUpgrade,
+        ws::{Message, WebSocket},
+    },
     http::StatusCode,
     response::IntoResponse,
 };
@@ -16,6 +19,8 @@ use axum::{
 use crate::state;
 use tokio::sync::mpsc;
 use tracing::{info, instrument};
+
+use serde_json;
 
 async fn join_handler(
     room: u64,
@@ -32,6 +37,7 @@ async fn join_handler(
     }
 }
 
+// Middle man that connects a websocket connection to the central game thread
 pub struct WebgameClient {
     pub ws: WebSocket,
     pub tx: mpsc::UnboundedSender<state::web::WebgameRequest>,
@@ -71,5 +77,83 @@ impl WebgameClient {
         }
 
         Ok(new_client)
+    }
+
+    pub fn send_request(&mut self, request: state::web::WebgameRequestType) {
+        let req = state::web::WebgameRequest {
+            request_type: request,
+            player_id: self.uuid.into(),
+        };
+        if let Err(_) = self.tx.send(req) {
+            self.on_game_connection_lost();
+        }
+    }
+
+    pub fn leave_game(&mut self) {
+        self.send_request(state::web::WebgameRequestType::Disconnect);
+    }
+
+    fn on_game_connection_lost(&mut self) {
+        tracing::error!("Unexpectedly disconected from game!");
+    }
+
+    // Forward any snapshots
+    // TODO: Handle cases where we need to disconnect the player (aka automatically send a
+    // WebGameRequest) on their behalf
+    async fn handle_connection_rx(&mut self, snapshot: &state::game::GameSnapshot) {
+        match serde_json::to_string(&snapshot) {
+            Ok(json_msg) => {
+                if let Err(e) = self.ws.send(Message::Text(json_msg.into())).await {
+                    let client_id = self.uuid.clone();
+                    tracing::error!("Failed to send snapshot to client {client_id}: {e}");
+                }
+            }
+            Err(e) => tracing::error!("Failed to serialize snapshot: {e}"),
+        }
+    }
+
+    //TODO: Add join guards, limit the power of a WebGameRequest
+    async fn handle_connection_tx(&mut self, request: Option<Result<Message, axum::Error>>) {
+        match request {
+            Some(Ok(message)) => self.handle_websocket_message(message).await,
+            Some(Err(err)) => {
+                tracing::error!("Error receiving message from websocket connection: {err}");
+                self.leave_game();
+            }
+            None => self.leave_game(),
+        }
+    }
+
+    async fn handle_websocket_message(&mut self, message: Message) {
+        match message {
+            Message::Binary(_) => tracing::warn!("Unexpected binary message, ignoring"),
+            Message::Ping(payload) => {
+                if let Err(e) = self.ws.send(Message::Pong(payload)).await {
+                    tracing::error!("Failed to send pong to client");
+                    self.leave_game();
+                } else {
+                    self.send_request(state::web::WebgameRequestType::Heartbeat);
+                }
+            }
+            Message::Pong(_) => self.send_request(state::web::WebgameRequestType::Heartbeat),
+            Message::Close(_) => {
+                tracing::info!("Websocket closing");
+                self.leave_game();
+            }
+            Message::Text(request) => (),
+        }
+    }
+
+    pub async fn handle_connection(mut self) {
+        let client_uuid = self.uuid;
+        tracing::info!("Starting websocket handler for client {client_uuid}");
+        loop {
+            tokio::select! {
+                //TODO: may need to add a timeout? Also maybe drop snapshots and take only most
+                //recent
+                Some(snapshot) = self.rx.recv() => {self.handle_connection_rx(&snapshot).await}
+                ws_msg = self.ws.recv() => {self.handle_connection_tx(ws_msg).await}
+            }
+        }
     }
 }

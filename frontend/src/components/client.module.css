@@ -1,0 +1,15 @@
+@import '../styles/colors.module.css';
+
+.roster {
+	list-style-type: none;
+}
+
+/* Ourself */
+.rosterSelf {
+	color: var(--accent-700);
+}
+
+/* Other player */
+.rosterOther {
+	color: var(--neutral-700);
+}

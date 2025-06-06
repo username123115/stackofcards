@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from 'react'
 
 import { connectToGame } from '@client/websocket'
 import type { GameSnapshot } from '@bindings/GameSnapshot'
+import type { GameAction } from "@bindings/GameAction";
+
+import Client from '@components/client'
 
 export const Route = createFileRoute('/games/$gameId')({
 	component: RouteComponent,
@@ -42,11 +45,42 @@ function RouteComponent() {
 
 	}, [code]);
 
+	function findIdFromPrivate(private_actions: GameAction[]) {
+		let info_msg: String = "Couldn't get ID";
+		private_actions.forEach(
+			(action) => {
+				if (typeof action !== 'string' && 'JoinResult' in action) {
+					const joinResult = action.JoinResult;
+					if ('Ok' in joinResult) {
+						info_msg = "Found player ID, rerendering shortly";
+						setPlayerId(joinResult.Ok);
+					} else {
+						info_msg = `Error while joining: ${joinResult.Err}`;
+					}
+				}
+
+			}
+		)
+		return <div> {info_msg} </div>
+	}
+
+	function renderSnapshot(snapshot: GameSnapshot) {
+		if (playerId) {
+			return (<Client snapshot={snapshot} playerId={playerId} />)
+		} else {
+			if (snapshot.private_actions) {
+				return findIdFromPrivate(snapshot.private_actions);
+			}
+			return <div> Couldn't join room, reason unknown </div>
+		}
+
+	}
+
 	if (socket.current) {
 		if (snapshot) {
-			return <div> Connected </div>
+			return renderSnapshot(snapshot);
 		} else {
-			return <div> Waiting on game status </div>
+			return <div> Waiting on game to send data </div>
 		}
 	} else {
 		return <div> Couldn't connect to game </div>

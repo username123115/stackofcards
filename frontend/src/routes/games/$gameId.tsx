@@ -45,6 +45,7 @@ function RouteComponent() {
 
 	}, [code]);
 
+	// Sets playerId OR returns a reason why it couldn't be found
 	function findIdFromPrivate(private_actions: GameAction[]) {
 		let info_msg: String = "Couldn't get ID";
 		private_actions.forEach(

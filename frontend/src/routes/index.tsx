@@ -16,6 +16,10 @@ function RouteComponent() {
 	const handleTriggerCreate = () => setPendingCreation(true);
 	const handleSubmitCode = (code: Number) => setPendingCode(code);
 
+	if (pendingCode) {
+		return <Navigate to="/games/$gameId" params={{ gameId: String(pendingCode) }} />
+	}
+
 	if (pendingCreation) {
 		return <Navigate to="/create-game" />
 	}

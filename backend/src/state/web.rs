@@ -9,6 +9,21 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 use tracing::{error, info};
 
+#[derive(Debug)]
+pub struct WebGame {
+    state: Mutex<WebGameState>,
+    rx: mpsc::UnboundedReceiver<WebgameRequest>,
+}
+
+#[derive(Debug, Clone)]
+struct WebGameState {
+    pub connections: HashMap<player::PlayerId, WebGamePlayer>,
+    // Underlying engine will only care about order, it won't know
+    // about player IDs or such
+    pub player_order: Vec<player::PlayerId>,
+    pub status: game::GameStatus,
+}
+
 #[derive(Clone, Debug)]
 enum WebGameConnection {
     Connected(mpsc::UnboundedSender<game::GameSnapshot>),
@@ -50,14 +65,6 @@ pub struct WebgameRequest {
 }
 
 //
-#[derive(Debug, Clone)]
-struct WebGameState {
-    pub connections: HashMap<player::PlayerId, WebGamePlayer>,
-    // Underlying engine will only care about order, it won't know
-    // about player IDs or such
-    pub player_order: Vec<player::PlayerId>,
-    pub status: game::GameStatus,
-}
 
 impl WebGameState {
     pub fn snapshot(&self) -> game::GameSnapshot {
@@ -220,12 +227,6 @@ impl WebGameState {
         }
         self.connections.contains_key(&msg.player_id)
     }
-}
-
-#[derive(Debug)]
-pub struct WebGame {
-    state: Mutex<WebGameState>,
-    rx: mpsc::UnboundedReceiver<WebgameRequest>,
 }
 
 impl WebGame {

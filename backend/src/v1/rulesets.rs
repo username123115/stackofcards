@@ -83,7 +83,7 @@ pub async fn post(
     info!("Game requested");
 
     //TODO: Custom games
-    if (game.id != 101) {
+    if game.id != 101 {
         return Err(StatusCode::NOT_FOUND);
     }
 

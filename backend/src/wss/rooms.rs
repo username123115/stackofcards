@@ -1,13 +1,6 @@
-use std::{
-    collections::HashMap,
-    net::SocketAddr,
-    sync::{Arc, Mutex},
-};
-
 use uuid::Uuid;
 
 use axum::{
-    Json,
     extract::{
         Path, State, WebSocketUpgrade,
         ws::{Message, WebSocket},
@@ -36,7 +29,7 @@ pub async fn join_handler(
     if let Some(game_tx) = game_tx_option {
         info!("Room {room} found, upgrading connection");
 
-        return ws.on_upgrade(|mut websocket| async move {
+        return ws.on_upgrade(|websocket| async move {
             /* // React strict mode makes two websockets each time a room is entered
             // The first websocket will get closed, but will cause a player to be created and immediately disconnected
             // To prevent this, have a player send something over the web socket before creating a
@@ -164,7 +157,7 @@ impl WebgameClient {
             Message::Binary(_) => tracing::warn!("Unexpected binary message, ignoring"),
             Message::Ping(payload) => {
                 if let Err(e) = self.ws.send(Message::Pong(payload)).await {
-                    tracing::error!("Failed to send pong to client");
+                    tracing::error!("Failed to send pong to client : {e}");
                     self.leave_game();
                 }
             }

@@ -1,20 +1,17 @@
 use std::{
     collections::HashMap,
-    net::SocketAddr,
     sync::{Arc, Mutex},
 };
 
 use axum::{
     Router,
-    response::Html,
     routing::{get, post},
-    serve,
 };
 use sqlx::postgres::PgPoolOptions;
 
 use backend::{state::app::AppState, v1, wss};
 
-use tracing::{Level, event, info};
+use tracing::info;
 use tracing_subscriber;
 
 // Room needs a list of players

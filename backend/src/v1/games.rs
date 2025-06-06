@@ -1,7 +1,6 @@
 use axum::{
     Json,
     extract::{Path, State},
-    http::StatusCode,
     response::IntoResponse,
 };
 
@@ -9,7 +8,6 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 use crate::state::app::AppState;
-use tracing::{info, instrument};
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]

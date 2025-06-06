@@ -1,5 +1,4 @@
 use crate::engine::core::{cards, ruleset};
-use cards::Card;
 use std::collections::HashMap;
 
 use cards::Deck;

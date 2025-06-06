@@ -1,13 +1,9 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Mutex};
 
 use super::{game, player};
-use serde::{Deserialize, Serialize};
 
 use tokio::sync::mpsc;
-use tracing::{error, info};
+use tracing::info;
 
 #[derive(Debug)]
 pub struct WebGame {

@@ -22,10 +22,9 @@ struct WebGamePlayer {
 }
 
 impl WebGamePlayer {
-    fn to_pinfo(&self, player_id: &player::PlayerId) -> player::PlayerInformation {
+    fn to_pinfo(&self) -> player::PlayerInformation {
         player::PlayerInformation {
             nickname: self.nickname.clone(),
-            player_id: player_id.clone(),
             disconnected: match self.conn {
                 WebGameConnection::Connected(_) => None,
                 WebGameConnection::Disconnected(elapsed) => Some(elapsed),
@@ -71,7 +70,7 @@ impl WebGameState {
                 players: self
                     .connections
                     .iter()
-                    .map(|(pid, v)| v.to_pinfo(pid))
+                    .map(|(pid, pdata)| (pid.clone(), pdata.to_pinfo()))
                     .collect(),
                 order: self.player_order.clone(),
             }),

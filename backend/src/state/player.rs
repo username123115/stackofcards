@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 pub type PlayerId = String;
 use ts_rs::TS;
 
@@ -6,13 +7,12 @@ use ts_rs::TS;
 #[ts(export)]
 pub struct PlayerInformation {
     pub nickname: String,
-    pub player_id: PlayerId,
     pub disconnected: Option<u64>, //Seconds since last disconnected
 }
 
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]
 #[ts(export)]
 pub struct PlayerSnapshot {
-    pub players: Vec<PlayerInformation>,
+    pub players: HashMap<PlayerId, PlayerInformation>,
     pub order: Vec<PlayerId>,
 }

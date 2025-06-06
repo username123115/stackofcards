@@ -11,6 +11,10 @@ pub type DSLVariableId = String;
 pub type StageId = String;
 pub type Tag = String;
 
+pub enum BuiltinType {
+    Number,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CardSet {
     pub suits: HashSet<cards::Suit>,
@@ -60,10 +64,11 @@ pub enum DSLTypeInstance {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum Instruction {
+pub enum Statement {
     SetMode { mode: RulesetMode },
     Block(Block),
 
+    Declare { id: DSLVariableId, init: DSLValue },
     Assign { src: DSLValue, dst: DSLVariableId },
 
     Equal,
@@ -101,12 +106,13 @@ pub struct Conditional {
 pub struct Block {
     variables: HashMap<DSLVariableId, DSLTypeInstance>,
     block_type: BlockType,
-    instructions: Vec<Instruction>,
+    instructions: Vec<Statement>,
 }
 
 // A further pass will move these into the Block variables
+// Does this need to be a type or can it be moved into instructions
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VariableDeclaration {
-    pub name: String,
+    pub name: DSLVariableId,
     pub value: DSLTypeInstance,
 }

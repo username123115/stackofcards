@@ -1,0 +1,12 @@
+{
+	let myVar : Suite = Hearts;
+	let myRank : Rank;
+	let x : Number = (3 * 5) + 2 - 6;
+	let y : Number = 3 * (6 + 2) - 4;
+
+	if (x > y) {
+		myRank = Ace;
+	} else {
+		myRank = Two;
+	};
+};

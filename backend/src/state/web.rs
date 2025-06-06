@@ -83,6 +83,7 @@ impl WebGameState {
         private_actions: Option<HashMap<player::PlayerId, Vec<game::GameAction>>>,
     ) {
         let public = self.snapshot();
+        let mut invalid: Vec<player::PlayerId> = Vec::new();
 
         for (player_id, player) in &mut self.connections {
             if let WebGameConnection::Connected(tx) = player.conn.clone() {
@@ -98,9 +99,15 @@ impl WebGameState {
                     //TODO: This shouldn't happen at all and results in annoying behaviors if it
                     //does, maybe panic instead? The Client associated with this tx should
                     //initiate a disconnect before dropping the receiver
-                    player.conn = WebGameConnection::Disconnected(0);
+                    //There's actually a race condition now that I think about it where the
+                    //disconnect hasn't reached us but the client has already dropped
+                    invalid.push(player_id.clone())
                 }
             }
+        }
+
+        for player_id in invalid.iter() {
+            self.disconnect_player(player_id);
         }
     }
 
@@ -114,12 +121,29 @@ impl WebGameState {
     }
 
     // Remove a connection if previously set
-    pub fn disconnect_player(&mut self, player_id: &player::PlayerId) {
+    fn disconnect_player(&mut self, player_id: &player::PlayerId) {
         if let Some(player) = self.connections.get_mut(player_id) {
+            //Disconnect player
             if let WebGameConnection::Connected(_) = player.conn {
                 player.conn = WebGameConnection::Disconnected(0);
             }
+
+            //See if it's safe to delete the player
+
+            let index = self.player_order.iter().position(|n| n == player_id);
+            if let Some(idx) = index {
+                if let game::GameStatus::Waiting = self.status {
+                    self.player_order.remove(idx);
+                    self.connections.remove(player_id);
+                }
+            } else {
+                self.connections.remove(player_id);
+            }
         }
+    }
+
+    fn disconnect_and_broadcast(&mut self, player_id: &player::PlayerId) {
+        self.disconnect_player(player_id);
         self.broadcast(None);
     }
 
@@ -128,7 +152,7 @@ impl WebGameState {
         if self.process_player_exists_or_joining(msg) {
             match msg.request_type {
                 WebgameRequestType::Join(_) => (),
-                WebgameRequestType::Disconnect => self.disconnect_player(&msg.player_id),
+                WebgameRequestType::Disconnect => self.disconnect_and_broadcast(&msg.player_id),
                 _ => (), //Todo, implement
             }
         }

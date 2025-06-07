@@ -1,9 +1,10 @@
 //physical layer implementing card and decks
 
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use ts_rs::TS;
 
-#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[ts(export)]
 pub enum Suit {
     Hearts,
@@ -19,7 +20,7 @@ impl Suit {
     }
 }
 
-#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[ts(export)]
 pub enum Rank {
     Two,
@@ -46,7 +47,31 @@ impl Rank {
     }
 }
 
-#[derive(TS, Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(TS, Debug, Clone, Serialize, Deserialize)]
+pub struct RankOrder {
+    order: Vec<Rank>,
+    rank_to_index: HashMap<Rank, usize>,
+}
+
+impl RankOrder {
+    pub fn new(order: Vec<Rank>) -> Self {
+        let rank_to_index: HashMap<Rank, usize> = order
+            .iter()
+            .enumerate()
+            .map(|(index, rank)| (*rank, index))
+            .collect();
+        Self {
+            order,
+            rank_to_index,
+        }
+    }
+
+    pub fn get_index(&self, card: Card) -> usize {
+        *self.rank_to_index.get(&card.rank).unwrap()
+    }
+}
+
+#[derive(TS, Debug, Clone, Copy, Hash, Serialize, Deserialize)]
 #[ts(export)]
 pub struct Card {
     suit: Suit,

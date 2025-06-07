@@ -1,27 +1,35 @@
-use super::cards;
+use super::{cards, patterns};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use ts_rs::TS;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PatternPiece<T> {
-    pub match_min: u64,
-    pub match_max: u64,
-    pub pattern: T,
+pub type OrderIdentifier = String;
+pub type PatternIdentifier = String;
+pub type VariableIdentifier = String;
+
+pub enum ZoneVisibility {
+    Owner,
+    All,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum Relation {
-    Consecutive,
+pub struct ZoneDef {
+    visibility: ZoneVisibility,
+    rules: Vec<PatternIdentifier>, //Cards here after to match one of these patterns
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum Pattern {
-    Relation(Relation),
-    Suit(Vec<PatternPiece<Option<cards::Suit>>>),
-    Rank(Vec<PatternPiece<Option<cards::Rank>>>),
+pub struct GameConfig {
+    pub allowed_ranks: HashSet<cards::Rank>,
+    pub allowed_suits: HashSet<cards::Suit>,
+    pub orders: HashMap<OrderIdentifier, cards::RankOrder>,
+    pub patterns: HashMap<PatternIdentifier, patterns::Pattern>,
+    pub initial_zones: HashMap<VariableIdentifier, ZoneDef>, //Engine sets these up first
 }
 
-pub struct GameConfig {}
+// This describes ranks.len * suits.len cards
+pub struct CardSet {
+    pub ranks: Vec<cards::Rank>,
+    pub suits: Vec<cards::Rank>,
+}
 
 pub struct GameState {
     pub cards: HashMap<u64, cards::Card>,
@@ -29,46 +37,4 @@ pub struct GameState {
 
 pub struct ActiveRuleset {
     cards: HashMap<u64, cards::Card>,
-}
-
-pub struct Matcher<'a> {
-    card_map: &'a HashMap<u64, cards::Card>,
-    patterns: &'a Vec<Pattern>,
-    cards: &'a mut Vec<u64>,
-}
-
-impl<'a> Matcher<'a> {
-    pub fn new(
-        card_map: &'a HashMap<u64, cards::Card>,
-        patterns: &'a Vec<Pattern>,
-        cards: &'a mut Vec<u64>,
-    ) -> Self {
-        Self {
-            card_map,
-            patterns,
-            cards,
-        }
-    }
-
-    pub fn match_patterns(&mut self) -> bool {
-        let mut first_pattern = true;
-        for pattern in self.patterns.iter() {
-            if first_pattern {
-                first_pattern = false;
-            } else {
-            }
-        }
-        false
-    }
-
-    pub fn pattern_mutate(&mut self, pattern: &Pattern) -> bool {
-        // match pattern {}
-        false
-    }
-}
-
-impl ActiveRuleset {
-    pub fn match_patterns(&self, patterns: &Vec<Pattern>, cards: &mut Vec<u64>) -> bool {
-        Matcher::new(&self.cards, patterns, cards).match_patterns()
-    }
 }

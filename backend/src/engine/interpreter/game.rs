@@ -1,7 +1,6 @@
 use crate::engine::core::{cards, ruleset};
 use std::collections::HashMap;
 
-use cards::Deck;
 use ruleset::Ruleset;
 
 pub const PREALLOC_UPPER_LIMIT: u32 = 8;
@@ -23,13 +22,11 @@ pub enum GameStatus {
 
 pub struct Player {
     pub player_id: u32,
-    pub deck: Deck,
 }
 
 pub struct Game {
     ruleset: Ruleset,
     players: HashMap<u32, Player>,
-    deck: Deck,
     turn: u32,
 
     // simple way of tracking unique players, when a player joins increment

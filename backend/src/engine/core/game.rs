@@ -8,6 +8,7 @@ pub type Identifier = String;
 pub type VariableIdentifier = Identifier;
 pub type ZoneClassIdentifier = Identifier;
 pub type PlayerClassIdentifier = Identifier;
+pub type PhaseIdentifier = Identifier;
 
 pub enum ZoneVisibility {
     Owner,
@@ -17,6 +18,11 @@ pub enum ZoneVisibility {
 pub struct ZoneClass {
     visibility: ZoneVisibility,
     rules: Vec<patterns::PatternIdentifier>, //Cards here after to match one of these patterns
+}
+
+// Concrete initiated zone
+pub struct Zone {
+    cards: Vec<cards::Card>,
 }
 
 pub struct PlayerClass {
@@ -30,20 +36,56 @@ pub enum PlayerAssignmentRule {
 }
 
 pub enum ZoneTarget {
+    Single(SingleZoneTarget),
+    Multiple(MultiZoneTarget),
+}
+
+pub enum SingleZoneTarget {
     Existing(VariableIdentifier), // one of the initial zones
-    Class(ZoneClassIdentifier),   // any of zone type
     Player {
         // player + desired zone for given player type
-        player: PlayerChoice,
+        player: SinglePlayerTarget,
+        zone: HashMap<PlayerClassIdentifier, VariableIdentifier>,
+    },
+    Create(ZoneClassIdentifier),
+}
+
+pub enum MultiZoneTarget {
+    Player {
+        // player + desired zone for given player type
+        player: MultiPlayerTarget,
         zone: HashMap<PlayerClassIdentifier, VariableIdentifier>,
     },
 }
 
-pub enum PlayerChoice {
+pub enum PlayerTarget {
+    Single(SinglePlayerTarget),
+    Multiple(MultiPlayerTarget),
+}
+
+pub enum SinglePlayerTarget {
     Increment(u64),                               //nth player after this one by order
     IncrementByClass(PlayerClassIdentifier, u64), //nth player after this one of this class
-    All,                                          //all players
-    AllByClass(PlayerClassIdentifier),            //all players of this class
+}
+pub enum MultiPlayerTarget {
+    All,                               //all players
+    AllByClass(PlayerClassIdentifier), //all players of this class
+}
+
+pub struct Phase {}
+
+pub enum PhaseInstruction {
+    RunPhase(PhaseIdentifier),
+    ShuffleZone(ZoneTarget),
+    CreateCards {
+        zone: ZoneTarget,
+        cards: CardSet,
+    },
+    Deal {
+        from: SingleZoneTarget,
+        to: ZoneTarget,
+        count: u64,
+    },
 }
 
 pub struct GameConfig {
@@ -52,6 +94,7 @@ pub struct GameConfig {
     pub orders: HashMap<cards::OrderIdentifier, cards::RankOrder>,
     pub patterns: HashMap<patterns::PatternIdentifier, patterns::Pattern>,
 
+    pub phases: HashMap<PhaseIdentifier, Phase>,
     pub zone_classes: HashMap<ZoneClassIdentifier, ZoneClass>,
     pub player_classes: HashMap<PlayerClassIdentifier, PlayerClass>,
     // For each player, game will go in order of this list and find the first class that matches
@@ -73,3 +116,48 @@ pub struct GameState {
 pub struct ActiveRuleset {
     cards: HashMap<u64, cards::Card>,
 }
+
+/*
+Gin Rummy
+Patterns
+    Meld
+        Set | Run
+    Set (Three or more of same rank)
+        Rank a3+
+    Run (Four or more consecutive carads of same suite)
+        Conesecutive 4+ && Suit a+
+Zones
+    Stock
+        Rules : None
+        Visibility : Owner
+    Discard
+        Rules : None
+        Visibility : Owner
+
+    PlayingDeck
+        Rules : None
+        Visibility : Owner
+    Meld
+        Rules : Meld
+        Visibility : Public
+
+Players
+    RummyPlayer
+        zones
+            deck : PlayingDeck
+        matching_rules : Match all
+
+Initial_zones
+    discard : Discard
+    stock : Stock
+
+Rummy phases
+    Setup
+        CreateCards ( { A234567890JQK, SCHD }, initial_zone(stock) )
+        Shuffle ( initial_zone(stock) )
+        Deal (initial_zone(stock), ZoneTarget (Player ( RummyPlayer, deck) ), 10)
+        MoveTop (initial_zone(stock), initial_zone(discard))
+
+    Play
+
+*/

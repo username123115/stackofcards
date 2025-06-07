@@ -21,6 +21,12 @@ pub struct ZoneClass {
 
 pub struct PlayerClass {
     zones: HashMap<VariableIdentifier, ZoneClassIdentifier>,
+    assignment_rule: PlayerAssignmentRule,
+}
+
+pub enum PlayerAssignmentRule {
+    All,
+    Index(i64),
 }
 
 pub enum ZoneTarget {
@@ -45,7 +51,11 @@ pub struct GameConfig {
     pub allowed_suits: HashSet<cards::Suit>,
     pub orders: HashMap<cards::OrderIdentifier, cards::RankOrder>,
     pub patterns: HashMap<patterns::PatternIdentifier, patterns::Pattern>,
+
     pub zone_classes: HashMap<ZoneClassIdentifier, ZoneClass>,
+    pub player_classes: HashMap<PlayerClassIdentifier, PlayerClass>,
+    // For each player, game will go in order of this list and find the first class that matches
+    pub player_assignment: Vec<PlayerClassIdentifier>,
 
     pub initial_zones: HashMap<VariableIdentifier, ZoneClassIdentifier>, //Engine sets these up first and
 }

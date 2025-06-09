@@ -3,7 +3,8 @@ use std::collections::HashMap;
 
 pub struct PlayerClass {
     zones: HashMap<VariableIdentifier, ZoneClassIdentifier>,
-    assignment_rule: PlayerAssignmentRule,
+    assignment_rule: PlayerAssignmentRule, // Determines if a player in the lobby should have this
+                                           // class
 }
 
 pub enum PlayerAssignmentRule {

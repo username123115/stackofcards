@@ -20,23 +20,27 @@ Patterns
 Zones
     Stock
         Rules : None
-        Visibility : Owner
+        Visibility : Hidden, Hidden
+        Cleanup : Never
     Discard
         Rules : None
-        Visibility : Owner
+        Visibility : Hidden, Hidden,
+        Cleanup : Never
 
     PlayingDeck
         Rules : None
-        Visibility : Owner
+        Visibility : Visible, Hidden
+        Cleanup : Never
     Meld
         Rules : Meld
-        Visibility : Public
+        Visibility : Visible, Visible
+        Cleanup : Never
 
 Players
     RummyPlayer
         zones
             deck : PlayingDeck
-        matching_rules : Match all
+        Assignment Rules : Match all
 
 Initial_zones
     discard : Discard

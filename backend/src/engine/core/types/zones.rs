@@ -1,9 +1,16 @@
 use super::{cards, identifiers::*, patterns, players};
 use std::collections::HashMap;
 
-pub enum ZoneVisibility {
-    Owner,
-    All,
+pub struct ZoneVisibility {
+    owner: ZoneVisibilityRule, //Created player (or no one if this is a game created deck)
+    others: ZoneVisibilityRule,
+}
+
+pub enum ZoneVisibilityRule {
+    Visible,
+    Hidden,
+    Top,
+    Bottom,
 }
 
 pub enum CardSelector {
@@ -14,7 +21,13 @@ pub enum CardSelector {
 
 pub struct ZoneClass {
     visibility: ZoneVisibility,
+    cleanup: ZoneCleanupBehavior,
     rules: Vec<patterns::PatternIdentifier>, //Cards here after to match one of these patterns
+}
+
+pub enum ZoneCleanupBehavior {
+    Never,
+    OnEmpty,
 }
 
 // Concrete initiated zone

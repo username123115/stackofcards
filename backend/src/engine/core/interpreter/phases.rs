@@ -1,5 +1,5 @@
 use super::statements;
 
-pub struct GamePhase {
+pub struct Phase {
     evaluate: statements::Statement,
 }

@@ -6,6 +6,12 @@ pub enum ZoneVisibility {
     All,
 }
 
+pub enum CardSelector {
+    Top,
+    Bottom,
+    IfMatches(patterns::Pattern),
+}
+
 pub struct ZoneClass {
     visibility: ZoneVisibility,
     rules: Vec<patterns::PatternIdentifier>, //Cards here after to match one of these patterns

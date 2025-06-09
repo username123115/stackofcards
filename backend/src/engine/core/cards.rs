@@ -89,3 +89,9 @@ impl RankOrder {
         *self.rank_to_index.get(&card.rank).unwrap()
     }
 }
+
+// This describes ranks.len * suits.len cards
+pub struct CardSet {
+    pub ranks: Vec<Rank>,
+    pub suits: Vec<Rank>,
+}

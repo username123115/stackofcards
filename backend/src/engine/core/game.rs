@@ -1,90 +1,32 @@
-use super::{cards, patterns};
+use super::{cards, identifiers::*, patterns, players, zones};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use ts_rs::TS;
 
-pub type Identifier = String;
-
-pub type VariableIdentifier = Identifier;
-pub type ZoneClassIdentifier = Identifier;
-pub type PlayerClassIdentifier = Identifier;
-pub type PhaseIdentifier = Identifier;
-
-pub enum ZoneVisibility {
-    Owner,
-    All,
-}
-
-pub struct ZoneClass {
-    visibility: ZoneVisibility,
-    rules: Vec<patterns::PatternIdentifier>, //Cards here after to match one of these patterns
-}
-
-// Concrete initiated zone
-pub struct Zone {
-    cards: Vec<cards::Card>,
-}
-
-pub struct PlayerClass {
-    zones: HashMap<VariableIdentifier, ZoneClassIdentifier>,
-    assignment_rule: PlayerAssignmentRule,
-}
-
-pub enum PlayerAssignmentRule {
-    All,
-    Index(i64),
-}
-
-pub enum ZoneTarget {
-    Single(SingleZoneTarget),
-    Multiple(MultiZoneTarget),
-}
-
-pub enum SingleZoneTarget {
-    Existing(VariableIdentifier), // one of the initial zones
-    Player {
-        // player + desired zone for given player type
-        player: SinglePlayerTarget,
-        zone: HashMap<PlayerClassIdentifier, VariableIdentifier>,
-    },
-    Create(ZoneClassIdentifier),
-}
-
-pub enum MultiZoneTarget {
-    Player {
-        // player + desired zone for given player type
-        player: MultiPlayerTarget,
-        zone: HashMap<PlayerClassIdentifier, VariableIdentifier>,
-    },
-}
-
-pub enum PlayerTarget {
-    Single(SinglePlayerTarget),
-    Multiple(MultiPlayerTarget),
-}
-
-pub enum SinglePlayerTarget {
-    Increment(u64),                               //nth player after this one by order
-    IncrementByClass(PlayerClassIdentifier, u64), //nth player after this one of this class
-}
-pub enum MultiPlayerTarget {
-    All,                               //all players
-    AllByClass(PlayerClassIdentifier), //all players of this class
-}
-
 pub struct Phase {}
+
+pub enum CardSelector {
+    Top,
+    Bottom,
+    IfMatches(patterns::Pattern),
+}
 
 pub enum PhaseInstruction {
     RunPhase(PhaseIdentifier),
-    ShuffleZone(ZoneTarget),
+    ShuffleZone(zones::ZoneTarget),
     CreateCards {
-        zone: ZoneTarget,
-        cards: CardSet,
+        zone: zones::ZoneTarget,
+        cards: cards::CardSet,
     },
     Deal {
-        from: SingleZoneTarget,
-        to: ZoneTarget,
+        from: zones::SingleZoneTarget,
+        to: zones::ZoneTarget,
         count: u64,
+    },
+    Move {
+        from: players::SinglePlayerTarget,
+        to: zones::SingleZoneTarget,
+        selector: CardSelector,
     },
 }
 
@@ -95,18 +37,12 @@ pub struct GameConfig {
     pub patterns: HashMap<patterns::PatternIdentifier, patterns::Pattern>,
 
     pub phases: HashMap<PhaseIdentifier, Phase>,
-    pub zone_classes: HashMap<ZoneClassIdentifier, ZoneClass>,
-    pub player_classes: HashMap<PlayerClassIdentifier, PlayerClass>,
+    pub zone_classes: HashMap<ZoneClassIdentifier, zones::ZoneClass>,
+    pub player_classes: HashMap<PlayerClassIdentifier, players::PlayerClass>,
     // For each player, game will go in order of this list and find the first class that matches
     pub player_assignment: Vec<PlayerClassIdentifier>,
 
     pub initial_zones: HashMap<VariableIdentifier, ZoneClassIdentifier>, //Engine sets these up first and
-}
-
-// This describes ranks.len * suits.len cards
-pub struct CardSet {
-    pub ranks: Vec<cards::Rank>,
-    pub suits: Vec<cards::Rank>,
 }
 
 pub struct GameState {

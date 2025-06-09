@@ -16,7 +16,8 @@ pub enum ZoneVisibilityRule {
 pub enum CardSelector {
     Top,
     Bottom,
-    IfMatches(patterns::Pattern),
+    Suit(cards::Suit), //select all of a suit
+    Rank(cards::Rank), //select all of a rank
 }
 
 pub struct ZoneClass {

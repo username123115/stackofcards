@@ -5,11 +5,34 @@ use crate::engine::core::types;
 pub enum Expression {
     Number(NumberExpression),
     Boolean(BooleanExpression),
+    Zone(ZoneCollectionExpression),
+    ZoneCollection(ZoneCollectionExpression),
+    Player(PlayerExpression),
+    PlayerCollection(PlayerCollectionExpression),
+    Suit(SuitExpression),
+    Rank(RankExpression),
+    CardSelector(CardSelectorExpression),
+}
+
+pub enum CardSelectorExpression {
+    Top,
+    Bottom,
+    Suit(SuitExpression),
+    Rank(RankExpression),
+}
+
+pub enum SuitExpression {
+    SuitLiteral(types::cards::Suit),
+}
+
+pub enum RankExpression {
+    RankLiteral(types::cards::Rank),
 }
 
 pub enum NumberExpression {
     NumberLiteral(BaseNumberType),
-    ZoneToNumber {
+    SumZones {
+        //Take the sum of a zone
         zone: types::zones::SingleZoneTarget,
         ordering: types::cards::RankOrder,
     },
@@ -37,7 +60,7 @@ pub enum ZoneExpression {
 }
 
 pub enum ZoneCollectionExpression {
-    ZoneCollection(types::zones::MultiZoneTarget),
+    ZoneCollection(types::zones::ZoneTarget),
 }
 
 pub enum PlayerExpression {
@@ -45,5 +68,5 @@ pub enum PlayerExpression {
 }
 
 pub enum PlayerCollectionExpression {
-    PlayerCollection(types::players::MultiPlayerTarget),
+    PlayerCollection(types::players::PlayerTarget),
 }

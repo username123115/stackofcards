@@ -7,23 +7,23 @@ pub enum Statement {
     Conditional(ConditionalStatement), //if else block
     Broadcast {
         msg: String,
-        to: players::PlayerTarget,
+        to: expressions::PlayerCollectionExpression,
     },
     CreateCards {
-        zone: zones::ZoneTarget,
+        zone: expressions::ZoneExpression,
         cards: cards::CardSet,
     },
     Deal {
         //For now just do round robin dealing of count cards each, and error if theres not
         //enough cards
-        from: zones::SingleZoneTarget,
-        to: zones::ZoneTarget,
+        from: expressions::ZoneExpression,
+        to: expressions::ZoneCollectionExpression,
         count: u64,
     },
     Move {
-        from: players::SinglePlayerTarget,
-        to: zones::SingleZoneTarget,
-        selector: zones::CardSelector,
+        from: expressions::ZoneExpression,
+        to: expressions::ZoneExpression,
+        selector: expressions::CardSelectorExpression,
     },
 }
 

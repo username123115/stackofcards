@@ -1,4 +1,4 @@
-use super::{cards, identifiers::*, patterns};
+use super::{cards, identifiers::*, patterns, players};
 use std::collections::HashMap;
 
 pub enum ZoneVisibility {
@@ -14,6 +14,7 @@ pub struct ZoneClass {
 // Concrete initiated zone
 pub struct Zone {
     cards: Vec<cards::Card>,
+    zone_type: ZoneClassIdentifier,
 }
 
 pub enum ZoneTarget {
@@ -24,7 +25,7 @@ pub enum ZoneTarget {
 pub enum MultiZoneTarget {
     Player {
         // player + desired zone for given player type
-        player: MultiPlayerTarget,
+        player: players::MultiPlayerTarget,
         zone: HashMap<PlayerClassIdentifier, VariableIdentifier>,
     },
 }
@@ -33,7 +34,7 @@ pub enum SingleZoneTarget {
     Existing(VariableIdentifier), // one of the initial zones
     Player {
         // player + desired zone for given player type
-        player: SinglePlayerTarget,
+        player: players::SinglePlayerTarget,
         zone: HashMap<PlayerClassIdentifier, VariableIdentifier>,
     },
     Create(ZoneClassIdentifier),

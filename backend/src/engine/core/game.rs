@@ -1,4 +1,4 @@
-use super::{cards, identifiers::*, patterns, players, zones};
+use super::types::{cards, identifiers::*, patterns, players, zones};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use ts_rs::TS;

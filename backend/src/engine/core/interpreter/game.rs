@@ -1,4 +1,4 @@
-use super::types::{cards, identifiers::*, patterns, players, zones};
+use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use ts_rs::TS;

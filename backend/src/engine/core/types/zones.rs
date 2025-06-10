@@ -31,12 +31,6 @@ pub enum ZoneCleanupBehavior {
     OnEmpty,
 }
 
-// Concrete initiated zone
-pub struct Zone {
-    cards: Vec<cards::Card>,
-    zone_type: ZoneClassIdentifier,
-}
-
 pub enum ZoneTarget {
     Single(SingleZoneTarget),
     Multiple(MultiZoneTarget),

@@ -38,10 +38,19 @@ impl ExecutionContext {
     }
 }
 
-pub type ActiveZoneID = u64;
+pub type GameZoneID = u64;
+pub type PlayerOrderIndex = u64;
 
-pub struct ActivePlayerState {
-    zones: HashMap<VariableIdentifier, ActiveZoneID>,
+pub struct GamePlayerState {
+    zones: HashMap<VariableIdentifier, GameZoneID>,
+    owned_zones: HashSet<GameZoneID>,
+    class: PlayerClassIdentifier,
+}
+
+pub struct GameZoneState {
+    cards: Vec<u64>,
+    class: ZoneClassIdentifier,
+    owner: Option<PlayerOrderIndex>,
 }
 
 pub struct Game {
@@ -49,15 +58,15 @@ pub struct Game {
     cards_created: u64,
     cards: HashMap<u64, cards::Card>,
 
-    zones_created: ActiveZoneID,
-    zones: HashMap<u64, zones::Zone>,
+    zones_created: GameZoneID,
+    zones: HashMap<GameZoneID, GameZoneState>,
     // These mappings may point to nonexistant zones so check on indexing
-    zone_class_mappings: HashMap<ZoneClassIdentifier, Vec<ActiveZoneID>>,
-    zone_name_mappings: HashMap<VariableIdentifier, ActiveZoneID>,
+    zone_class_mappings: HashMap<ZoneClassIdentifier, Vec<GameZoneID>>,
+    zone_name_mappings: HashMap<VariableIdentifier, GameZoneID>,
 
     ex_ctx: ExecutionContext,
 
-    players: Vec<ActivePlayerState>,
+    players: Vec<GamePlayerState>,
 }
 
 impl Game {

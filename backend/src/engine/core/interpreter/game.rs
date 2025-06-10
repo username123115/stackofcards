@@ -64,11 +64,6 @@ impl Game {
         }
     }
 
-    pub fn new_card_id(&mut self) -> u64 {
-        self.cards_created += 1;
-        self.cards_created
-    }
-
     pub fn lookup_single_zone(&self, target: &zones::SingleZoneTarget) -> VariableIdentifier {
         todo!("IMPLEMENT ME");
     }

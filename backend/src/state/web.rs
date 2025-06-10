@@ -18,6 +18,7 @@ struct WebGameState {
     // Underlying engine will only care about order, it won't know
     // about player IDs or such
     pub player_order: Vec<player::PlayerId>,
+    pub game: interpreter::game::Game,
     pub status: game::GameStatus,
 }
 
@@ -234,6 +235,7 @@ impl WebGame {
             connections: HashMap::new(),
             player_order: Vec::new(),
             status: game::GameStatus::Waiting,
+            game: interpreter::game::Game::new(interpreter::example_config::gen_example_config()),
         };
 
         (

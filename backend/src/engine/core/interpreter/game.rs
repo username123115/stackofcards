@@ -9,7 +9,7 @@ use tracing;
 use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
 
 use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct ExecutionContext {
@@ -28,14 +28,14 @@ impl ExecutionContext {
 
 #[derive(Debug, Clone)]
 pub struct Game {
-    config: Rc<config::GameConfig>,
+    config: Arc<config::GameConfig>,
     state: state::GameState,
     ex_ctx: ExecutionContext,
 }
 
 impl Game {
     pub fn new(config: config::GameConfig) -> Self {
-        let config_rc = Rc::new(config);
+        let config_rc = Arc::new(config);
         Self {
             config: config_rc.clone(),
             state: state::GameState::new(config_rc),

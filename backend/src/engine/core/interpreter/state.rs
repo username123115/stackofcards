@@ -6,7 +6,7 @@ use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones
 
 use std::cmp::min;
 use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub type GameZoneID = u64;
 pub type PlayerOrderIndex = u64;
@@ -55,7 +55,7 @@ pub enum GameWaitingStatus {
 
 #[derive(Debug, Clone)]
 pub struct GameState {
-    pub config: Rc<config::GameConfig>,
+    pub config: Arc<config::GameConfig>,
     pub zones: HashMap<GameZoneID, GameActiveZone>,
     pub players: Vec<PlayerClassIdentifier>,
     pub status: GameStatus,
@@ -64,7 +64,7 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new(config: Rc<config::GameConfig>) -> Self {
+    pub fn new(config: Arc<config::GameConfig>) -> Self {
         Self {
             config,
             zones: HashMap::new(),

@@ -36,12 +36,12 @@ async fn main() {
 
     let config = backend::config::Config::from_env();
 
-    info!("Creating new sql pool");
+    /* info!("Creating new sql pool");
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(&config.database_url)
         .await
-        .unwrap();
+        .unwrap(); */
 
     info!("Binding port");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:5050").await.unwrap();

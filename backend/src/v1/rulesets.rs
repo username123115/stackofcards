@@ -20,33 +20,13 @@ pub struct RulesetDescriber {
 //of game
 
 pub fn get_rulesets() -> Vec<RulesetDescriber> {
-    let examples: [RulesetDescriber; 5] = [
-        RulesetDescriber {
-            name: String::from("Go Fish"),
-            description: String::from("Simple matching card game."),
-            identifier: 101,
-        },
-        RulesetDescriber {
-            name: String::from("Poker"),
-            description: String::from("Betting and strategy card game."),
-            identifier: 102,
-        },
-        RulesetDescriber {
-            name: String::from("Blackjack"),
-            description: String::from("Aim for 21 without going over."),
-            identifier: 103,
-        },
-        RulesetDescriber {
-            name: String::from("Solitaire"),
-            description: String::from("Single-player card game."),
-            identifier: 104,
-        },
-        RulesetDescriber {
-            name: String::from("Bridge"),
-            description: String::from("Partnership trick-taking card game."),
-            identifier: 105,
-        },
-    ];
+    let examples: [RulesetDescriber; 1] = [RulesetDescriber {
+        name: String::from("Demonstration"),
+        description: String::from(
+            "The engine is WIP, this game is for prototyping and demonstrating engine capabilities",
+        ),
+        identifier: 101,
+    }];
     Vec::from(examples)
 }
 

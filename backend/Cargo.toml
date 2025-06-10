@@ -20,6 +20,7 @@ ts-rs = "10.1"
 tokio = { version = "1", features = ["full"] }
 tokio-tungstenite = "*"
 tower = { version = "0.4", features = ["full"] }
+rand = "0.9.1"
 
 tracing = "0.1"
 tracing-subscriber = "0.3"

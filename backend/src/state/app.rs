@@ -3,6 +3,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use rand::Rng;
+
 use super::web;
 use tokio::sync::mpsc;
 use tracing::{error, info};
@@ -21,7 +23,7 @@ impl AppState {
     pub fn start_room(&self) -> Result<u64, String> {
         info!("Attempting to lock rooms mutex");
 
-        let room_id = random_number();
+        let room_id = random_code();
         let mut room_map = self.rooms.lock().unwrap();
 
         info!("Room access obtained");
@@ -47,6 +49,7 @@ impl AppState {
     }
 }
 
-fn random_number() -> u64 {
-    4
+fn random_code() -> u64 {
+    let mut rng = rand::rng();
+    rng.random_range(0..1000000)
 }

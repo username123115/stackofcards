@@ -95,8 +95,8 @@ impl WebGameState {
     }
     pub fn get_snapshot(&self) -> wrapper::GameSnapshot {
         wrapper::GameSnapshot {
-            actions: None,
-            private_actions: None,
+            actions: Vec::new(),
+            private_actions: Vec::new(),
             status: self.game.get_status(),
             players: Some(self.get_player_snapshot()),
         }
@@ -114,8 +114,8 @@ impl WebGameState {
             if let WebGameConnection::Connected(tx) = player.conn.clone() {
                 let copy = wrapper::GameSnapshot {
                     private_actions: match &private_actions {
-                        Some(p_actions) => p_actions.get(player_id).cloned(),
-                        None => None,
+                        Some(p_actions) => p_actions.get(player_id).cloned().unwrap_or(Vec::new()),
+                        None => Vec::new(),
                     },
                     ..public.clone()
                 };

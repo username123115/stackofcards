@@ -23,8 +23,8 @@ pub enum GameCommand {}
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]
 #[ts(export)]
 pub struct GameSnapshot {
-    pub actions: Option<Vec<GameAction>>,
-    pub private_actions: Option<Vec<GameAction>>,
+    pub actions: Vec<GameAction>,
+    pub private_actions: Vec<GameAction>,
     pub players: Option<player::PlayerSnapshot>,
     pub status: state::GameStatus,
 }
@@ -32,25 +32,17 @@ pub struct GameSnapshot {
 impl GameSnapshot {
     pub fn new() -> Self {
         Self {
-            actions: None,
-            private_actions: None,
+            actions: Vec::new(),
+            private_actions: Vec::new(),
             players: None,
             status: state::GameStatus::Invalid,
         }
     }
     pub fn add_action(&mut self, action: GameAction) {
-        if let Some(actions) = &mut self.actions {
-            actions.push(action);
-        } else {
-            self.private_actions = Some(vec![action]);
-        }
+        self.actions.push(action);
     }
 
     pub fn add_private_action(&mut self, action: GameAction) {
-        if let Some(actions) = &mut self.private_actions {
-            actions.push(action);
-        } else {
-            self.private_actions = Some(vec![action]);
-        }
+        self.private_actions.push(action);
     }
 }

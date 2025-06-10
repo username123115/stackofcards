@@ -2,7 +2,7 @@ import type { GameSnapshot } from '@bindings/GameSnapshot'
 import style from './client.module.css'
 
 export default function Client({ snapshot, playerId }: { snapshot: GameSnapshot, playerId: String }) {
-	if (snapshot.status === "Waiting") {
+	if (snapshot.status) {
 		return (
 			<Roster snapshot={snapshot} playerId={playerId} />
 		)
@@ -16,8 +16,8 @@ export default function Client({ snapshot, playerId }: { snapshot: GameSnapshot,
 
 
 function Roster({ snapshot, playerId }: { snapshot: GameSnapshot, playerId: String }) {
-	if (snapshot.players && snapshot.status === "Waiting") {
-		const roster = snapshot.players.order.map((pid) => {
+	if (typeof snapshot.status === 'object' && 'Waiting' in snapshot.status) {
+		const roster = snapshot!.players?.order.map((pid) => {
 			const isPlayer = pid === playerId;
 			const key = isPlayer + pid;
 			const nick = snapshot.players?.players[pid]?.nickname;

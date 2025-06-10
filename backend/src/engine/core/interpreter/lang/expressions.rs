@@ -2,6 +2,7 @@ use super::types_instances::BaseNumberType;
 use crate::engine::core::types;
 
 // Get evaluated to types
+#[derive(Debug, Clone)]
 pub enum Expression {
     Number(NumberExpression),
     Boolean(BooleanExpression),
@@ -14,6 +15,7 @@ pub enum Expression {
     CardSelector(CardSelectorExpression),
 }
 
+#[derive(Debug, Clone)]
 pub enum CardSelectorExpression {
     Top,
     Bottom,
@@ -21,14 +23,17 @@ pub enum CardSelectorExpression {
     Rank(RankExpression),
 }
 
+#[derive(Debug, Clone)]
 pub enum SuitExpression {
     SuitLiteral(types::cards::Suit),
 }
 
+#[derive(Debug, Clone)]
 pub enum RankExpression {
     RankLiteral(types::cards::Rank),
 }
 
+#[derive(Debug, Clone)]
 pub enum NumberExpression {
     NumberLiteral(BaseNumberType),
     SumZones {
@@ -38,6 +43,7 @@ pub enum NumberExpression {
     },
 }
 
+#[derive(Debug, Clone)]
 pub enum BooleanExpression {
     BooleanLiteral(bool),
     Comparison {
@@ -47,6 +53,7 @@ pub enum BooleanExpression {
     },
 }
 
+#[derive(Debug, Clone)]
 pub enum Comparison {
     GT,
     LT,
@@ -55,18 +62,22 @@ pub enum Comparison {
     Eq,
 }
 
+#[derive(Debug, Clone)]
 pub enum ZoneExpression {
     SingleZone(types::zones::SingleZoneTarget),
 }
 
+#[derive(Debug, Clone)]
 pub enum ZoneCollectionExpression {
     ZoneCollection(types::zones::ZoneTarget),
 }
 
+#[derive(Debug, Clone)]
 pub enum PlayerExpression {
     Player(types::players::SinglePlayerTarget),
 }
 
+#[derive(Debug, Clone)]
 pub enum PlayerCollectionExpression {
     PlayerCollection(types::players::PlayerTarget),
 }

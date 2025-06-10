@@ -4,6 +4,7 @@ use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones
 use std::collections::{HashMap, HashSet};
 use std::ops::Range;
 
+#[derive(Debug, Clone)]
 pub struct GameConfig {
     pub allowed_ranks: HashSet<cards::Rank>,
     pub allowed_suits: HashSet<cards::Suit>,

@@ -11,6 +11,7 @@ use std::rc::Rc;
 pub type GameZoneID = u64;
 pub type PlayerOrderIndex = u64;
 
+#[derive(Debug, Clone)]
 pub struct GameActiveZone {
     pub zone_id: GameZoneID,
     pub cards: Vec<u64>,
@@ -40,16 +41,19 @@ impl GameActiveZone {
     }
 }
 
+#[derive(Debug, Clone)]
 pub enum GameStatus {
     Waiting(GameWaitingStatus),
     Playing,
 }
 
+#[derive(Debug, Clone)]
 pub enum GameWaitingStatus {
     NotReady,
     Ready,
 }
 
+#[derive(Debug, Clone)]
 pub struct GameState {
     pub config: Rc<config::GameConfig>,
     pub zones: HashMap<GameZoneID, GameActiveZone>,

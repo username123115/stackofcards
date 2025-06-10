@@ -91,6 +91,7 @@ impl RankOrder {
 }
 
 // This describes ranks.len * suits.len cards
+#[derive(Debug, Clone)]
 pub struct CardSet {
     pub ranks: Vec<Rank>,
     pub suits: Vec<Rank>,

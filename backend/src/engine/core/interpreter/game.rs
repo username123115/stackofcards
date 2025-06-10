@@ -11,6 +11,7 @@ use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
+#[derive(Debug, Clone)]
 pub struct ExecutionContext {
     statements_evaluated: u64,
     statement_limit: u64,
@@ -25,6 +26,7 @@ impl ExecutionContext {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Game {
     config: Rc<config::GameConfig>,
     state: state::GameState,

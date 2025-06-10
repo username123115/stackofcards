@@ -40,7 +40,7 @@ pub fn gen_example_config() -> config::GameConfig {
         initial_zones: HashMap::new(),
         initial_phase: "Todo".into(),
 
-        player_range: 2..2,
+        player_range: 2..6,
     }
 }
 

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, Navigate } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import Entrance from '@components/entrance.tsx'

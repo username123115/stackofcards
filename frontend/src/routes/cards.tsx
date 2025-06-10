@@ -1,19 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
 import CardContainer from '@components/utility/card_container'
 
-import { useState } from 'react'
+// import { useState } from 'react'
 
-import type { Rank, Suit, Card, Zone, CardId } from '@client/zones'
+// import type { Zone, ZoneId} from '@client/zones'
 
 export const Route = createFileRoute('/cards')({
 	component: RouteComponent,
 })
 
 function RouteComponent() {
-	const [selections, setSelections] = useState<Array<CardId>>([]);
+	/* const [selections, setSelections] = useState<Array<CardId>>([]);
 
 	function handleDragStart(event: DragEvent) {
-		console.log("Card is dragged");
+		console.log(`Card is dragged ${event}`);
 	}
 
 	let zone1: Zone = {
@@ -36,7 +36,7 @@ function RouteComponent() {
 		],
 		displayMode: "Fan",
 		id: "z2",
-	}
+	} */
 	return (
 		<>
 			<CardContainer />

@@ -1,4 +1,4 @@
-import { createFileRoute, useParams } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from 'react'
 
 import { connectToGame } from '@client/websocket'
@@ -28,6 +28,7 @@ function RouteComponent() {
 	}
 
 	function onErrorCallback(error: Event) {
+		console.error(`websocket error: ${error}`);
 	}
 
 	function onCloseCallback() {

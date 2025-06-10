@@ -1,6 +1,5 @@
 import styles from './card.module.css'
-import { useState } from 'react'
-import type { Rank, Suit, Card, Zone } from '@client/zones'
+import type { Card, Zone } from '@client/zones'
 import type { DragEvent } from 'react'
 
 
@@ -38,8 +37,6 @@ function CardContainer() {
 	)
 }
 
-type CardSpacerMode = "left" | "normal" | "right"
-//function Spacer(
 
 function PlayingCard({ card }: { card: Card }) {
 
@@ -65,7 +62,7 @@ function PlayingCard({ card }: { card: Card }) {
 		const offX = event.nativeEvent.offsetX;
 		const myWidth = event.currentTarget.offsetWidth;
 		//Determine which direction to offset this card
-		const dragRatio = offX / myWidth;
+		// const dragRatio = offX / myWidth;
 
 		//TODO
 		event.currentTarget.classList.add(styles.cardMoveRight);
@@ -90,9 +87,9 @@ function PlayingCard({ card }: { card: Card }) {
 
 }
 
-function CardDropArea({ card }: { card: Card }) {
+/* function CardDropArea({ card }: { card: Card }) {
 	<div>
 	</div>
-}
+} */
 
 export default CardContainer

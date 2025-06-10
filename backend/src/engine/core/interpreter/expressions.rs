@@ -5,7 +5,7 @@ use crate::engine::core::types;
 pub enum Expression {
     Number(NumberExpression),
     Boolean(BooleanExpression),
-    Zone(ZoneCollectionExpression),
+    Zone(ZoneExpression),
     ZoneCollection(ZoneCollectionExpression),
     Player(PlayerExpression),
     PlayerCollection(PlayerCollectionExpression),

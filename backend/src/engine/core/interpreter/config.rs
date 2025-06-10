@@ -2,6 +2,7 @@ use super::lang::phases;
 use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
 
 use std::collections::{HashMap, HashSet};
+use std::ops::Range;
 
 pub struct GameConfig {
     pub allowed_ranks: HashSet<cards::Rank>,
@@ -17,4 +18,5 @@ pub struct GameConfig {
     pub initial_zones: HashMap<VariableIdentifier, ZoneClassIdentifier>, //Engine sets these up first and
 
     pub initial_phase: PhaseIdentifier,
+    pub player_range: Range<u64>,
 }

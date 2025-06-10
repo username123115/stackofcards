@@ -2,17 +2,14 @@ use super::{
     config,
     lang::{expressions, phases, statements, types_instances},
 };
-
-use std::rc::Rc;
-
 use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
 
+use std::cmp::min;
 use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
 
 pub type GameZoneID = u64;
 pub type PlayerOrderIndex = u64;
-
-pub struct GameActivePlayer {}
 
 pub struct GameActiveZone {
     pub zone_id: GameZoneID,
@@ -43,24 +40,114 @@ impl GameActiveZone {
     }
 }
 
-pub struct GameZoneState {
-    pub config: Rc<config::GameConfig>,
-    pub zones: HashMap<GameZoneID, GameActiveZone>,
-    zones_created: GameZoneID,
+pub enum GameStatus {
+    Waiting,
+    Playing,
 }
 
-impl GameZoneState {
+pub struct GameState {
+    pub config: Rc<config::GameConfig>,
+    pub zones: HashMap<GameZoneID, GameActiveZone>,
+    pub players: Vec<PlayerClassIdentifier>,
+    pub status: GameStatus,
+    zones_created: GameZoneID,
+    cards_created: u64,
+}
+
+impl GameState {
     pub fn new(config: Rc<config::GameConfig>) -> Self {
         Self {
             config,
             zones: HashMap::new(),
+            players: Vec::new(),
+            status: GameStatus::Waiting,
             zones_created: 0,
+            cards_created: 0,
         }
     }
 
-    pub fn next_id(&mut self) -> GameZoneID {
+    //TODO
+    pub fn check_config(&self) -> Result<(), String> {
+        Ok(())
+    }
+
+    // Assign players roles depending on class order
+    pub fn create_players(&mut self, player_count: u64) -> Result<(), String> {
+        if let GameStatus::Waiting = self.status {
+            let to_create = min(player_count, self.config.player_range.end);
+            let mut players: Vec<PlayerClassIdentifier> = Vec::with_capacity(to_create as usize);
+            for i in 0..to_create {
+                let mut player_assignment: Option<String> = None;
+
+                for class_name in &self.config.player_assignment {
+                    let class_opt = &self.config.player_classes.get(class_name);
+                    let mut found: bool = false;
+                    match class_opt {
+                        Some(class) => match class.assignment_rule {
+                            players::PlayerAssignmentRule::All => found = true,
+                            players::PlayerAssignmentRule::Index(idx) => {
+                                let cur_idx = i as i64;
+                                let length = to_create as i64;
+                                if cur_idx == idx {
+                                    found = true;
+                                } else if (idx < 0) && (cur_idx == (length + idx)) {
+                                    found = true;
+                                }
+                            }
+                        },
+                        None => {
+                            tracing::error!(
+                                "Couldn't find class {class_name} while assigning a player"
+                            );
+                            return Err("Class definition not found".into());
+                        }
+                    }
+                    if found {
+                        player_assignment = Some(class_name.clone());
+                        break;
+                    }
+                }
+
+                match player_assignment {
+                    Some(cn) => players.push(cn),
+                    None => return Err("Couldn't assign to a player".into()),
+                }
+            }
+            self.players = players;
+            return Ok(());
+        }
+        Err("Game already started".into())
+    }
+
+    pub fn game_ready(&self) -> bool {
+        if let GameStatus::Waiting = self.status {
+            let player_count: u64 = self.players.len() as u64;
+            return (player_count >= self.config.player_range.start)
+                && (player_count <= self.config.player_range.end);
+        } else {
+            return false;
+        }
+    }
+
+    // Checks if game has enough players and starts
+    pub fn start_game(&mut self) -> Result<(), String> {
+        if self.game_ready() {
+            self.status = GameStatus::Playing;
+            todo!("Implement me");
+            Ok(())
+        } else {
+            return Err("Game not ready to start".into());
+        }
+    }
+
+    pub fn next_zone_id(&mut self) -> GameZoneID {
         self.zones_created += 1;
         self.zones_created
+    }
+
+    pub fn next_card_id(&mut self) -> u64 {
+        self.cards_created += 1;
+        self.cards_created
     }
 
     pub fn create_zone(
@@ -69,7 +156,7 @@ impl GameZoneState {
         class: &ZoneClassIdentifier,
     ) -> Result<GameZoneID, String> {
         if let Some(_) = self.config.zone_classes.get(class) {
-            let zone_id = self.next_id();
+            let zone_id = self.next_zone_id();
             let z = GameActiveZone::new(zone_id, cards, class.clone(), None, None, None);
             self.zones.insert(zone_id, z);
             return Ok(zone_id);

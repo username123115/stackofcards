@@ -3,6 +3,9 @@ use super::{
     lang::{expressions, phases, statements, types_instances},
     state,
 };
+
+use tracing;
+
 use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
 
 use std::collections::{HashMap, HashSet};
@@ -27,7 +30,7 @@ pub struct Game {
     cards_created: u64,
     cards: HashMap<u64, cards::Card>,
 
-    zones: state::GameZoneState,
+    state: state::GameState,
 
     ex_ctx: ExecutionContext,
 }
@@ -40,7 +43,7 @@ impl Game {
             cards_created: 0,
             cards: HashMap::new(),
 
-            zones: state::GameZoneState::new(config_rc),
+            state: state::GameState::new(config_rc),
 
             ex_ctx: ExecutionContext::new(),
         }
@@ -54,12 +57,18 @@ impl Game {
         let mut zone_init_result: Result<(), String> = Ok(());
         for (zone_name, zone_class) in self.config.initial_zones.iter() {
             // Empty zone owned by nobody
-            match self.zones.create_zone(Vec::new(), zone_class) {
+            match self.state.create_zone(Vec::new(), zone_class) {
                 Ok(zone_id) => (),
                 Err(msg) => {
+                    tracing::error!("Zone init failed {msg}");
                     zone_init_result = Err(msg);
+                    break;
                 }
             }
+        }
+        if let Err(e) = zone_init_result {
+            self.throw_error(e);
+            return;
         }
     }
 

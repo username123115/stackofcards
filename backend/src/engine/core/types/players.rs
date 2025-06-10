@@ -2,9 +2,9 @@ use super::{identifiers::*, patterns};
 use std::collections::HashMap;
 
 pub struct PlayerClass {
-    zones: HashMap<VariableIdentifier, ZoneClassIdentifier>,
-    assignment_rule: PlayerAssignmentRule, // Determines if a player in the lobby should have this
-                                           // class
+    pub zones: HashMap<VariableIdentifier, ZoneClassIdentifier>,
+    pub assignment_rule: PlayerAssignmentRule, // Determines if a player in the lobby should have this
+                                               // class
 }
 
 pub enum PlayerAssignmentRule {

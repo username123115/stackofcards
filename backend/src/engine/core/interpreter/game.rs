@@ -36,16 +36,30 @@ impl ExecutionContext {
 pub type GameZoneID = u64;
 pub type PlayerOrderIndex = u64;
 
-pub struct GamePlayerState {
+struct GamePlayerState {
     zones: HashMap<VariableIdentifier, GameZoneID>,
     owned_zones: HashSet<GameZoneID>,
     class: PlayerClassIdentifier,
 }
 
-pub struct GameZoneState {
+struct GameZoneState {
     cards: Vec<u64>,
     class: ZoneClassIdentifier,
     owner: Option<PlayerOrderIndex>,
+}
+
+impl GameZoneState {
+    pub fn new(
+        cards: Vec<u64>,
+        class: &ZoneClassIdentifier,
+        owner: Option<PlayerOrderIndex>,
+    ) -> Self {
+        Self {
+            cards,
+            class: class.clone(),
+            owner,
+        }
+    }
 }
 
 pub struct Game {
@@ -56,7 +70,7 @@ pub struct Game {
     zones_created: GameZoneID,
     zones: HashMap<GameZoneID, GameZoneState>,
     // These mappings may point to nonexistant zones so check on indexing
-    zone_class_mappings: HashMap<ZoneClassIdentifier, Vec<GameZoneID>>,
+    zone_class_mappings: HashMap<ZoneClassIdentifier, HashSet<GameZoneID>>,
     zone_name_mappings: HashMap<VariableIdentifier, GameZoneID>,
 
     ex_ctx: ExecutionContext,
@@ -87,18 +101,54 @@ impl Game {
     //
 
     pub fn init(&mut self) {
-        let mut zone_class_not_found: bool = false;
+        let mut zone_init_result: Result<(), String> = Ok(());
         for (zone_name, zone_class) in self.config.initial_zones.iter() {
-            if let Some(class_def) = self.config.zone_classes.get(zone_class) {
-            } else {
-                zone_class_not_found = true;
-                break;
+            // Empty zone owned by nobody
+            match self.create_zone(Vec::new(), zone_class) {
+                Ok(zone_id) => (),
+                Err(msg) => {
+                    zone_init_result = Err(msg);
+                }
             }
         }
-        if zone_class_not_found {
-            self.throw_error("Zone initializer referenced undefined class".into());
-            return;
+    }
+
+    pub fn create_zone(
+        &mut self,
+        cards: Vec<u64>,
+        class: &ZoneClassIdentifier,
+    ) -> Result<GameZoneID, String> {
+        if let Some(_) = self.config.zone_classes.get(class) {
+            let z = GameZoneState::new(cards, class, None);
+
+            // Add to pool
+            let zone_id = self.new_zone_id();
+            self.zones.insert(zone_id, z);
+            let zone_set_opt = self.zone_class_mappings.get_mut(class);
+
+            // Add to class mappings
+            if let Some(zone_set) = zone_set_opt {
+                zone_set.insert(zone_id);
+            } else {
+                let mut new_zone_set = HashSet::new();
+                new_zone_set.insert(zone_id);
+                self.zone_class_mappings.insert(class.clone(), new_zone_set);
+            }
+
+            return Ok(zone_id);
+        } else {
+            return Err("Zone creator used nonexistant class".into());
         }
+    }
+
+    pub fn new_zone_id(&mut self) -> GameZoneID {
+        self.zones_created += 1;
+        self.zones_created
+    }
+
+    pub fn new_card_id(&mut self) -> u64 {
+        self.cards_created += 1;
+        self.cards_created
     }
 
     pub fn lookup_single_zone(&self, target: &zones::SingleZoneTarget) -> VariableIdentifier {

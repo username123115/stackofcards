@@ -54,6 +54,14 @@ impl Game {
         false
     }
 
+    pub fn update_players(&mut self, player_count: u64) -> Result<(), String> {
+        self.state.create_players(player_count)
+    }
+
+    pub fn get_roles(&self) -> Vec<PlayerClassIdentifier> {
+        self.state.players.clone()
+    }
+
     // Identify zones by owner (Players will hold references)
     // Identify zones by class
     //

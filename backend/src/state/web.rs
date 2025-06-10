@@ -35,13 +35,14 @@ struct WebGamePlayer {
 }
 
 impl WebGamePlayer {
-    fn to_pinfo(&self) -> player::PlayerInformation {
+    fn to_pinfo(&self, role: Option<player::PlayerRole>) -> player::PlayerInformation {
         player::PlayerInformation {
             nickname: self.nickname.clone(),
             disconnected: match self.conn {
                 WebGameConnection::Connected(_) => None,
                 WebGameConnection::Disconnected(elapsed) => Some(elapsed),
             },
+            role,
         }
     }
 }
@@ -65,20 +66,39 @@ pub struct WebgameRequest {
 //
 
 impl WebGameState {
-    pub fn snapshot(&self) -> wrapper::GameSnapshot {
+    pub fn get_player_snapshot(&self) -> player::PlayerSnapshot {
+        let mut psnapshot = player::PlayerSnapshot {
+            players: self
+                .connections
+                .iter()
+                .map(|(pid, pdata)| (pid.clone(), pdata.to_pinfo(None)))
+                .collect(),
+            order: self.player_order.clone(),
+        };
+
+        let roles = self.game.get_roles();
+        for (idx, pid) in self.player_order.iter().enumerate() {
+            if idx >= roles.len() {
+                break;
+            }
+            let role = player::PlayerRole {
+                order: idx as u64,
+                role: roles[idx].clone(),
+            };
+            if let Some(player) = psnapshot.players.get_mut(pid) {
+                player.role = Some(role);
+            } else {
+                tracing::error!("Player order vector contains nonexistant player ID {pid}");
+            }
+        }
+        psnapshot
+    }
+    pub fn get_snapshot(&self) -> wrapper::GameSnapshot {
         wrapper::GameSnapshot {
             actions: None,
             private_actions: None,
             status: self.game.get_status(),
-
-            players: Some(player::PlayerSnapshot {
-                players: self
-                    .connections
-                    .iter()
-                    .map(|(pid, pdata)| (pid.clone(), pdata.to_pinfo()))
-                    .collect(),
-                order: self.player_order.clone(),
-            }),
+            players: Some(self.get_player_snapshot()),
         }
     }
 
@@ -87,7 +107,7 @@ impl WebGameState {
         &mut self,
         private_actions: Option<HashMap<player::PlayerId, Vec<wrapper::GameAction>>>,
     ) {
-        let public = self.snapshot();
+        let public = self.get_snapshot();
         let mut invalid: Vec<player::PlayerId> = Vec::new();
 
         for (player_id, player) in &mut self.connections {
@@ -140,9 +160,22 @@ impl WebGameState {
                 if self.game.is_waiting() {
                     self.player_order.remove(idx);
                     self.connections.remove(player_id);
+                    self.update_player_roles();
                 }
             } else {
                 self.connections.remove(player_id);
+            }
+        }
+    }
+
+    fn update_player_roles(&mut self) {
+        if self.game.is_waiting() {
+            match self.game.update_players(self.player_order.len() as u64) {
+                Ok(_) => (),
+                Err(msg) => {
+                    //TODO: error broadcast to clients
+                    tracing::error!("Couldn't update players: {msg}");
+                }
             }
         }
     }
@@ -204,6 +237,7 @@ impl WebGameState {
                     //TODO: More fine grained join logic
                     if self.game.is_waiting() {
                         self.player_order.push(msg.player_id.clone());
+                        self.update_player_roles();
                     }
                     self.connections.insert(
                         msg.player_id.clone(),

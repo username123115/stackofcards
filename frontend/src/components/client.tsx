@@ -21,9 +21,16 @@ function Roster({ snapshot, playerId }: { snapshot: GameSnapshot, playerId: Stri
 			const isPlayer = pid === playerId;
 			const key = isPlayer + pid;
 			const nick = snapshot.players?.players[pid]?.nickname;
+
+			let role = snapshot.players?.players[pid]?.role?.role;
+			if (role) {
+				role = "(" + role + ")";
+			}
+			const display = (nick ? nick : "") + (role ? role : "");
+			// This is really gross, lgtm
 			return (
-				<li key={key} className={isPlayer ? style.rosterSelf : style.rosterOther}>
-					{nick}
+				<li key={key + display} className={isPlayer ? style.rosterSelf : style.rosterOther}>
+					{display}
 				</li>
 			)
 		})

@@ -41,8 +41,13 @@ impl GameActiveZone {
 }
 
 pub enum GameStatus {
-    Waiting,
+    Waiting(GameWaitingStatus),
     Playing,
+}
+
+pub enum GameWaitingStatus {
+    NotReady,
+    Ready,
 }
 
 pub struct GameState {
@@ -60,7 +65,7 @@ impl GameState {
             config,
             zones: HashMap::new(),
             players: Vec::new(),
-            status: GameStatus::Waiting,
+            status: GameStatus::Waiting(GameWaitingStatus::NotReady),
             zones_created: 0,
             cards_created: 0,
         }
@@ -73,7 +78,7 @@ impl GameState {
 
     // Assign players roles depending on class order
     pub fn create_players(&mut self, player_count: u64) -> Result<(), String> {
-        if let GameStatus::Waiting = self.status {
+        if let GameStatus::Waiting(_) = self.status {
             let to_create = min(player_count, self.config.player_range.end);
             let mut players: Vec<PlayerClassIdentifier> = Vec::with_capacity(to_create as usize);
             for i in 0..to_create {
@@ -99,6 +104,7 @@ impl GameState {
                             tracing::error!(
                                 "Couldn't find class {class_name} while assigning a player"
                             );
+                            self.status = GameStatus::Waiting(GameWaitingStatus::NotReady);
                             return Err("Class definition not found".into());
                         }
                     }
@@ -110,8 +116,18 @@ impl GameState {
 
                 match player_assignment {
                     Some(cn) => players.push(cn),
-                    None => return Err("Couldn't assign to a player".into()),
+                    None => {
+                        self.status = GameStatus::Waiting(GameWaitingStatus::NotReady);
+                        return Err("Couldn't assign to a player".into());
+                    }
                 }
+            }
+            if (player_count >= self.config.player_range.start)
+                && (player_count <= self.config.player_range.end)
+            {
+                self.status = GameStatus::Waiting(GameWaitingStatus::Ready);
+            } else {
+                self.status = GameStatus::Waiting(GameWaitingStatus::NotReady);
             }
             self.players = players;
             return Ok(());
@@ -120,13 +136,10 @@ impl GameState {
     }
 
     pub fn game_ready(&self) -> bool {
-        if let GameStatus::Waiting = self.status {
-            let player_count: u64 = self.players.len() as u64;
-            return (player_count >= self.config.player_range.start)
-                && (player_count <= self.config.player_range.end);
-        } else {
-            return false;
+        if let GameStatus::Waiting(GameWaitingStatus::Ready) = self.status {
+            return true;
         }
+        return false;
     }
 
     // Checks if game has enough players and starts

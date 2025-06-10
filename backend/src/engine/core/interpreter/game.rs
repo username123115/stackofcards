@@ -27,11 +27,7 @@ impl ExecutionContext {
 
 pub struct Game {
     config: Rc<config::GameConfig>,
-    cards_created: u64,
-    cards: HashMap<u64, cards::Card>,
-
     state: state::GameState,
-
     ex_ctx: ExecutionContext,
 }
 
@@ -40,11 +36,7 @@ impl Game {
         let config_rc = Rc::new(config);
         Self {
             config: config_rc.clone(),
-            cards_created: 0,
-            cards: HashMap::new(),
-
             state: state::GameState::new(config_rc),
-
             ex_ctx: ExecutionContext::new(),
         }
     }

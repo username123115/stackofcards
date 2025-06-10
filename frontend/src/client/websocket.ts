@@ -7,8 +7,11 @@ export function connectToGame(
 	onCloseCallback: () => void
 ): WebSocket {
 	// TODO: Have server pass back an upgrade url when GETing /v1/rooms/{roomId}
-	const wsUrl = `ws://localhost:5050/v1/rooms/${roomId}`;
-	console.log(`Connectiong to ${wsUrl}`);
+	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+	const host = window.location.host;
+	const wsUrl = `${protocol}//${host}/v1/rooms/${roomId}`;
+
+	console.log(`Connecting to ${wsUrl}`);
 
 	let socket = new WebSocket(wsUrl);
 	socket.onopen = () => {

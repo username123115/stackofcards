@@ -11,6 +11,9 @@ use std::sync::Arc;
 pub type GameZoneID = u64;
 pub type PlayerOrderIndex = u64;
 
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
+
 #[derive(Debug, Clone)]
 pub struct GameActiveZone {
     pub zone_id: GameZoneID,
@@ -41,13 +44,16 @@ impl GameActiveZone {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
+#[ts(export)]
 pub enum GameStatus {
     Waiting(GameWaitingStatus),
     Playing,
+    Invalid,
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
+#[ts(export)]
 pub enum GameWaitingStatus {
     NotReady,
     Ready,

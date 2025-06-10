@@ -43,6 +43,17 @@ impl Game {
         }
     }
 
+    pub fn get_status(&self) -> state::GameStatus {
+        self.state.status.clone()
+    }
+
+    pub fn is_waiting(&self) -> bool {
+        if let state::GameStatus::Waiting(_) = self.get_status() {
+            return true;
+        }
+        false
+    }
+
     // Identify zones by owner (Players will hold references)
     // Identify zones by class
     //

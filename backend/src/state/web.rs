@@ -1,7 +1,8 @@
 use crate::engine::core::interpreter;
 use std::{collections::HashMap, sync::Mutex};
 
-use super::{game, player};
+use super::{game_wrapper, player};
+use game_wrapper as wrapper;
 
 use tokio::sync::mpsc;
 use tracing::info;
@@ -19,12 +20,11 @@ struct WebGameState {
     // about player IDs or such
     pub player_order: Vec<player::PlayerId>,
     pub game: interpreter::game::Game,
-    pub status: game::GameStatus,
 }
 
 #[derive(Clone, Debug)]
 enum WebGameConnection {
-    Connected(mpsc::UnboundedSender<game::GameSnapshot>),
+    Connected(mpsc::UnboundedSender<wrapper::GameSnapshot>),
     Disconnected(u64),
 }
 
@@ -48,13 +48,13 @@ impl WebGamePlayer {
 
 pub struct WebgameJoin {
     pub nickname: Option<String>,
-    pub tx: mpsc::UnboundedSender<game::GameSnapshot>,
+    pub tx: mpsc::UnboundedSender<wrapper::GameSnapshot>,
 }
 
 pub enum WebgameRequestType {
     Join(WebgameJoin),
     Disconnect,
-    GameCommand(game::GameCommand),
+    GameCommand(wrapper::GameCommand),
 }
 
 pub struct WebgameRequest {
@@ -65,11 +65,11 @@ pub struct WebgameRequest {
 //
 
 impl WebGameState {
-    pub fn snapshot(&self) -> game::GameSnapshot {
-        game::GameSnapshot {
+    pub fn snapshot(&self) -> wrapper::GameSnapshot {
+        wrapper::GameSnapshot {
             actions: None,
             private_actions: None,
-            status: self.status.clone(),
+            status: self.game.get_status(),
 
             players: Some(player::PlayerSnapshot {
                 players: self
@@ -85,14 +85,14 @@ impl WebGameState {
     #[tracing::instrument]
     pub fn broadcast(
         &mut self,
-        private_actions: Option<HashMap<player::PlayerId, Vec<game::GameAction>>>,
+        private_actions: Option<HashMap<player::PlayerId, Vec<wrapper::GameAction>>>,
     ) {
         let public = self.snapshot();
         let mut invalid: Vec<player::PlayerId> = Vec::new();
 
         for (player_id, player) in &mut self.connections {
             if let WebGameConnection::Connected(tx) = player.conn.clone() {
-                let copy = game::GameSnapshot {
+                let copy = wrapper::GameSnapshot {
                     private_actions: match &private_actions {
                         Some(p_actions) => p_actions.get(player_id).cloned(),
                         None => None,
@@ -117,10 +117,10 @@ impl WebGameState {
     }
 
     fn broadcast_join_acc(&mut self, player_id: &player::PlayerId) {
-        let mut join_ack: HashMap<player::PlayerId, Vec<game::GameAction>> = HashMap::new();
+        let mut join_ack: HashMap<player::PlayerId, Vec<wrapper::GameAction>> = HashMap::new();
         join_ack.insert(
             player_id.clone(),
-            vec![game::GameAction::JoinResult(Ok(player_id.clone()))],
+            vec![wrapper::GameAction::JoinResult(Ok(player_id.clone()))],
         );
         self.broadcast(Some(join_ack));
     }
@@ -137,7 +137,7 @@ impl WebGameState {
 
             let index = self.player_order.iter().position(|n| n == player_id);
             if let Some(idx) = index {
-                if let game::GameStatus::Waiting = self.status {
+                if self.game.is_waiting() {
                     self.player_order.remove(idx);
                     self.connections.remove(player_id);
                 }
@@ -184,8 +184,8 @@ impl WebGameState {
                                 self.broadcast_join_acc(&msg.player_id);
                                 return true;
                             } else {
-                                let mut error = game::GameSnapshot::new();
-                                error.add_private_action(game::GameAction::JoinResult(Err(
+                                let mut error = wrapper::GameSnapshot::new();
+                                error.add_private_action(wrapper::GameAction::JoinResult(Err(
                                     "ID already exists".into(),
                                 )));
                                 tx.send(error).unwrap_or(());
@@ -202,7 +202,7 @@ impl WebGameState {
                     // Add player to connections and broadcast addition, additionally informing newly
                     // added player of success
                     //TODO: More fine grained join logic
-                    if let game::GameStatus::Waiting = self.status {
+                    if self.game.is_waiting() {
                         self.player_order.push(msg.player_id.clone());
                     }
                     self.connections.insert(
@@ -234,7 +234,6 @@ impl WebGame {
         let state = WebGameState {
             connections: HashMap::new(),
             player_order: Vec::new(),
-            status: game::GameStatus::Waiting,
             game: interpreter::game::Game::new(interpreter::example_config::gen_example_config()),
         };
 

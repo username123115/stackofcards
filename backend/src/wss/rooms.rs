@@ -70,7 +70,7 @@ pub async fn join_handler(
 pub struct WebgameClient {
     pub ws: WebSocket,
     pub tx: mpsc::UnboundedSender<state::web::WebgameRequest>,
-    pub rx: mpsc::UnboundedReceiver<state::game::GameSnapshot>,
+    pub rx: mpsc::UnboundedReceiver<state::game_wrapper::GameSnapshot>,
     pub uuid: Uuid,
     pub running: bool,
 }
@@ -83,7 +83,7 @@ impl WebgameClient {
         //TODO: W/db UUID can be gleaned from a user
         let uuid = Uuid::new_v4();
 
-        let (tx_self, rx) = mpsc::unbounded_channel::<state::game::GameSnapshot>();
+        let (tx_self, rx) = mpsc::unbounded_channel::<state::game_wrapper::GameSnapshot>();
         let new_client = Self {
             ws,
             tx: tx.clone(),
@@ -129,7 +129,7 @@ impl WebgameClient {
     }
 
     // Forward any snapshots
-    async fn handle_connection_rx(&mut self, snapshot: &state::game::GameSnapshot) {
+    async fn handle_connection_rx(&mut self, snapshot: &state::game_wrapper::GameSnapshot) {
         match serde_json::to_string(&snapshot) {
             Ok(json_msg) => {
                 if let Err(e) = self.ws.send(Message::Text(json_msg.into())).await {
@@ -167,7 +167,7 @@ impl WebgameClient {
                 self.leave_game();
             }
             Message::Text(request) => {
-                match serde_json::from_str::<state::game::GameCommand>(&request) {
+                match serde_json::from_str::<state::game_wrapper::GameCommand>(&request) {
                     Ok(command) => {
                         self.send_request(state::web::WebgameRequestType::GameCommand(command))
                     }

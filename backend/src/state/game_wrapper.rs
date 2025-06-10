@@ -2,6 +2,8 @@ use super::player;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+use crate::engine::core::interpreter::state;
+
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]
 #[ts(export)]
 // Game tells player that something about it has changed
@@ -18,21 +20,13 @@ pub enum GameAction {
 // TODO: Engine impl
 pub enum GameCommand {}
 
-#[derive(TS, Debug, Copy, Clone, Serialize, Deserialize)]
-#[ts(export)]
-pub enum GameStatus {
-    Waiting,
-    Started,
-    Invalid,
-}
-
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]
 #[ts(export)]
 pub struct GameSnapshot {
     pub actions: Option<Vec<GameAction>>,
     pub private_actions: Option<Vec<GameAction>>,
     pub players: Option<player::PlayerSnapshot>,
-    pub status: GameStatus,
+    pub status: state::GameStatus,
 }
 
 impl GameSnapshot {
@@ -41,7 +35,7 @@ impl GameSnapshot {
             actions: None,
             private_actions: None,
             players: None,
-            status: GameStatus::Invalid,
+            status: state::GameStatus::Invalid,
         }
     }
     pub fn add_action(&mut self, action: GameAction) {

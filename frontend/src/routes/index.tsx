@@ -2,6 +2,7 @@ import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import Entrance from '@components/entrance.tsx'
+import '../styles/app.css'
 
 
 export const Route = createFileRoute('/')({

@@ -1,10 +1,10 @@
 import styles from './utility.module.css'
 
-function Header({ title = "Stack of Cards" }) {
+function Header() {
 	return (
 		<header className={styles.header}>
 			<h1>
-				{title}
+				Stack of Cards
 			</h1>
 		</header>
 	)

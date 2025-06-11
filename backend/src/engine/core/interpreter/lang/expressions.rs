@@ -1,5 +1,5 @@
 use super::types_instances::BaseNumberType;
-use crate::engine::core::types;
+use crate::engine::core::types::*;
 
 // Get evaluated to types
 #[derive(Debug, Clone)]
@@ -16,36 +16,28 @@ pub enum Expression {
 }
 
 #[derive(Debug, Clone)]
-pub enum CardSelectorExpression {
-    Top,
-    Bottom,
-    Suit(SuitExpression),
-    Rank(RankExpression),
-}
-
-#[derive(Debug, Clone)]
 pub enum SuitExpression {
-    SuitLiteral(types::cards::Suit),
+    Literal(suits::Suit),
 }
 
 #[derive(Debug, Clone)]
 pub enum RankExpression {
-    RankLiteral(types::cards::Rank),
+    Literal(ranks::Rank),
 }
 
 #[derive(Debug, Clone)]
 pub enum NumberExpression {
-    NumberLiteral(BaseNumberType),
+    Literal(BaseNumberType),
     SumZones {
         //Take the sum of a zone
-        zone: types::zones::SingleZoneTarget,
-        ordering: types::cards::RankOrder,
+        zone: zones::SingleZoneTarget,
+        ordering: rank_order::RankOrder,
     },
 }
 
 #[derive(Debug, Clone)]
 pub enum BooleanExpression {
-    BooleanLiteral(bool),
+    Literal(bool),
     Comparison {
         a: Box<NumberExpression>,
         compared_to: Comparison,
@@ -64,20 +56,28 @@ pub enum Comparison {
 
 #[derive(Debug, Clone)]
 pub enum ZoneExpression {
-    SingleZone(types::zones::SingleZoneTarget),
+    SingleZone(zones::SingleZoneTarget),
 }
 
 #[derive(Debug, Clone)]
 pub enum ZoneCollectionExpression {
-    ZoneCollection(types::zones::ZoneTarget),
+    ZoneCollection(zones::ZoneTarget),
 }
 
 #[derive(Debug, Clone)]
 pub enum PlayerExpression {
-    Player(types::players::SinglePlayerTarget),
+    Player(players::SinglePlayerTarget),
 }
 
 #[derive(Debug, Clone)]
 pub enum PlayerCollectionExpression {
-    PlayerCollection(types::players::PlayerTarget),
+    PlayerCollection(players::PlayerTarget),
+}
+
+#[derive(Debug, Clone)]
+pub enum CardSelectorExpression {
+    Top,
+    Bottom,
+    Suit(SuitExpression),
+    Rank(RankExpression),
 }

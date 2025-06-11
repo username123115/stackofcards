@@ -1,14 +1,15 @@
 use super::lang::phases;
-use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
+use crate::engine::core::types::*;
+use identifiers::*;
 
 use std::collections::{HashMap, HashSet};
 use std::ops::Range;
 
 #[derive(Debug, Clone)]
 pub struct GameConfig {
-    pub allowed_ranks: HashSet<cards::Rank>,
-    pub allowed_suits: HashSet<cards::Suit>,
-    pub orders: HashMap<cards::OrderIdentifier, cards::RankOrder>,
+    pub allowed_ranks: HashSet<ranks::Rank>,
+    pub allowed_suits: HashSet<suits::Suit>,
+    pub orders: HashMap<cards::OrderIdentifier, rank_order::RankOrder>,
     pub patterns: HashMap<patterns::PatternIdentifier, patterns::Pattern>,
 
     pub phases: HashMap<PhaseIdentifier, phases::Phase>,

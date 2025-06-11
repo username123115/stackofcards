@@ -1,4 +1,4 @@
-use super::{cards, identifiers::*, patterns, players};
+use super::{cards, identifiers::*, patterns, players, ranks, suits};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -19,8 +19,8 @@ pub enum ZoneVisibilityRule {
 pub enum CardSelector {
     Top,
     Bottom,
-    Suit(cards::Suit), //select all of a suit
-    Rank(cards::Rank), //select all of a rank
+    Suit(suits::Suit), //select all of a suit
+    Rank(ranks::Rank), //select all of a rank
 }
 
 #[derive(Debug, Clone)]

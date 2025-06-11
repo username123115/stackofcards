@@ -138,7 +138,7 @@ impl Game {
     ) -> types_instances::BaseNumberType {
         use expressions::NumberExpression::*;
         match expr {
-            NumberLiteral(n) => *n,
+            Literal(n) => *n,
             SumZones { zone, ordering } => todo!("IMPLEMENT ME"),
         }
     }
@@ -146,7 +146,7 @@ impl Game {
     pub fn evaluate_bool(&self, expr: &expressions::BooleanExpression) -> bool {
         use expressions::BooleanExpression::*;
         match expr {
-            BooleanLiteral(b) => *b,
+            Literal(b) => *b,
             Comparison { a, compared_to, b } => {
                 let va = self.evaluate_number(a);
                 let vb = self.evaluate_number(b);

@@ -1,4 +1,4 @@
-@import '../../styles/colors.module.css';
+@import '../styles/colors.module.css';
 
 .cardContainer {
 	list-style: none;

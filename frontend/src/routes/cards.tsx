@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import CardContainer from '@components/utility/card_container'
+import CardContainer from '@components/card_container'
 
 // import { useState } from 'react'
 

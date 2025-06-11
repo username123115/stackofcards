@@ -1,7 +1,7 @@
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import Entrance from '@components/entrance.tsx'
+import Entrance from '@pages/entrance.tsx'
 import '../styles/app.css'
 
 

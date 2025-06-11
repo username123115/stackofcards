@@ -5,7 +5,7 @@ import { connectToGame } from '@client/websocket'
 import type { GameSnapshot } from '@bindings/GameSnapshot'
 import type { GameAction } from "@bindings/GameAction";
 
-import Client from '@components/client'
+import Client from '@pages/client'
 
 export const Route = createFileRoute('/games/$gameId')({
 	component: RouteComponent,

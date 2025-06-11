@@ -6,7 +6,7 @@ import type { RulesetDescriber } from '@bindings/RulesetDescriber'
 import type { GameCreateRequest } from '@bindings/GameCreateRequest'
 import type { GameInfo } from '@bindings/GameInfo'
 
-import CreateGame from '@components/create_game'
+import CreateGame from '@pages/create_game'
 
 export const Route = createFileRoute('/create-game')({
 	component: RouteComponent,

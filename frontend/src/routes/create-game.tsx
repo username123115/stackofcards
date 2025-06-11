@@ -8,6 +8,10 @@ import type { GameInfo } from '@bindings/GameInfo'
 
 import CreateGame from '@pages/create_game'
 
+import Header from '@components/header.tsx'
+import Footer from '@components/footer.tsx'
+import styles from '../styles/utility.module.css'
+
 export const Route = createFileRoute('/create-game')({
 	component: RouteComponent,
 })
@@ -41,7 +45,21 @@ async function startNewGame(ruleset: RulesetDescriber): Promise<GameInfo> {
 }
 
 function RouteComponent() {
+	return (
+		<>
+			<div className={styles.pageWrapper}>
+				<Header />
+				<div className={styles.centerDiv}>
+					<InnerRouteComponent />
+				</div>
+				<Footer />
+			</div>
 
+		</>
+	)
+}
+
+function InnerRouteComponent() {
 	const rulesets = useQuery({ queryKey: ['GET /v1/rulesets'], queryFn: fetchGameList })
 	const gameMutation = useMutation<GameInfo, Error, RulesetDescriber>({ mutationFn: startNewGame })
 
@@ -69,8 +87,9 @@ function RouteComponent() {
 
 	return (
 		<>
-			<CreateGame rulesets={rulesets.data} selectRuleset={(ruleset) => gameMutation.mutate(ruleset)} />
-
+			<div>
+				<CreateGame rulesets={rulesets.data} selectRuleset={(ruleset) => gameMutation.mutate(ruleset)} />
+			</div>
 		</>
 	)
 }

@@ -2,7 +2,10 @@ import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import Entrance from '@pages/entrance.tsx'
+import Header from '@components/header.tsx'
+import Footer from '@components/footer.tsx'
 import '../styles/app.css'
+import styles from '../styles/utility.module.css'
 
 
 export const Route = createFileRoute('/')({
@@ -26,11 +29,17 @@ function RouteComponent() {
 	}
 	return (
 		<>
-			<Entrance
-				triggerCreate={handleTriggerCreate}
-				submitCode={handleSubmitCode}
+			<div className={styles.pageWrapper}>
+				<Header />
+				<div>
+					<Entrance
+						triggerCreate={handleTriggerCreate}
+						submitCode={handleSubmitCode}
 
-			/>
+					/>
+				</div>
+				<Footer />
+			</div>
 		</>
 	)
 }

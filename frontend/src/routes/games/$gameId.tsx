@@ -7,11 +7,28 @@ import type { GameAction } from "@bindings/GameAction";
 
 import Client from '@pages/client'
 
+import Header from '@components/header.tsx'
+import Footer from '@components/footer.tsx'
+import styles from '../../styles/utility.module.css'
+
 export const Route = createFileRoute('/games/$gameId')({
 	component: RouteComponent,
 })
 
 function RouteComponent() {
+	return (
+		<>
+			<div className={styles.pageWrapper}>
+				<Header />
+				<InnerRouteComponent />
+				<Footer />
+			</div>
+
+		</>
+	)
+}
+
+function InnerRouteComponent() {
 
 
 	const { gameId } = Route.useParams();

@@ -12,16 +12,11 @@ pub type CardIdentifier = u32;
 pub struct Card {
     pub suit: Suit,
     pub rank: Rank,
-    pub card_id: CardIdentifier,
 }
 
 impl Card {
-    pub fn new(suit: Suit, rank: Rank, card_id: CardIdentifier) -> Self {
-        Self {
-            suit,
-            rank,
-            card_id,
-        }
+    pub fn new(suit: Suit, rank: Rank) -> Self {
+        Self { suit, rank }
     }
 }
 

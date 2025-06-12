@@ -5,6 +5,7 @@
       "@components/*": ["./src/components/*"],
 	  "@client/*": ["./src/client/*"],
 	  "@pages/*": ["./src/pages/*"],
+	  "@styles/*": ["./src/styles/*"],
 	  "@bindings/*": ["../backend/bindings/*"]
     }
   },

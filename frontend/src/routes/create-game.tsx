@@ -10,7 +10,7 @@ import CreateGame from '@pages/create_game'
 
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
-import styles from '../styles/utility.module.css'
+import styles from '@styles/utility.module.css'
 
 export const Route = createFileRoute('/create-game')({
 	component: RouteComponent,

@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
-import styles from '../styles/utility.module.css'
+import styles from '@styles/utility.module.css'
 
 export const Route = createFileRoute('/about')({
 	component: RouteComponent,

@@ -71,6 +71,24 @@ pub struct GameState {
     cards_created: u64,
 }
 
+#[derive(Debug, Clone)]
+pub enum StateRuntimeError {
+    ClassInit(RuntimeClassInitError),
+}
+
+#[derive(Debug, Clone)]
+pub enum RuntimeClassInitError {
+    Zone(ZoneClassIdentifier),
+    Player(PlayerClassIdentifier),
+}
+
+//State method didn't execute correctly
+#[derive(Debug, Clone)]
+pub enum StateMethodError {
+    WrongStatus,                      //Recoverable, just wait for status to change
+    InternalError(StateRuntimeError), //Fatal
+}
+
 impl GameState {
     pub fn new(config: Arc<config::GameConfig>) -> Self {
         Self {
@@ -93,6 +111,19 @@ impl GameState {
         let card_id = self.next_card_id();
         self.cards.insert(card_id, card);
         card_id
+    }
+
+    pub fn new_cardset(&mut self, set: &cards::CardSet) -> Vec<u64> {
+        let mut result = Vec::with_capacity(set.ranks.len() * set.suits.len());
+        for suit in set.suits.iter() {
+            for rank in set.ranks.iter() {
+                result.push(self.new_card(cards::Card {
+                    suit: *suit,
+                    rank: *rank,
+                }));
+            }
+        }
+        result
     }
 
     // Assign players roles depending on class order
@@ -162,13 +193,23 @@ impl GameState {
     }
 
     // Checks if game has enough players and starts
-    pub fn start_game(&mut self) -> Result<(), String> {
+    pub fn init_game(&mut self) -> Result<(), StateMethodError> {
         if self.game_ready() {
             self.status = GameStatus::Playing;
+
+            //Create initial zones
+            for (name, class) in self.config.clone().initial_zones.iter() {
+                match self.create_zone(Vec::new(), &class) {
+                    Ok(zid) => {}
+                    Err(s) => (),
+                }
+            }
+
             todo!("Implement me");
+
             Ok(())
         } else {
-            return Err("Game not ready to start".into());
+            return Err(StateMethodError::WrongStatus);
         }
     }
 

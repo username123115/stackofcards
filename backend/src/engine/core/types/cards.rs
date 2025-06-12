@@ -21,5 +21,5 @@ impl Card {
 #[derive(Debug, Clone)]
 pub struct CardSet {
     pub ranks: Vec<Rank>,
-    pub suits: Vec<Rank>,
+    pub suits: Vec<Suit>,
 }

@@ -86,6 +86,36 @@ function InnerRouteComponent() {
 		return <div> {info_msg} </div>
 	}
 
+	function initClientState(snapshot: GameSnapshot) {
+		let playerId: String | null = null;
+		snapshot.actions.forEach(
+			(action) => {
+				if (typeof action !== 'string' && 'JoinResult' in action) {
+					const joinResult = action.JoinResult;
+					if ('Ok' in joinResult) {
+						playerId = joinResult.Ok;
+					} else {
+						return (<span> Error while joining: {joinResult.Err} </span>)
+					}
+				}
+
+			}
+		)
+		if (!playerId) {
+			return (<span> Can't get player ID </span>)
+		}
+		if (!snapshot.players) {
+			return (<span> Couldn't get player list </span>)
+		}
+		const client = new ClientState(
+			snapshot.status,
+			snapshot.players,
+			snapshot.actions,
+			playerId,
+		);
+		setClientState(client);
+	}
+
 	function renderSnapshot(snapshot: GameSnapshot) {
 		if (playerId) {
 			return (<Client snapshot={snapshot} playerId={playerId} />)

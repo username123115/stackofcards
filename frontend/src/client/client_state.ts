@@ -5,7 +5,7 @@ import type { PlayerSnapshot } from "@bindings/PlayerSnapshot";
 export interface ClientStateInterface {
 	status: GameStatus;
 	players: PlayerSnapshot;
-	actions: GameAction;
+	actions: GameAction[];
 	playerId: String,
 	isWaiting(): Boolean;
 	isReady(): Boolean;
@@ -15,12 +15,12 @@ export interface ClientStateInterface {
 export class ClientState implements ClientStateInterface {
 	status: GameStatus;
 	players: PlayerSnapshot;
-	actions: GameAction;
+	actions: GameAction[];
 	playerId: String;
 	constructor(
 		status: GameStatus,
 		players: PlayerSnapshot,
-		actions: GameAction,
+		actions: GameAction[],
 		playerId: String
 	) {
 		this.status = status;

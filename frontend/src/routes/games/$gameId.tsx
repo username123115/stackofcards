@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react'
 
 import { connectToGame } from '@client/websocket'
 import type { GameSnapshot } from '@bindings/GameSnapshot'
-import type { GameAction } from "@bindings/GameAction";
 
 import { ClientState } from "@client/client_state";
 
@@ -36,24 +35,10 @@ function InnerRouteComponent() {
 	const { gameId } = Route.useParams();
 	const code = Number(gameId);
 
-	const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
-	const [playerId, setPlayerId] = useState<String | null>(null);
-	const [clientState, setClientState] = useState<ClientState | null>(null);
-
+	const [clientStateClone, setClientState] = useState<ClientState | null>(null);
+	const [joinError, setJoinError] = useState<String>("Attempting to join");
 	const socket = useRef<WebSocket | null>(null);
-
-	function onSnapshot(snapshot: GameSnapshot) {
-		console.info(snapshot);
-		setSnapshot(snapshot);
-	}
-
-	function onErrorCallback(error: Event) {
-		console.error(`websocket error: ${error}`);
-	}
-
-	function onCloseCallback() {
-		socket.current = null;
-	}
+	const clientState = useRef<ClientState | null>(null);
 
 	//TODO: Socket won't clean up unless 
 	useEffect(() => {
@@ -66,75 +51,69 @@ function InnerRouteComponent() {
 
 	}, [code]);
 
-	// Sets playerId OR returns a reason why it couldn't be found
-	function findIdFromPrivate(private_actions: GameAction[]) {
-		let info_msg: String = "Couldn't get ID";
-		private_actions.forEach(
-			(action) => {
-				if (typeof action !== 'string' && 'JoinResult' in action) {
-					const joinResult = action.JoinResult;
-					if ('Ok' in joinResult) {
-						info_msg = "Found player ID, rerendering shortly";
-						setPlayerId(joinResult.Ok);
-					} else {
-						info_msg = `Error while joining: ${joinResult.Err}`;
-					}
-				}
-
+	function onSnapshot(newSnapshot: GameSnapshot) {
+		console.info(newSnapshot);
+		if (clientState.current) {
+			let ns = clientState.current.update(newSnapshot);
+			clientState.current = ns;
+		} else {
+			const err = initClientState(newSnapshot);
+			if (!clientState.current) {
+				setJoinError(err);
 			}
-		)
-		return <div> {info_msg} </div>
+		}
+		setClientState(clientState.current);
+		console.log(clientState.current);
 	}
 
-	function initClientState(snapshot: GameSnapshot) {
+	function onErrorCallback(error: Event) {
+		console.error(`websocket error: ${error}`);
+	}
+
+	function onCloseCallback() {
+		socket.current = null;
+	}
+
+
+	function initClientState(snapshot: GameSnapshot): String {
 		let playerId: String | null = null;
-		snapshot.actions.forEach(
+		snapshot.private_actions.forEach(
 			(action) => {
 				if (typeof action !== 'string' && 'JoinResult' in action) {
 					const joinResult = action.JoinResult;
 					if ('Ok' in joinResult) {
 						playerId = joinResult.Ok;
 					} else {
-						return (<span> Error while joining: {joinResult.Err} </span>)
+						return `Error while joining: {joinResult.Err}`
 					}
 				}
 
 			}
 		)
 		if (!playerId) {
-			return (<span> Can't get player ID </span>)
+			return "Can't get player ID"
 		}
 		if (!snapshot.players) {
-			return (<span> Couldn't get player list </span>)
+			return "Couldn't get player list"
 		}
 		const client = new ClientState(
 			snapshot.status,
 			snapshot.players,
 			snapshot.actions,
+			snapshot.private_actions,
 			playerId,
 		);
-		setClientState(client);
-	}
-
-	function renderSnapshot(snapshot: GameSnapshot) {
-		if (playerId) {
-			return (<Client snapshot={snapshot} playerId={playerId} />)
-		} else {
-			if (snapshot.private_actions) {
-				return findIdFromPrivate(snapshot.private_actions);
-			}
-			return <div> Couldn't join room, reason unknown </div>
-		}
-
+		clientState.current = client;
+		return "Success, joining shortly"
 	}
 
 	if (socket.current) {
-		if (snapshot) {
-			return renderSnapshot(snapshot);
+		if (clientStateClone) {
+			return (<Client state={clientStateClone} />)
 		} else {
-			return <div> Waiting on game to send data </div>
+			return <span> {joinError} </span>
 		}
 	} else {
-		return <div> Couldn't connect to game </div>
+		return <span> Couldn't connect to game </span>
 	}
 }

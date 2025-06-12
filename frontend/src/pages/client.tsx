@@ -1,37 +1,34 @@
-import { IsStatusWaiting } from "@client/utility"
-import type { GameSnapshot } from '@bindings/GameSnapshot'
+// import { IsStatusWaiting } from "@client/utility"
+// import type { GameSnapshot } from '@bindings/GameSnapshot'
 import styles from './client.module.css'
+
+import { ClientState } from "@client/client_state";
+
 //import utilityStyles from '@styles/utility.module.css'
 
-export default function Client({ snapshot, playerId }: { snapshot: GameSnapshot, playerId: String }) {
-	const playerOrder = snapshot.players?.players[String(playerId)]?.role?.order;
-
-	if (snapshot.status) {
-		if (IsStatusWaiting(snapshot.status)) {
-			const isPlayerFirst = (playerOrder !== null) && Number(playerOrder) == 0;
-			return (
-				<>
-					<Roster snapshot={snapshot} playerId={playerId} />
-					{isPlayerFirst && (
-						<div> This renders if you are the first player </div>
-					)}
-				</>
-			)
-		}
-		return (<span> Todo </span>)
+export default function Client({ state }: { state: ClientState }) {
+	if (state.isWaiting()) {
+		return (
+			<>
+				<Roster state={state} />
+				{state.isFirst() && (
+					<div> This renders if you are the first player </div>
+				)}
+			</>
+		)
 	}
-	return (<span> Something is broken? </span>)
+	return (<span> Todo </span>)
 }
 
 
-function Roster({ snapshot, playerId }: { snapshot: GameSnapshot, playerId: String }) {
-	if (IsStatusWaiting(snapshot.status)) {
-		const roster = snapshot!.players?.order.map((pid) => {
-			const isPlayer = pid === playerId;
+function Roster({ state }: { state: ClientState }) {
+	if (state.isWaiting()) {
+		const roster = state.players.order.map((pid) => {
+			const isPlayer = pid === state.playerId;
 			const key = isPlayer + pid;
-			const nick = snapshot.players?.players[pid]?.nickname;
+			const nick = state.players.players[pid]?.nickname;
 
-			let role = snapshot.players?.players[pid]?.role?.role;
+			let role = state.players.players[pid]?.role?.role;
 			if (role) {
 				role = "(" + role + ")";
 			}

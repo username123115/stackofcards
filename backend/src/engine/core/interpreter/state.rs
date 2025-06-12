@@ -2,8 +2,8 @@ use super::{
     config,
     lang::{expressions, phases, statements, types_instances},
 };
+use crate::engine::core::types::identifiers::*;
 use crate::engine::core::types::*;
-use identifiers::*;
 
 use std::cmp::min;
 use std::collections::{HashMap, HashSet};
@@ -61,50 +61,61 @@ pub enum GameWaitingStatus {
 }
 
 #[derive(Debug, Clone)]
-pub struct GameState {
-    pub config: Arc<config::GameConfig>,
-    pub zones: HashMap<GameZoneID, GameActiveZone>,
-    pub cards: HashMap<u64, cards::Card>,
-    pub players: Vec<PlayerClassIdentifier>,
-    pub status: GameStatus,
+pub struct CardState {
+    config: Arc<config::GameConfig>,
+    zones: HashMap<GameZoneID, GameActiveZone>,
+    cards: HashMap<u64, cards::Card>,
     zones_created: GameZoneID,
     cards_created: u64,
 }
 
-#[derive(Debug, Clone)]
-pub enum StateRuntimeError {
-    ClassInit(RuntimeClassInitError),
-}
-
-#[derive(Debug, Clone)]
-pub enum RuntimeClassInitError {
-    Zone(ZoneClassIdentifier),
-    Player(PlayerClassIdentifier),
-}
-
-//State method didn't execute correctly
-#[derive(Debug, Clone)]
-pub enum StateMethodError {
-    WrongStatus,                      //Recoverable, just wait for status to change
-    InternalError(StateRuntimeError), //Fatal
-}
-
-impl GameState {
+impl CardState {
     pub fn new(config: Arc<config::GameConfig>) -> Self {
         Self {
             config,
             zones: HashMap::new(),
             cards: HashMap::new(),
-            players: Vec::new(),
-            status: GameStatus::Waiting(GameWaitingStatus::NotReady),
             zones_created: 0,
             cards_created: 0,
         }
     }
+}
 
-    //TODO
-    pub fn check_config(&self) -> Result<(), String> {
-        Ok(())
+impl CardState {
+    pub fn next_zone_id(&mut self) -> GameZoneID {
+        self.zones_created += 1;
+        self.zones_created
+    }
+
+    pub fn next_card_id(&mut self) -> u64 {
+        self.cards_created += 1;
+        self.cards_created
+    }
+
+    pub fn create_zone(
+        &mut self,
+        cards: Vec<u64>,
+        class: &ZoneClassIdentifier,
+        owner: Option<PlayerOrderIndex>,
+        owner_name: Option<VariableIdentifier>,
+        name: Option<VariableIdentifier>,
+    ) -> Result<GameZoneID, RuntimeError> {
+        if let Some(_) = self.config.zone_classes.get(class) {
+            /* if let Some(idx) = owner {
+                if idx >= self.players.len() as u64 {
+                    return Err(RuntimeError::MissingResource(MissingResourceError::Player(
+                        idx,
+                    )));
+                }
+            } */
+
+            let zone_id = self.next_zone_id();
+            let z = GameActiveZone::new(zone_id, cards, class.clone(), owner, owner_name, name);
+            self.zones.insert(zone_id, z);
+            return Ok(zone_id);
+        } else {
+            return Err(RuntimeError::Init(InitError::Zone(class.clone())));
+        }
     }
 
     pub fn new_card(&mut self, card: cards::Card) -> u64 {
@@ -124,6 +135,57 @@ impl GameState {
             }
         }
         result
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GameState {
+    pub config: Arc<config::GameConfig>,
+    pub status: GameStatus,
+
+    pub players: Vec<PlayerClassIdentifier>,
+    pub cards: CardState,
+}
+
+//State method didn't execute correctly
+#[derive(Debug, Clone)]
+pub enum StateMethodError {
+    WrongStatus,                 //Recoverable, just wait for status to change
+    InternalError(RuntimeError), //Fatal
+}
+
+#[derive(Debug, Clone)]
+pub enum RuntimeError {
+    Init(InitError),
+    MissingResource(MissingResourceError),
+}
+
+#[derive(Debug, Clone)]
+pub enum InitError {
+    Zone(ZoneClassIdentifier),
+    Player(PlayerClassIdentifier),
+}
+
+#[derive(Debug, Clone)]
+pub enum MissingResourceError {
+    Player(PlayerOrderIndex),
+    Card(u64),
+    Zone(GameZoneID),
+}
+
+impl GameState {
+    pub fn new(config: Arc<config::GameConfig>) -> Self {
+        Self {
+            config: config.clone(),
+            players: Vec::new(),
+            status: GameStatus::Waiting(GameWaitingStatus::NotReady),
+            cards: CardState::new(config.clone()),
+        }
+    }
+
+    //TODO
+    pub fn check_config(&self) -> Result<(), String> {
+        Ok(())
     }
 
     // Assign players roles depending on class order
@@ -198,10 +260,39 @@ impl GameState {
             self.status = GameStatus::Playing;
 
             //Create initial zones
-            for (name, class) in self.config.clone().initial_zones.iter() {
-                match self.create_zone(Vec::new(), &class) {
-                    Ok(zid) => {}
-                    Err(s) => (),
+            for (name, class) in self.config.initial_zones.iter() {
+                match self
+                    .cards
+                    .create_zone(Vec::new(), &class, None, None, Some(name.clone()))
+                {
+                    Ok(_) => (),
+                    Err(s) => {
+                        return Err(StateMethodError::InternalError(s));
+                    }
+                }
+            }
+
+            //Set up player zones
+            for (idx, class) in self.players.iter().enumerate() {
+                if let Some(class_definition) = self.config.player_classes.get(class) {
+                    for (name, class) in class_definition.zones.iter() {
+                        match self.cards.create_zone(
+                            Vec::new(),
+                            &class,
+                            None,
+                            None,
+                            Some(name.clone()),
+                        ) {
+                            Ok(_) => (),
+                            Err(s) => {
+                                return Err(StateMethodError::InternalError(s));
+                            }
+                        }
+                    }
+                } else {
+                    return Err(StateMethodError::InternalError(RuntimeError::Init(
+                        InitError::Player(class.clone()),
+                    )));
                 }
             }
 
@@ -210,31 +301,6 @@ impl GameState {
             Ok(())
         } else {
             return Err(StateMethodError::WrongStatus);
-        }
-    }
-
-    pub fn next_zone_id(&mut self) -> GameZoneID {
-        self.zones_created += 1;
-        self.zones_created
-    }
-
-    pub fn next_card_id(&mut self) -> u64 {
-        self.cards_created += 1;
-        self.cards_created
-    }
-
-    pub fn create_zone(
-        &mut self,
-        cards: Vec<u64>,
-        class: &ZoneClassIdentifier,
-    ) -> Result<GameZoneID, String> {
-        if let Some(_) = self.config.zone_classes.get(class) {
-            let zone_id = self.next_zone_id();
-            let z = GameActiveZone::new(zone_id, cards, class.clone(), None, None, None);
-            self.zones.insert(zone_id, z);
-            return Ok(zone_id);
-        } else {
-            return Err("Zone creator used nonexistant class".into());
         }
     }
 }

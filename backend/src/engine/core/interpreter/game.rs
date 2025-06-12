@@ -66,24 +66,7 @@ impl Game {
     // Identify zones by class
     //
 
-    pub fn init(&mut self) {
-        let mut zone_init_result: Result<(), String> = Ok(());
-        for (zone_name, zone_class) in self.config.initial_zones.iter() {
-            // Empty zone owned by nobody
-            match self.state.create_zone(Vec::new(), zone_class) {
-                Ok(zone_id) => (),
-                Err(msg) => {
-                    tracing::error!("Zone init failed {msg}");
-                    zone_init_result = Err(msg);
-                    break;
-                }
-            }
-        }
-        if let Err(e) = zone_init_result {
-            self.throw_error(e);
-            return;
-        }
-    }
+    pub fn init(&mut self) {}
 
     pub fn lookup_single_zone(&self, target: &zones::SingleZoneTarget) -> VariableIdentifier {
         todo!("IMPLEMENT ME");

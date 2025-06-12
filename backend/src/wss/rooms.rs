@@ -93,7 +93,7 @@ impl WebgameClient {
         };
 
         let join_request = state::web::WebgameRequest {
-            request_type: state::web::WebgameRequestType::Join(state::web::WebgameJoin {
+            body: state::web::WebgameRequestBody::Join(state::web::WebgameJoin {
                 nickname: None, //TODO
                 tx: tx_self,
             }),
@@ -107,9 +107,9 @@ impl WebgameClient {
         Ok(new_client)
     }
 
-    pub fn send_request(&mut self, request: state::web::WebgameRequestType) {
+    pub fn send_request(&mut self, request: state::web::WebgameRequestBody) {
         let req = state::web::WebgameRequest {
-            request_type: request,
+            body: request,
             player_id: self.uuid.into(),
         };
         if let Err(_) = self.tx.send(req) {
@@ -119,7 +119,7 @@ impl WebgameClient {
 
     pub fn leave_game(&mut self) {
         self.running = false;
-        self.send_request(state::web::WebgameRequestType::Disconnect);
+        self.send_request(state::web::WebgameRequestBody::Disconnect);
     }
 
     fn on_game_connection_lost(&mut self) {
@@ -167,9 +167,9 @@ impl WebgameClient {
                 self.leave_game();
             }
             Message::Text(request) => {
-                match serde_json::from_str::<state::game_wrapper::GameCommand>(&request) {
+                match serde_json::from_str::<state::game_wrapper::PlayerCommand>(&request) {
                     Ok(command) => {
-                        self.send_request(state::web::WebgameRequestType::GameCommand(command))
+                        self.send_request(state::web::WebgameRequestBody::PlayerCommand(command))
                     }
                     Err(e) => {
                         tracing::warn!("Failed to deserialize client message {request}: {e}");

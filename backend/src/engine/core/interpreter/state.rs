@@ -296,8 +296,6 @@ impl GameState {
                 }
             }
 
-            todo!("Implement me");
-
             Ok(())
         } else {
             return Err(StateMethodError::WrongStatus);

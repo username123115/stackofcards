@@ -18,7 +18,9 @@ pub enum GameAction {
 #[ts(export)]
 // Player tells game that it has done something
 // TODO: Engine impl
-pub enum GameCommand {}
+pub enum PlayerCommand {
+    StartGame,
+}
 
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]
 #[ts(export)]

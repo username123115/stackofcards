@@ -52,14 +52,14 @@ pub struct WebgameJoin {
     pub tx: mpsc::UnboundedSender<wrapper::GameSnapshot>,
 }
 
-pub enum WebgameRequestType {
+pub enum WebgameRequestBody {
     Join(WebgameJoin),
     Disconnect,
-    GameCommand(wrapper::GameCommand),
+    PlayerCommand(wrapper::PlayerCommand),
 }
 
 pub struct WebgameRequest {
-    pub request_type: WebgameRequestType,
+    pub body: WebgameRequestBody,
     pub player_id: player::PlayerId,
 }
 
@@ -189,9 +189,9 @@ impl WebGameState {
     // If this function blocks I'm going to crash out
     pub fn process_request(&mut self, msg: &WebgameRequest) {
         if self.process_player_exists_or_joining(msg) {
-            match msg.request_type {
-                WebgameRequestType::Join(_) => (),
-                WebgameRequestType::Disconnect => self.disconnect_and_broadcast(&msg.player_id),
+            match msg.body {
+                WebgameRequestBody::Join(_) => (),
+                WebgameRequestBody::Disconnect => self.disconnect_and_broadcast(&msg.player_id),
                 _ => (), //Todo, implement
             }
         }
@@ -201,8 +201,8 @@ impl WebGameState {
     // If a player is trying to join: add the player to active connections
     // If a player id is found in list of active connections, return True
     fn process_player_exists_or_joining(&mut self, msg: &WebgameRequest) -> bool {
-        match &msg.request_type {
-            WebgameRequestType::Join(request) => {
+        match &msg.body {
+            WebgameRequestBody::Join(request) => {
                 let tx = request.tx.clone();
 
                 // Previously added player try reconnecting them unless they already have a

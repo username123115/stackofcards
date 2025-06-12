@@ -1,8 +1,29 @@
 @import '../styles/colors.module.css';
 
 .roster {
-	list-style-type: none;
+	padding: 8px;
+	background-color: var(--neutral-300);
+	border-radius: 3px;
+	width: fit-content;
+	margin: 10px;
 }
+
+.rosterTitle {
+	font-size: 2em;
+	color: var(--primary-700);
+	text-align: center;
+}
+
+.roster ul {
+	list-style-type: none;
+	display: inline-flex;
+	flex-direction: column;
+	padding: 8px;
+	background-color: var(--primary-100);
+	border-radius: 3px;
+
+}
+
 
 /* Ourself */
 .rosterSelf {
@@ -11,5 +32,5 @@
 
 /* Other player */
 .rosterOther {
-	color: var(--neutral-700);
+	color: var(--primary-700);
 }

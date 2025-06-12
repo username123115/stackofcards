@@ -5,6 +5,8 @@ import { connectToGame } from '@client/websocket'
 import type { GameSnapshot } from '@bindings/GameSnapshot'
 import type { GameAction } from "@bindings/GameAction";
 
+import { ClientState } from "@client/client_state";
+
 import Client from '@pages/client'
 
 import Header from '@components/header.tsx'
@@ -36,6 +38,7 @@ function InnerRouteComponent() {
 
 	const [snapshot, setSnapshot] = useState<GameSnapshot | null>(null);
 	const [playerId, setPlayerId] = useState<String | null>(null);
+	const [clientState, setClientState] = useState<ClientState | null>(null);
 
 	const socket = useRef<WebSocket | null>(null);
 

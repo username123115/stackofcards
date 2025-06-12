@@ -2,7 +2,8 @@ use super::{
     config,
     lang::{expressions, phases, statements, types_instances},
 };
-use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
+use crate::engine::core::types::*;
+use identifiers::*;
 
 use std::cmp::min;
 use std::collections::{HashMap, HashSet};
@@ -63,6 +64,7 @@ pub enum GameWaitingStatus {
 pub struct GameState {
     pub config: Arc<config::GameConfig>,
     pub zones: HashMap<GameZoneID, GameActiveZone>,
+    pub cards: HashMap<u64, cards::Card>,
     pub players: Vec<PlayerClassIdentifier>,
     pub status: GameStatus,
     zones_created: GameZoneID,
@@ -74,6 +76,7 @@ impl GameState {
         Self {
             config,
             zones: HashMap::new(),
+            cards: HashMap::new(),
             players: Vec::new(),
             status: GameStatus::Waiting(GameWaitingStatus::NotReady),
             zones_created: 0,
@@ -84,6 +87,12 @@ impl GameState {
     //TODO
     pub fn check_config(&self) -> Result<(), String> {
         Ok(())
+    }
+
+    pub fn new_card(&mut self, card: cards::Card) -> u64 {
+        let card_id = self.next_card_id();
+        self.cards.insert(card_id, card);
+        card_id
     }
 
     // Assign players roles depending on class order

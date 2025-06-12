@@ -1,4 +1,4 @@
-use super::{cards, rank_order, ranks, suits};
+use super::{cards, identifiers::OrderIdentifier, rank_order, ranks, suits};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -13,7 +13,7 @@ pub struct PatternPiece<T> {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Relation {
-    Consecutive(cards::OrderIdentifier),
+    Consecutive(OrderIdentifier),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -33,7 +33,7 @@ impl<'a> Matcher<'a> {
     pub fn new(
         card_map: &'a HashMap<u64, cards::Card>,
         patterns: &'a Vec<Pattern>,
-        orderings: HashMap<cards::OrderIdentifier, rank_order::RankOrder>,
+        orderings: HashMap<OrderIdentifier, rank_order::RankOrder>,
         cards: &'a mut Vec<u64>,
     ) -> Self {
         Self {

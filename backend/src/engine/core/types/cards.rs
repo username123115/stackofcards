@@ -4,9 +4,6 @@ use ts_rs::TS;
 
 use super::{ranks::Rank, suits::Suit};
 
-pub type OrderIdentifier = String;
-pub type CardIdentifier = u32;
-
 #[derive(TS, Debug, Clone, Copy, Hash, Serialize, Deserialize)]
 #[ts(export)]
 pub struct Card {

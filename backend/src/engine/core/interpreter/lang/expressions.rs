@@ -21,6 +21,11 @@ pub enum CardExpression {
 }
 
 #[derive(Debug, Clone)]
+pub enum CardSetExpression {
+    Literal(cards::CardSet),
+}
+
+#[derive(Debug, Clone)]
 pub enum SuitExpression {
     Literal(suits::Suit),
     FromCard(CardExpression),

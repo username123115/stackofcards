@@ -16,13 +16,20 @@ pub enum Expression {
 }
 
 #[derive(Debug, Clone)]
+pub enum CardExpression {
+    Create(Box<SuitExpression>, Box<RankExpression>),
+}
+
+#[derive(Debug, Clone)]
 pub enum SuitExpression {
     Literal(suits::Suit),
+    FromCard(CardExpression),
 }
 
 #[derive(Debug, Clone)]
 pub enum RankExpression {
     Literal(ranks::Rank),
+    FromCard(CardExpression),
 }
 
 #[derive(Debug, Clone)]

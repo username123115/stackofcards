@@ -12,6 +12,35 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
+pub enum GameError {
+    Fatal(FatalGameError),
+    Recoverable(RecoverableGameError),
+}
+
+#[derive(Debug, Clone)]
+pub enum FatalGameError {
+    StateRuntime(state::RuntimeError),
+}
+
+#[derive(Debug, Clone)]
+pub enum RecoverableGameError {
+    WrongStatus,
+}
+
+pub fn state_error_to_game(state_error: state::StateMethodError) -> GameError {
+    match state_error {
+        state::StateMethodError::WrongStatus => {
+            GameError::Recoverable(RecoverableGameError::WrongStatus)
+        }
+        state::StateMethodError::InternalError(e) => {
+            GameError::Fatal(FatalGameError::StateRuntime(e))
+        }
+    }
+}
+
+pub enum NonFatalGameError {}
+
+#[derive(Debug, Clone)]
 pub struct ExecutionContext {
     statements_evaluated: u64,
     statement_limit: u64,
@@ -52,6 +81,10 @@ impl Game {
             return true;
         }
         false
+    }
+
+    pub fn is_ready(&self) -> bool {
+        self.state.game_ready()
     }
 
     pub fn update_players(&mut self, player_count: u64) -> Result<(), String> {

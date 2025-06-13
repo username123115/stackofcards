@@ -106,7 +106,7 @@ impl WebGameState {
         }
     }
 
-    pub fn send_chat(&mut self, from: Option<&player::PlayerId>, msg: &str) {
+    pub fn queue_chat(&mut self, from: Option<&player::PlayerId>, msg: &str) {
         self.public_action_queue
             .push_back(wrapper::GameAction::ChatMsg(wrapper::GameChat {
                 from: from.cloned(),
@@ -156,7 +156,7 @@ impl WebGameState {
         );
         let nick_option = self.connections.get(player_id);
         if let Some(p_info) = nick_option {
-            self.send_chat(None, &format!("{} has joined", p_info.nickname));
+            self.queue_chat(None, &format!("{} has joined", p_info.nickname));
             self.broadcast(Some(join_ack));
         }
     }
@@ -185,7 +185,7 @@ impl WebGameState {
             }
         }
         if let Some(n) = nick {
-            self.send_chat(None, &format!("{} Disconnected", n));
+            self.queue_chat(None, &format!("{} Disconnected", n));
         }
     }
 
@@ -217,10 +217,18 @@ impl WebGameState {
                     use wrapper::PlayerCommand;
                     match pcmd {
                         PlayerCommand::SendMsg(chat_string) => {
-                            self.send_chat(Some(&msg.player_id), chat_string);
+                            self.queue_chat(Some(&msg.player_id), chat_string);
                             self.broadcast(None);
                         }
-                        _ => (), //TODO
+                        PlayerCommand::StartGame => {
+                            if self.game.is_ready()
+                                && self.player_order.len() > 0
+                                && msg.player_id == self.player_order[0]
+                            {
+                                self.queue_chat(None, "Starting game");
+                                self.broadcast(None);
+                            }
+                        }
                     }
                 }
                 _ => (), //TODO

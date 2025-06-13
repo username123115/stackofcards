@@ -24,6 +24,7 @@ struct WebGameState {
     pub player_order: Vec<player::PlayerId>,
     pub public_action_queue: VecDeque<wrapper::GameAction>,
     pub game: interpreter::game::Game,
+    pub status: InterpreterStatus,
 }
 
 #[derive(Clone, Debug)]
@@ -67,7 +68,14 @@ pub struct WebgameRequest {
     pub player_id: player::PlayerId,
 }
 
-//
+#[derive(Clone, Debug)]
+pub enum InterpreterStatus {
+    Setup,                 //Initial state as a game loads
+    PendingExecution,      //Some instructions need to be executed
+    InstructionDelay(u64), //Delay some seconds (Spawn a task to decr each second)
+    Blocked,               //Waiting on some external input from players
+    Failed,                // Fatal error / crash
+}
 
 impl WebGameState {
     pub fn get_player_snapshot(&self) -> player::PlayerSnapshot {
@@ -227,6 +235,20 @@ impl WebGameState {
                             {
                                 self.queue_chat(None, "Starting game");
                                 self.broadcast(None);
+
+                                use interpreter::game::GameError;
+                                match self.game.init() {
+                                    Ok(_) => (),
+                                    Err(gerror) => {
+                                        match gerror {
+                                            GameError::Recoverable(_) => (), //TODO, in the future log
+                                            GameError::Fatal(e) => {
+                                                self.queue_chat(None, &format!("FATAL: {:?}", e));
+                                                self.broadcast(None);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -310,6 +332,7 @@ impl WebGame {
             player_order: Vec::new(),
             public_action_queue: VecDeque::new(),
             game: interpreter::game::Game::new(interpreter::example_config::gen_example_config()),
+            status: InterpreterStatus::Setup,
         };
 
         (
@@ -324,7 +347,7 @@ impl WebGame {
     #[tracing::instrument]
     pub async fn run(mut self) {
         info!("Starting game");
-        loop {
+        while true {
             tokio::select! {
                 Some(msg) = self.rx.recv() => {
                     info!("Processing a player request");
@@ -333,6 +356,12 @@ impl WebGame {
                     state.process_request(&msg);
                 }
             }
+        }
+
+        {
+            let mut state = self.state.lock().unwrap();
+            state.queue_chat(None, "Game is no longer running");
+            state.broadcast(None);
         }
     }
 }

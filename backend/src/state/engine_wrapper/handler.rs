@@ -3,11 +3,10 @@ use std::collections::{HashMap, VecDeque};
 
 use super::{connections, interface, names, status::InterpreterStatus, wrapper};
 
-use tokio::sync::mpsc;
 use tracing::info;
 
 #[derive(Debug, Clone)]
-struct WebGameState {
+pub struct WebGameState {
     pub connections: HashMap<wrapper::PlayerId, connections::WebGamePlayer>,
     // Underlying engine will only care about order, it won't know
     // about player IDs or such

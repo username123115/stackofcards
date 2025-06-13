@@ -5,11 +5,12 @@ use std::{
 
 use rand::Rng;
 
-use super::web;
+use super::engine_wrapper::interface::WebgameRequest;
+use super::web::WebGame;
 use tokio::sync::mpsc;
 use tracing::{error, info};
 
-pub type GameTx = mpsc::UnboundedSender<web::WebgameRequest>;
+pub type GameTx = mpsc::UnboundedSender<WebgameRequest>;
 pub type RoomMap = Arc<Mutex<HashMap<u64, GameTx>>>;
 
 #[derive(Clone, Debug)]
@@ -34,7 +35,7 @@ impl AppState {
             return Result::Err(String::from("Failed to get available room"));
         }
 
-        let (game, tx) = web::WebGame::new();
+        let (game, tx) = WebGame::new();
         room_map.insert(room_id, tx);
         drop(room_map);
 

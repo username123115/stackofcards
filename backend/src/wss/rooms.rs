@@ -10,6 +10,7 @@ use axum::{
 };
 
 use crate::state;
+use state::engine_wrapper::{interface, wrapper};
 use tokio::sync::mpsc;
 use tracing::{info, instrument};
 
@@ -69,8 +70,8 @@ pub async fn join_handler(
 // Middle man that connects a websocket connection to the central game thread
 pub struct WebgameClient {
     pub ws: WebSocket,
-    pub tx: mpsc::UnboundedSender<state::web::WebgameRequest>,
-    pub rx: mpsc::UnboundedReceiver<state::game_wrapper::GameSnapshot>,
+    pub tx: mpsc::UnboundedSender<interface::WebgameRequest>,
+    pub rx: mpsc::UnboundedReceiver<wrapper::GameSnapshot>,
     pub uuid: Uuid,
     pub running: bool,
 }
@@ -78,12 +79,12 @@ pub struct WebgameClient {
 impl WebgameClient {
     pub fn join(
         ws: WebSocket,
-        tx: mpsc::UnboundedSender<state::web::WebgameRequest>,
+        tx: mpsc::UnboundedSender<interface::WebgameRequest>,
     ) -> Result<Self, String> {
         //TODO: W/db UUID can be gleaned from a user
         let uuid = Uuid::new_v4();
 
-        let (tx_self, rx) = mpsc::unbounded_channel::<state::game_wrapper::GameSnapshot>();
+        let (tx_self, rx) = mpsc::unbounded_channel::<wrapper::GameSnapshot>();
         let new_client = Self {
             ws,
             tx: tx.clone(),
@@ -92,8 +93,8 @@ impl WebgameClient {
             running: true,
         };
 
-        let join_request = state::web::WebgameRequest {
-            body: state::web::WebgameRequestBody::Join(state::web::WebgameJoin {
+        let join_request = interface::WebgameRequest {
+            body: interface::WebgameRequestBody::Join(interface::WebgameJoin {
                 nickname: None, //TODO
                 tx: tx_self,
             }),
@@ -107,8 +108,8 @@ impl WebgameClient {
         Ok(new_client)
     }
 
-    pub fn send_request(&mut self, request: state::web::WebgameRequestBody) {
-        let req = state::web::WebgameRequest {
+    pub fn send_request(&mut self, request: interface::WebgameRequestBody) {
+        let req = interface::WebgameRequest {
             body: request,
             player_id: self.uuid.into(),
         };
@@ -119,7 +120,7 @@ impl WebgameClient {
 
     pub fn leave_game(&mut self) {
         self.running = false;
-        self.send_request(state::web::WebgameRequestBody::Disconnect);
+        self.send_request(interface::WebgameRequestBody::Disconnect);
     }
 
     fn on_game_connection_lost(&mut self) {
@@ -129,7 +130,7 @@ impl WebgameClient {
     }
 
     // Forward any snapshots
-    async fn handle_connection_rx(&mut self, snapshot: &state::game_wrapper::GameSnapshot) {
+    async fn handle_connection_rx(&mut self, snapshot: &wrapper::GameSnapshot) {
         match serde_json::to_string(&snapshot) {
             Ok(json_msg) => {
                 if let Err(e) = self.ws.send(Message::Text(json_msg.into())).await {
@@ -167,9 +168,9 @@ impl WebgameClient {
                 self.leave_game();
             }
             Message::Text(request) => {
-                match serde_json::from_str::<state::game_wrapper::PlayerCommand>(&request) {
+                match serde_json::from_str::<wrapper::PlayerCommand>(&request) {
                     Ok(command) => {
-                        self.send_request(state::web::WebgameRequestBody::PlayerCommand(command))
+                        self.send_request(interface::WebgameRequestBody::PlayerCommand(command))
                     }
                     Err(e) => {
                         tracing::warn!("Failed to deserialize client message {request}: {e}");

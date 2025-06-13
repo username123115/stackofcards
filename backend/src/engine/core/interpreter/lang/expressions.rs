@@ -1,8 +1,11 @@
 use super::types_instances::BaseNumberType;
 use crate::engine::core::types::*;
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 // Get evaluated to types
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum Expression {
     Number(NumberExpression),
     Boolean(BooleanExpression),
@@ -15,29 +18,34 @@ pub enum Expression {
     CardSelector(CardSelectorExpression),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum CardExpression {
     Create(Box<SuitExpression>, Box<RankExpression>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum CardSetExpression {
     Literal(cards::CardSet),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum SuitExpression {
     Literal(suits::Suit),
     FromCard(CardExpression),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum RankExpression {
     Literal(ranks::Rank),
     FromCard(CardExpression),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum NumberExpression {
     Literal(BaseNumberType),
     SumZones {
@@ -47,7 +55,8 @@ pub enum NumberExpression {
     },
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum BooleanExpression {
     Literal(bool),
     Comparison {
@@ -57,7 +66,8 @@ pub enum BooleanExpression {
     },
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum Comparison {
     GT,
     LT,
@@ -66,27 +76,32 @@ pub enum Comparison {
     Eq,
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum ZoneExpression {
     SingleZone(zones::SingleZoneTarget),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum ZoneCollectionExpression {
     ZoneCollection(zones::ZoneTarget),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum PlayerExpression {
     Player(players::SinglePlayerTarget),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum PlayerCollectionExpression {
     PlayerCollection(players::PlayerTarget),
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum CardSelectorExpression {
     Top,
     Bottom,

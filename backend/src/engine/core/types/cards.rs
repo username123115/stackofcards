@@ -18,7 +18,8 @@ impl Card {
 }
 
 // This describes ranks.len * suits.len cards
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Clone, Hash, Serialize, Deserialize)]
+#[ts(export)]
 pub struct CardSet {
     pub ranks: Vec<Rank>,
     pub suits: Vec<Suit>,

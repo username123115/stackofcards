@@ -1,22 +1,27 @@
 use super::{cards, identifiers::OrderIdentifier, rank_order, ranks, suits};
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
+
 use std::collections::HashMap;
 
 pub type PatternIdentifier = String;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub struct PatternPiece<T> {
     pub match_min: u64,
     pub match_max: u64,
     pub pattern: T,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum Relation {
     Consecutive(OrderIdentifier),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum Pattern {
     Relation(Relation),
     Suit(Vec<PatternPiece<Option<suits::Suit>>>),

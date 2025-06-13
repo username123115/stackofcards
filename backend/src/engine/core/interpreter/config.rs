@@ -5,7 +5,11 @@ use identifiers::*;
 use std::collections::{HashMap, HashSet};
 use std::ops::Range;
 
-#[derive(Debug, Clone)]
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub struct GameConfig {
     pub allowed_ranks: HashSet<ranks::Rank>,
     pub allowed_suits: HashSet<suits::Suit>,

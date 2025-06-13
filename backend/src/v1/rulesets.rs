@@ -1,8 +1,14 @@
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+};
 
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+use crate::engine::core::interpreter::example_config;
 use crate::state;
 use tracing::{info, instrument};
 
@@ -51,6 +57,13 @@ curl -X POST localhost:5173/v1/rulesets \
 
 pub async fn get() -> Json<Vec<RulesetDescriber>> {
     Json(get_rulesets())
+}
+
+pub async fn ruleset_id_get(Path(ruleset_id): Path<u64>) -> impl IntoResponse {
+    if ruleset_id != 101 {
+        return (StatusCode::NOT_FOUND, "Ruleset doesn't exist");
+    }
+    return (StatusCode::FOUND, "What the fu");
 }
 
 #[instrument]

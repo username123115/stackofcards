@@ -1,7 +1,10 @@
 use super::expressions;
 use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum Statement {
     Empty,
     Block(Vec<Statement>),
@@ -28,7 +31,8 @@ pub enum Statement {
     },
 }
 
-#[derive(Debug, Clone)]
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub struct ConditionalStatement {
     pub condition: expressions::BooleanExpression,
     pub go_true: Box<Statement>,

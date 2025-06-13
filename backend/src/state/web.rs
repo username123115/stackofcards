@@ -1,5 +1,8 @@
 use crate::engine::core::interpreter;
-use std::{collections::HashMap, sync::Mutex};
+use std::{
+    collections::{HashMap, VecDeque},
+    sync::Mutex,
+};
 
 use super::{game_wrapper, player};
 use game_wrapper as wrapper;
@@ -19,6 +22,7 @@ struct WebGameState {
     // Underlying engine will only care about order, it won't know
     // about player IDs or such
     pub player_order: Vec<player::PlayerId>,
+    pub public_action_queue: VecDeque<wrapper::GameAction>,
     pub game: interpreter::game::Game,
 }
 
@@ -93,13 +97,21 @@ impl WebGameState {
         }
         psnapshot
     }
-    pub fn get_snapshot(&self) -> wrapper::GameSnapshot {
+    pub fn get_snapshot(&mut self) -> wrapper::GameSnapshot {
         wrapper::GameSnapshot {
-            actions: Vec::new(),
+            actions: self.public_action_queue.drain(..).collect(),
             private_actions: Vec::new(),
             status: self.game.get_status(),
             players: Some(self.get_player_snapshot()),
         }
+    }
+
+    pub fn send_chat(&mut self, from: Option<&player::PlayerId>, msg: &str) {
+        self.public_action_queue
+            .push_back(wrapper::GameAction::ChatMsg(wrapper::GameChat {
+                from: from.cloned(),
+                contents: msg.to_string(),
+            }))
     }
 
     #[tracing::instrument]
@@ -142,6 +154,7 @@ impl WebGameState {
             player_id.clone(),
             vec![wrapper::GameAction::JoinResult(Ok(player_id.clone()))],
         );
+        self.send_chat(None, "A player has joined");
         self.broadcast(Some(join_ack));
     }
 
@@ -192,6 +205,7 @@ impl WebGameState {
             match msg.body {
                 WebgameRequestBody::Join(_) => (),
                 WebgameRequestBody::Disconnect => self.disconnect_and_broadcast(&msg.player_id),
+                WebgameRequestBody::PlayerCommand(_) => (),
                 _ => (), //Todo, implement
             }
         }
@@ -269,6 +283,7 @@ impl WebGame {
         let state = WebGameState {
             connections: HashMap::new(),
             player_order: Vec::new(),
+            public_action_queue: VecDeque::new(),
             game: interpreter::game::Game::new(interpreter::example_config::gen_example_config()),
         };
 

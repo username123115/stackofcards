@@ -12,6 +12,14 @@ pub enum GameAction {
     Layout,
     Private,
     JoinResult(Result<player::PlayerId, String>),
+    ChatMsg(GameChat),
+}
+
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
+#[ts(export)]
+pub struct GameChat {
+    pub from: Option<player::PlayerId>,
+    pub contents: String,
 }
 
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]

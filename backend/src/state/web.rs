@@ -154,13 +154,18 @@ impl WebGameState {
             player_id.clone(),
             vec![wrapper::GameAction::JoinResult(Ok(player_id.clone()))],
         );
-        self.send_chat(None, "A player has joined");
-        self.broadcast(Some(join_ack));
+        let nick_option = self.connections.get(player_id);
+        if let Some(p_info) = nick_option {
+            self.send_chat(None, &format!("{} has joined", p_info.nickname));
+            self.broadcast(Some(join_ack));
+        }
     }
 
     // Remove a connection if previously set
     fn disconnect_player(&mut self, player_id: &player::PlayerId) {
+        let mut nick: Option<String> = None;
         if let Some(player) = self.connections.get_mut(player_id) {
+            nick = Some(player.nickname.clone());
             //Disconnect player
             if let WebGameConnection::Connected(_) = player.conn {
                 player.conn = WebGameConnection::Disconnected(0);
@@ -178,6 +183,9 @@ impl WebGameState {
             } else {
                 self.connections.remove(player_id);
             }
+        }
+        if let Some(n) = nick {
+            self.send_chat(None, &format!("{} Disconnected", n));
         }
     }
 

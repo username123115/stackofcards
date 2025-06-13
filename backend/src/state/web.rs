@@ -4,7 +4,7 @@ use std::{
     sync::Mutex,
 };
 
-use super::{game_wrapper, player};
+use super::{game_wrapper, names, player};
 use game_wrapper as wrapper;
 
 use tokio::sync::mpsc;
@@ -260,7 +260,7 @@ impl WebGameState {
                             nickname: match &request.nickname {
                                 Some(nick) => nick.clone(),
                                 //TODO: Add some sort of random nickname generator
-                                None => "Anonymous Player".into(),
+                                None => names::make_random_name(),
                             },
                             conn: WebGameConnection::Connected(tx),
                         },

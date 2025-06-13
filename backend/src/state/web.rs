@@ -10,12 +10,6 @@ use game_wrapper as wrapper;
 use tokio::sync::mpsc;
 use tracing::info;
 
-#[derive(Debug)]
-pub struct WebGame {
-    state: Mutex<WebGameState>,
-    rx: mpsc::UnboundedReceiver<WebgameRequest>,
-}
-
 #[derive(Debug, Clone)]
 struct WebGameState {
     pub connections: HashMap<player::PlayerId, WebGamePlayer>,
@@ -323,6 +317,12 @@ impl WebGameState {
     }
 }
 
+#[derive(Debug)]
+pub struct WebGame {
+    state: WebGameState,
+    rx: mpsc::UnboundedReceiver<WebgameRequest>,
+}
+
 impl WebGame {
     pub fn new() -> (Self, mpsc::UnboundedSender<WebgameRequest>) {
         let (tx, rx) = mpsc::unbounded_channel::<WebgameRequest>();
@@ -337,7 +337,7 @@ impl WebGame {
 
         (
             Self {
-                state: Mutex::new(state),
+                state: state,
                 rx: rx,
             },
             tx,
@@ -352,16 +352,16 @@ impl WebGame {
                 Some(msg) = self.rx.recv() => {
                     info!("Processing a player request");
 
-                    let mut state = self.state.lock().unwrap();
-                    state.process_request(&msg);
+                    self.state.process_request(&msg);
+                    // let mut state = self.state.lock().unwrap();
+                    // state.process_request(&msg);
                 }
             }
         }
 
         {
-            let mut state = self.state.lock().unwrap();
-            state.queue_chat(None, "Game is no longer running");
-            state.broadcast(None);
+            self.state.queue_chat(None, "Game is no longer running");
+            self.state.broadcast(None);
         }
     }
 }

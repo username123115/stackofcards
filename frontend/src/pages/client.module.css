@@ -10,6 +10,30 @@
 	flex-direction: column;
 }
 
+.chatDisplay {
+	background-color: var(--neutral-300);
+}
+
+.chatDisplay ul {
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	list-style-type: none;
+}
+
+.chatElement {
+	display: flex;
+	gap: 8px;
+}
+
+.chatElementFrom {
+	color: var(--accent-700);
+}
+
+.chatElementMsg {
+	color: var(--primary-300);
+}
+
 .title {
 	font-size: 2em;
 	color: var(--primary-700);

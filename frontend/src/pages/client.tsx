@@ -1,19 +1,65 @@
 import styles from './client.module.css'
-import type { PlayerCommand } from '@bindings/PlayerCommand'
+// import type { PlayerCommand } from '@bindings/PlayerCommand'
 import type { PlayerCommandCallback } from '@client/utility'
+import type { GameChat } from '@bindings/GameChat'
 
 import { ClientState } from "@client/client_state";
 
-//import utilityStyles from '@styles/utility.module.css'
 
 export default function Client({ state, setCommand }: { state: ClientState, setCommand: PlayerCommandCallback }) {
 	function RequestBegin() {
 		setCommand("StartGame");
 	}
 	if (state.isWaiting()) {
-		return <Waiting state={state} signalStart={RequestBegin} />
+		return (
+			<div>
+				<Waiting state={state} signalStart={RequestBegin} />
+				<ChatDisplay state={state} />
+			</div>)
 	}
 	return (<span> Todo </span>)
+}
+
+function ChatDisplay({ state }: { state: ClientState }) {
+	const chats = state.chatLog.map(
+		(chat, index) => {
+			return (
+				<li key={index}>
+					<ChatElement state={state} chat={chat} />
+				</li>
+			)
+		}
+	)
+	return (
+		<div className={styles.chatDisplay}>
+			<ul>
+				{chats}
+			</ul>
+		</div>
+	)
+}
+
+function ChatElement({ state, chat }: { state: ClientState, chat: GameChat }) {
+	let sender = "!";
+	if (chat.from) {
+		const pid = chat.from;
+		let nick = state.players.players[pid]?.nickname;
+		if (nick) {
+			sender = "@" + nick;
+		} else {
+			sender = `PID[{pid}]`;
+		}
+	}
+	return (
+		<div className={styles.chatElement}>
+			<div className={styles.chatElementFrom}>
+				<span> {sender} </span>
+			</div>
+			<div className={styles.chatElementMsg}>
+				<span> {chat.contents} </span>
+			</div>
+		</div>
+	)
 }
 
 function Waiting({ state, signalStart }: { state: ClientState, signalStart: (() => void) }) {

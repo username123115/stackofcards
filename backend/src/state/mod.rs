@@ -1,4 +1,5 @@
 pub mod app; //Manipulation of global state
+pub mod engine_wrapper;
 pub mod game_wrapper; //Wraps engine state + apis (this is TODO, not actually wrapping yet)
 pub mod names;
 pub mod player;

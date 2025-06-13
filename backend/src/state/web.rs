@@ -210,11 +210,20 @@ impl WebGameState {
     // If this function blocks I'm going to crash out
     pub fn process_request(&mut self, msg: &WebgameRequest) {
         if self.process_player_exists_or_joining(msg) {
-            match msg.body {
+            match &msg.body {
                 WebgameRequestBody::Join(_) => (),
                 WebgameRequestBody::Disconnect => self.disconnect_and_broadcast(&msg.player_id),
-                WebgameRequestBody::PlayerCommand(_) => (),
-                _ => (), //Todo, implement
+                WebgameRequestBody::PlayerCommand(pcmd) => {
+                    use wrapper::PlayerCommand;
+                    match pcmd {
+                        PlayerCommand::SendMsg(chat_string) => {
+                            self.send_chat(Some(&msg.player_id), chat_string);
+                            self.broadcast(None);
+                        }
+                        _ => (), //TODO
+                    }
+                }
+                _ => (), //TODO
             }
         }
     }

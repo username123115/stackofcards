@@ -4,7 +4,7 @@ import type { PlayerCommandCallback } from '@client/utility'
 import type { GameChat } from '@bindings/GameChat'
 
 import { ClientState } from "@client/client_state";
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 
 export default function Client({ state, setCommand }: { state: ClientState, setCommand: PlayerCommandCallback }) {
@@ -13,6 +13,10 @@ export default function Client({ state, setCommand }: { state: ClientState, setC
 	}
 	function SendMessage(message: String) {
 		console.log(message);
+		setCommand({
+			SendMsg: String(message),
+		})
+
 	}
 	if (state.isWaiting()) {
 		return (
@@ -25,6 +29,7 @@ export default function Client({ state, setCommand }: { state: ClientState, setC
 }
 
 function ChatDisplay({ state, onMessage }: { state: ClientState, onMessage: ((message: String) => void) }) {
+	const chatHistoryRef = useRef<HTMLUListElement>(null);
 
 	const chats = state.chatLog.map(
 		(chat, index) => {
@@ -35,14 +40,22 @@ function ChatDisplay({ state, onMessage }: { state: ClientState, onMessage: ((me
 			)
 		}
 	)
-	return (
+
+
+	const result = (
 		<div className={styles.chatDisplay}>
-			<ul>
+			<ul ref={chatHistoryRef}>
 				{chats}
 			</ul>
 			<ChatInput onMessage={onMessage} />
 		</div>
 	)
+
+	if (chatHistoryRef.current) {
+		chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
+	}
+
+	return result;
 }
 
 function ChatInput({ onMessage }: { onMessage: ((message: String) => void) }) {
@@ -64,14 +77,18 @@ function ChatInput({ onMessage }: { onMessage: ((message: String) => void) }) {
 
 function ChatElement({ state, chat }: { state: ClientState, chat: GameChat }) {
 
-	let sender = "!";
+	let sender = "~";
 	if (chat.from) {
 		const pid = chat.from;
-		let nick = state.players.players[pid]?.nickname;
-		if (nick) {
-			sender = "@" + nick;
+		if (pid === state.playerId) {
+			sender = ">";
 		} else {
-			sender = `PID[{pid}]`;
+			let nick = state.players.players[pid]?.nickname;
+			if (nick) {
+				sender = "@" + nick;
+			} else {
+				sender = `(${pid})`;
+			}
 		}
 	}
 	return (

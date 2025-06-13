@@ -28,6 +28,7 @@ pub struct GameChat {
 // TODO: Engine impl
 pub enum PlayerCommand {
     StartGame,
+    SendMsg(String),
 }
 
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]

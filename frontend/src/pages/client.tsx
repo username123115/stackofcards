@@ -20,8 +20,9 @@ export default function Client({ state, setCommand }: { state: ClientState, setC
 	}
 	if (state.isWaiting()) {
 		return (
-			<div>
+			<div className={styles.waiting}>
 				<Waiting state={state} signalStart={RequestBegin} />
+				<div className={styles.spacer}> </div>
 				<ChatDisplay state={state} onMessage={SendMessage} />
 			</div>)
 	}

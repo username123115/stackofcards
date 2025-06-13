@@ -35,6 +35,42 @@ export class ClientState implements ClientStateInterface {
 		this.actions = actions;
 		this.playerId = playerId;
 	}
+	static fromSnapshot(
+		snapshot: GameSnapshot
+	): ClientState {
+		let playerId: String | null = null;
+		snapshot.private_actions.forEach(
+			(action) => {
+				if (typeof action !== 'string' && 'JoinResult' in action) {
+					const joinResult = action.JoinResult;
+					if ('Ok' in joinResult) {
+						playerId = joinResult.Ok;
+					} else {
+						throw `Error while joining: {joinResult.Err}`;
+					}
+				}
+
+			}
+		)
+		if (!playerId) {
+			throw "Couldn't find player ID";
+		}
+
+		if (!snapshot.players) {
+			throw "Couldn't get list of players";
+		}
+
+		const s = new ClientState(
+			snapshot.status,
+			snapshot.players,
+			snapshot.actions,
+			snapshot.private_actions,
+			playerId,
+		)
+		return s;
+
+	}
+
 	isWaiting(): Boolean {
 		return typeof this.status === 'object' && 'Waiting' in this.status
 	}

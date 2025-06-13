@@ -4,11 +4,12 @@ use super::{
     state,
 };
 
-use tracing;
+use crate::engine::core::types::*;
+use identifiers::*;
 
-use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
-use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -42,8 +43,11 @@ pub enum NonFatalGameError {}
 
 #[derive(Debug, Clone)]
 pub struct ExecutionContext {
-    statements_evaluated: u64,
-    statement_limit: u64,
+    pub statements_evaluated: u64,
+    pub statement_limit: u64,
+    pub block_stack: Vec<u64>,
+    pub block_instruction_pointer: u64,
+    pub current_phase: PhaseIdentifier,
 }
 
 impl ExecutionContext {
@@ -51,7 +55,16 @@ impl ExecutionContext {
         Self {
             statements_evaluated: 0,
             statement_limit: 1000,
+            block_stack: Vec::new(),
+            block_instruction_pointer: 0,
+            current_phase: "Changeme".into(),
         }
+    }
+
+    pub fn change_phase(&mut self, phase: &str) {
+        self.block_stack.clear();
+        self.block_instruction_pointer = 0;
+        self.current_phase = String::from(phase);
     }
 }
 
@@ -99,7 +112,19 @@ impl Game {
     // Identify zones by class
     //
 
-    pub fn init(&mut self) {}
+    pub fn init(&mut self) -> Result<(), GameError> {
+        if !self.is_ready() {
+            return Err(GameError::Recoverable(RecoverableGameError::WrongStatus));
+        }
+        match self.state.init_game() {
+            Ok(_) => (),
+            Err(e) => return Err(state_error_to_game(e)),
+        };
+
+        self.ex_ctx.change_phase(&self.config.initial_phase);
+
+        return Ok(());
+    }
 
     pub fn lookup_single_zone(&self, target: &zones::SingleZoneTarget) -> VariableIdentifier {
         todo!("IMPLEMENT ME");

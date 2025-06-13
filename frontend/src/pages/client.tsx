@@ -4,23 +4,28 @@ import type { PlayerCommandCallback } from '@client/utility'
 import type { GameChat } from '@bindings/GameChat'
 
 import { ClientState } from "@client/client_state";
+import { useState } from 'react';
 
 
 export default function Client({ state, setCommand }: { state: ClientState, setCommand: PlayerCommandCallback }) {
 	function RequestBegin() {
 		setCommand("StartGame");
 	}
+	function SendMessage(message: String) {
+		console.log(message);
+	}
 	if (state.isWaiting()) {
 		return (
 			<div>
 				<Waiting state={state} signalStart={RequestBegin} />
-				<ChatDisplay state={state} />
+				<ChatDisplay state={state} onMessage={SendMessage} />
 			</div>)
 	}
 	return (<span> Todo </span>)
 }
 
-function ChatDisplay({ state }: { state: ClientState }) {
+function ChatDisplay({ state, onMessage }: { state: ClientState, onMessage: ((message: String) => void) }) {
+
 	const chats = state.chatLog.map(
 		(chat, index) => {
 			return (
@@ -35,11 +40,30 @@ function ChatDisplay({ state }: { state: ClientState }) {
 			<ul>
 				{chats}
 			</ul>
+			<ChatInput onMessage={onMessage} />
 		</div>
 	)
 }
 
+function ChatInput({ onMessage }: { onMessage: ((message: String) => void) }) {
+	const [inputText, setInputText] = useState('');
+
+	const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter' && inputText.trim() !== '') {
+			onMessage(inputText);
+			setInputText('');
+		}
+	}
+	return (
+		<input type="text"
+			onChange={(e) => setInputText(e.target.value)}
+			onKeyDown={handleInputKeyDown}
+			value={inputText}
+		/>)
+}
+
 function ChatElement({ state, chat }: { state: ClientState, chat: GameChat }) {
+
 	let sender = "!";
 	if (chat.from) {
 		const pid = chat.from;
@@ -53,10 +77,10 @@ function ChatElement({ state, chat }: { state: ClientState, chat: GameChat }) {
 	return (
 		<div className={styles.chatElement}>
 			<div className={styles.chatElementFrom}>
-				<span> {sender} </span>
+				{sender}
 			</div>
 			<div className={styles.chatElementMsg}>
-				<span> {chat.contents} </span>
+				{chat.contents}
 			</div>
 		</div>
 	)

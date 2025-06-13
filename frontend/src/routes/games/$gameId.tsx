@@ -83,35 +83,15 @@ function InnerRouteComponent() {
 
 
 	function initClientState(snapshot: GameSnapshot): String {
-		let playerId: String | null = null;
-		snapshot.private_actions.forEach(
-			(action) => {
-				if (typeof action !== 'string' && 'JoinResult' in action) {
-					const joinResult = action.JoinResult;
-					if ('Ok' in joinResult) {
-						playerId = joinResult.Ok;
-					} else {
-						return `Error while joining: {joinResult.Err}`
-					}
-				}
-
-			}
-		)
-		if (!playerId) {
-			return "Can't get player ID"
+		try {
+			const cs = ClientState.fromSnapshot(snapshot)
+			clientState.current = cs;
+		} catch (error) {
+			console.log(`Something went wrong initializing a client state: ${error}`)
+			return String(error);
+		} finally {
+			return "Success, joining shortly"
 		}
-		if (!snapshot.players) {
-			return "Couldn't get player list"
-		}
-		const client = new ClientState(
-			snapshot.status,
-			snapshot.players,
-			snapshot.actions,
-			snapshot.private_actions,
-			playerId,
-		);
-		clientState.current = client;
-		return "Success, joining shortly"
 	}
 
 	if (socket.current) {

@@ -108,6 +108,13 @@ impl WebGameState {
         }
     }
 
+    pub fn is_crashed(&self) -> bool {
+        if let InterpreterStatus::Failed = self.status {
+            return true;
+        }
+        false
+    }
+
     pub fn queue_chat(&mut self, from: Option<&player::PlayerId>, msg: &str) {
         self.public_action_queue
             .push_back(wrapper::GameAction::ChatMsg(wrapper::GameChat {
@@ -347,7 +354,21 @@ impl WebGame {
     #[tracing::instrument]
     pub async fn run(mut self) {
         info!("Starting game");
-        while true {
+        let mut game_valid: bool = true;
+        while game_valid {
+            match self.state.status {
+                InterpreterStatus::PendingExecution => (),
+                InterpreterStatus::InstructionDelay(_) => (),
+                _ => (),
+            }
+            // This is super stupid but it gets rid of a warning so who's the stupid one here
+            if self.state.is_crashed() {
+                game_valid = false;
+            }
+            if !game_valid {
+                break;
+            }
+
             tokio::select! {
                 Some(msg) = self.rx.recv() => {
                     info!("Processing a player request");

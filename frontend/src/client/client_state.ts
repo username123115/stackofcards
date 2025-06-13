@@ -1,7 +1,23 @@
 import type { GameAction } from "@bindings/GameAction";
 import type { GameStatus } from "@bindings/GameStatus";
 import type { PlayerSnapshot } from "@bindings/PlayerSnapshot";
+import type { GameChat } from "@bindings/GameChat";
 import type { GameSnapshot } from "@bindings/GameSnapshot";
+
+function ActionIsChat(action: GameAction): action is { ChatMsg: GameChat } {
+	return typeof action === 'object' && action !== null && 'ChatMsg' in action;
+}
+function extractChats(snapshot: GameSnapshot): GameChat[] {
+	const chats = snapshot.actions.concat(snapshot.private_actions)
+		.filter(ActionIsChat)
+		.map(
+			(action) => {
+				return action.ChatMsg;
+			}
+		)
+	return chats;
+}
+
 
 export interface ClientStateInterface {
 	status: GameStatus;
@@ -9,6 +25,7 @@ export interface ClientStateInterface {
 	actions: GameAction[];
 	private_actions: GameAction[],
 	playerId: String,
+	chatLog: GameChat[],
 	isWaiting(): Boolean;
 	isReady(): Boolean;
 	isFirst(): Boolean;
@@ -22,19 +39,25 @@ export class ClientState implements ClientStateInterface {
 	actions: GameAction[];
 	private_actions: GameAction[];
 	playerId: String;
+	chatLog: GameChat[];
 	constructor(
 		status: GameStatus,
 		players: PlayerSnapshot,
 		actions: GameAction[],
 		private_actions: GameAction[],
-		playerId: String
+		playerId: String,
+		chatLog: GameChat[],
 	) {
 		this.status = status;
 		this.players = players;
 		this.private_actions = private_actions;
 		this.actions = actions;
 		this.playerId = playerId;
+		this.chatLog = chatLog;
 	}
+
+
+
 	static fromSnapshot(
 		snapshot: GameSnapshot
 	): ClientState {
@@ -66,9 +89,9 @@ export class ClientState implements ClientStateInterface {
 			snapshot.actions,
 			snapshot.private_actions,
 			playerId,
+			extractChats(snapshot),
 		)
 		return s;
-
 	}
 
 	isWaiting(): Boolean {
@@ -110,6 +133,7 @@ export class ClientState implements ClientStateInterface {
 			private_actions,
 			actions,
 			this.playerId,
+			this.chatLog.concat(extractChats(snapshot)),
 		)
 	}
 }

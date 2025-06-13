@@ -36,7 +36,7 @@ function InnerRouteComponent() {
 	const { gameId } = Route.useParams();
 	const code = Number(gameId);
 
-	const [clientStateClone, setClientState] = useState<ClientState | null>(null);
+	const [clientStateClone, setClientStateClone] = useState<ClientState | null>(null);
 	const [joinError, setJoinError] = useState<String>("Attempting to join");
 	const socket = useRef<WebSocket | null>(null);
 	const clientState = useRef<ClientState | null>(null);
@@ -63,7 +63,7 @@ function InnerRouteComponent() {
 				setJoinError(err);
 			}
 		}
-		setClientState(clientState.current);
+		setClientStateClone(clientState.current);
 	}
 
 	function onErrorCallback(error: Event) {

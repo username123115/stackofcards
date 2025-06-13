@@ -44,7 +44,7 @@ impl WebGameState {
         }
         psnapshot
     }
-    pub fn get_snapshot(&mut self) -> wrapper::GameSnapshot {
+    fn get_snapshot(&mut self) -> wrapper::GameSnapshot {
         wrapper::GameSnapshot {
             actions: self.public_action_queue.drain(..).collect(),
             private_actions: Vec::new(),
@@ -185,7 +185,10 @@ impl WebGameState {
 
                                 use interpreter::game::GameError;
                                 match self.game.init() {
-                                    Ok(_) => (),
+                                    Ok(_) => {
+                                        self.broadcast(None);
+                                        self.status = InterpreterStatus::PendingExecution;
+                                    }
                                     Err(gerror) => {
                                         match gerror {
                                             GameError::Recoverable(_) => (), //TODO, in the future log

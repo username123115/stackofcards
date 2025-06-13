@@ -1,23 +1,45 @@
-// import { IsStatusWaiting } from "@client/utility"
-// import type { GameSnapshot } from '@bindings/GameSnapshot'
 import styles from './client.module.css'
+import type { PlayerCommand } from '@bindings/PlayerCommand'
+import type { PlayerCommandCallback } from '@client/utility'
 
 import { ClientState } from "@client/client_state";
 
 //import utilityStyles from '@styles/utility.module.css'
 
-export default function Client({ state }: { state: ClientState }) {
+export default function Client({ state, setCommand }: { state: ClientState, setCommand: PlayerCommandCallback }) {
+	function RequestBegin() {
+		setCommand("StartGame");
+	}
 	if (state.isWaiting()) {
-		return (
-			<>
-				<Roster state={state} />
-				{state.isFirst() && (
-					<div> This renders if you are the first player </div>
-				)}
-			</>
-		)
+		return <Waiting state={state} signalStart={RequestBegin} />
 	}
 	return (<span> Todo </span>)
+}
+
+function Waiting({ state, signalStart }: { state: ClientState, signalStart: (() => void) }) {
+	return (
+		<>
+			<div>
+				<div className={styles.statusBar}>
+					{state.isReady() ? "Waiting for host to start game" : "Waiting for players"}
+				</div>
+				<div className={styles.container}>
+					<div className={styles.title}> Players </div>
+					<Roster state={state} />
+					{state.isFirst() && (<StartButton />)}
+				</div>
+			</div>
+		</>
+	)
+
+	function StartButton() {
+		return (
+			<button disabled={!state.isReady()} onClick={signalStart}>
+				{state.isReady() ? "Start Game" : "Waiting for players"}
+			</button>
+		);
+	}
+
 }
 
 
@@ -42,7 +64,6 @@ function Roster({ state }: { state: ClientState }) {
 		})
 		return (
 			<div className={styles.roster}>
-				<div className={styles.rosterTitle}> Players </div>
 				<ul>
 					{roster}
 				</ul>

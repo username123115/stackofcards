@@ -2,9 +2,10 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from 'react'
 
 import { connectToGame } from '@client/websocket'
-import type { GameSnapshot } from '@bindings/GameSnapshot'
-
 import { ClientState } from "@client/client_state";
+
+import type { GameSnapshot } from '@bindings/GameSnapshot'
+import type { PlayerCommand } from '@bindings/PlayerCommand'
 
 import Client from '@pages/client'
 
@@ -63,7 +64,6 @@ function InnerRouteComponent() {
 			}
 		}
 		setClientState(clientState.current);
-		console.log(clientState.current);
 	}
 
 	function onErrorCallback(error: Event) {
@@ -72,6 +72,13 @@ function InnerRouteComponent() {
 
 	function onCloseCallback() {
 		socket.current = null;
+	}
+
+	function handleSendCommand(command: PlayerCommand) {
+		if (socket.current) {
+			console.log(`Sending PlayerCommand over ws: ${command}`);
+			socket.current.send(command);
+		}
 	}
 
 
@@ -109,7 +116,7 @@ function InnerRouteComponent() {
 
 	if (socket.current) {
 		if (clientStateClone) {
-			return (<Client state={clientStateClone} />)
+			return (<Client state={clientStateClone} setCommand={handleSendCommand} />)
 		} else {
 			return <span> {joinError} </span>
 		}

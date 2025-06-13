@@ -1,6 +1,3 @@
-import type { GameStatus } from "@bindings/GameStatus";
+import type { PlayerCommand } from '@bindings/PlayerCommand'
 
-export function IsStatusWaiting(status: GameStatus): Boolean {
-	return typeof status === 'object' && 'Waiting' in status
-}
-
+export type PlayerCommandCallback = (command: PlayerCommand) => void

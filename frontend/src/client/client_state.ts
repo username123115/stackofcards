@@ -40,7 +40,7 @@ export class ClientState implements ClientStateInterface {
 	}
 	isFirst(): Boolean {
 		let ord = this.playerOrder();
-		if (ord) {
+		if (ord !== null) {
 			return ord === 0;
 		} else {
 			return false;

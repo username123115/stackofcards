@@ -77,7 +77,7 @@ function InnerRouteComponent() {
 	function handleSendCommand(command: PlayerCommand) {
 		if (socket.current) {
 			console.log(`Sending PlayerCommand over ws: ${command}`);
-			socket.current.send(command);
+			socket.current.send(JSON.stringify(command));
 		}
 	}
 

@@ -10,3 +10,9 @@ export function handleAxiosError(error: unknown, message: String): never {
 }
 
 export type PlayerCommandCallback = (command: PlayerCommand) => void
+
+export interface RulesetSelection {
+	selection: bigint,
+	action: RulesetAction,
+}
+export type RulesetAction = "Edit" | "CreateGame"

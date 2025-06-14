@@ -7,6 +7,7 @@ import { handleAxiosError } from '@client/utility'
 import type { RulesetDescriber } from '@bindings/RulesetDescriber'
 import type { GameCreateRequest } from '@bindings/GameCreateRequest'
 import type { GameInfo } from '@bindings/GameInfo'
+import type { RulesetSelection } from '@client/utility'
 
 import CreateGame from '@pages/create_game'
 
@@ -29,8 +30,8 @@ async function fetchGameList(): Promise<Array<RulesetDescriber>> {
 
 }
 
-async function startNewGame(ruleset: RulesetDescriber): Promise<GameInfo> {
-	let req: GameCreateRequest = { id: ruleset.identifier }
+async function startNewGame(ruleset: bigint): Promise<GameInfo> {
+	let req: GameCreateRequest = { id: ruleset }
 	try {
 		const response = await axios.post<GameInfo>('/v1/rulesets', req);
 		return response.data;
@@ -56,7 +57,13 @@ function RouteComponent() {
 
 function InnerRouteComponent() {
 	const rulesets = useQuery({ queryKey: ['GET /v1/rulesets'], queryFn: fetchGameList })
-	const gameMutation = useMutation<GameInfo, Error, RulesetDescriber>({ mutationFn: startNewGame })
+	const gameMutation = useMutation<GameInfo, Error, bigint>({ mutationFn: startNewGame })
+
+	function handleSelection(ruleset: RulesetSelection) {
+		if (ruleset.action === "CreateGame") {
+			gameMutation.mutate(ruleset.selection);
+		}
+	}
 
 	// User has choosen a ruleset, now we're waiting for a response from the server
 	if (!gameMutation.isIdle) {
@@ -83,7 +90,7 @@ function InnerRouteComponent() {
 	return (
 		<>
 			<div>
-				<CreateGame rulesets={rulesets.data} selectRuleset={(ruleset) => gameMutation.mutate(ruleset)} />
+				<CreateGame rulesets={rulesets.data} selectRuleset={handleSelection} />
 			</div>
 		</>
 	)

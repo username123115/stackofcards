@@ -6,6 +6,8 @@ import { useQuery } from '@tanstack/react-query'
 import type { GameConfig } from '@bindings/GameConfig'
 import { handleAxiosError } from '@client/utility'
 
+import Editor from '@pages/editor'
+
 export const Route = createFileRoute('/rulesets/$rulesetId/edit')({
 	component: RouteComponent,
 })
@@ -36,5 +38,11 @@ function RouteComponent() {
 		return <span> Error: {config.error.message} </span>
 	}
 
-	return <div> {rulesetId} </div>
+	return (
+		<>
+			<div>
+				<Editor config={config.data} />
+			</div>
+		</>
+	)
 }

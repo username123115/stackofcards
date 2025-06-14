@@ -61,9 +61,10 @@ pub async fn get() -> Json<Vec<RulesetDescriber>> {
 
 pub async fn ruleset_id_get(Path(ruleset_id): Path<u64>) -> impl IntoResponse {
     if ruleset_id != 101 {
-        return (StatusCode::NOT_FOUND, "Ruleset doesn't exist");
+        return Err(StatusCode::NOT_FOUND);
+    } else {
+        return Ok(Json(example_config::gen_example_config()));
     }
-    return (StatusCode::FOUND, "What the fu");
 }
 
 #[instrument]

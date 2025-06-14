@@ -36,7 +36,7 @@ export default function ZoneList({ config, handleEditZones = null }:
 
 							handleEditZones(updatedZones);
 						} : null} />
-						<ZoneDisplay zone={zone!} editZone={
+						<ZoneDisplay config={config} zone={zone!} editZone={
 							handleEditZones ? (z) => handleEditZones({ ...config.zone_classes, [zoneName]: z }) : null
 						} />
 					</div>
@@ -102,25 +102,24 @@ function ZoneName({ name, editName = null }:
 	}
 }
 
-function ZoneDisplay({ zone, editZone = null }: { zone: ZoneClass, editZone: ((zone: ZoneClass) => void) | null }) {
+function ZoneDisplay({ config, zone, editZone = null }: { config: GameConfig, zone: ZoneClass, editZone: ((zone: ZoneClass) => void) | null }) {
 	return (
 		<div className={styles.zoneDisplay} >
-			<ZoneRulesDisplay rules={zone.rules} editRules={
-				editZone ? (r) => editZone({ ...zone, rules: r }) : null
-			}
-			/>
-			<ZoneVisibilityDisplay visibility={zone.visibility}
-				editVisibility={editZone ? (v) => { editZone({ ...zone, visibility: v }) } : null}
-			/>
-			<ZoneCleanupDisplay cleanupRule={zone.cleanup} editCleanupRule={
-				editZone ? (c) => { editZone({ ...zone, cleanup: c }) } : null
-			} />
+			<div className={styles.seperator}>
+				<ZoneRulesDisplay config={config} rules={zone.rules} editRules={editZone ? (r) => editZone({ ...zone, rules: r }) : null} />
+			</div>
+			<div className={styles.seperator}>
+				<ZoneVisibilityDisplay visibility={zone.visibility} editVisibility={editZone ? (v) => { editZone({ ...zone, visibility: v }) } : null} />
+			</div>
+			<div className={styles.seperator}>
+				<ZoneCleanupDisplay cleanupRule={zone.cleanup} editCleanupRule={editZone ? (c) => { editZone({ ...zone, cleanup: c }) } : null} />
+			</div>
 		</div>
 	)
 }
 
-function ZoneRulesDisplay({ rules, editRules = null }:
-	{ rules: string[], editRules: ((rules: string[]) => void) | null }) {
+function ZoneRulesDisplay({ config, rules, editRules = null }:
+	{ config: GameConfig, rules: string[], editRules: ((rules: string[]) => void) | null }) {
 
 	function SingleRule({ name }: { name: string }) {
 		return (
@@ -138,7 +137,7 @@ function ZoneRulesDisplay({ rules, editRules = null }:
 	const ruleList = rules.map(
 		(ruleName) => (<li key={ruleName}> <SingleRule name={ruleName} /> </li>)
 	);
-	const options = ["HI", "TEST", "BYE"];
+	const options = Object.entries(config.patterns).map(([n, _]) => n);
 	return (
 		<div className={styles.zoneRulesContainer}>
 			{editRules &&

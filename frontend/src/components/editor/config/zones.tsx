@@ -109,7 +109,9 @@ function ZoneDisplay({ zone, editZone = null }: { zone: ZoneClass, editZone: ((z
 			<ZoneVisibilityDisplay visibility={zone.visibility}
 				editVisibility={editZone ? (v) => { editZone({ ...zone, visibility: v }) } : null}
 			/>
-			<ZoneCleanupDisplay cleanupRule={zone.cleanup} />
+			<ZoneCleanupDisplay cleanupRule={zone.cleanup} editCleanupRule={
+				editZone ? (c) => { editZone({ ...zone, cleanup: c }) } : null
+			} />
 		</div>
 	)
 }
@@ -172,9 +174,26 @@ function ZoneVisibilityRuleDisplay({ displayRule, editDisplayRule = null }:
 
 }
 
-function ZoneCleanupDisplay({ cleanupRule }: { cleanupRule: ZoneCleanupBehavior }) {
+function ZoneCleanupDisplay({ cleanupRule, editCleanupRule = null }:
+	{ cleanupRule: ZoneCleanupBehavior, editCleanupRule: ((cleanupRule: ZoneCleanupBehavior) => void) | null }) {
 
-	return (<div className={styles.zoneCleanup}>
-		{cleanupRule}
-	</div>)
+	const options: ZoneCleanupBehavior[] = ["Never", "OnEmpty"];
+
+	if (!editCleanupRule) {
+		return (<div className={styles.zoneCleanup}>
+			{cleanupRule}
+		</div>);
+	}
+
+	return (
+		<div className={styles.zoneCleanup}>
+			<select value={cleanupRule} onChange={(e) => editCleanupRule(e.target.value as ZoneCleanupBehavior)}>
+				{options.map((option) => (
+					<option key={option} value={option}>
+						{option}
+					</option>
+				))}
+			</select>
+		</div>
+	);
 }

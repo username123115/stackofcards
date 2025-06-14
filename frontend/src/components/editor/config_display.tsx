@@ -15,7 +15,7 @@ function ConfigDisplay({ config, saveEdits = null }:
 	{ config: GameConfig, saveEdits: ((config: GameConfig) => void) | null }) {
 
 	const [currentConfig, setCurrentConfig] = useState<GameConfig>(config);
-
+	console.log(currentConfig);
 
 	return (
 		<>
@@ -38,7 +38,14 @@ function ConfigDisplay({ config, saveEdits = null }:
 				</div>
 				<div>
 					<h1> Zones </h1>
-					<ZoneList config={currentConfig} />
+					<ZoneList config={currentConfig}
+						handleEditZones={saveEdits ? (z) => {
+							setCurrentConfig({
+								...currentConfig,
+								zone_classes: z,
+							});
+						} : null}
+					/>
 				</div>
 				<div>
 					<h1> Players </h1>

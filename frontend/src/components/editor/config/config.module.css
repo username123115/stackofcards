@@ -1,0 +1,56 @@
+@import '@styles/colors.module.css';
+
+.zoneList {
+	color: var(--primary-700);
+}
+
+.zoneList>ul {
+	display: flex;
+	flex-direction: column;
+	list-style-type: none;
+	background-color: var(--neutral-300);
+	border-radius: 3px;
+	padding: 8px;
+}
+
+.zoneDisplay {
+	display: flex;
+	flex-direction: column;
+	background-color: var(--accent-100);
+	padding: 8px;
+	border-radius: 3px;
+	gap: 10px;
+}
+
+.zoneVisibility {
+	display: flex;
+	flex-direction: row;
+	gap: 4px;
+}
+
+.zoneVisibilityHeader {
+	display: flex;
+	flex-direction: row;
+	background-color: var(--neutral-300);
+	padding: 0px 0px 0px 5px;
+	border-radius: 10px;
+	gap: 4px;
+}
+
+.zoneCleanup {
+	display: inline-flex;
+	align-self: flex-start;
+	background-color: var(--accent-500);
+	border-radius: 10px;
+	padding: 0px 10px 0px 10px;
+}
+
+.zoneVisibilityRule {
+	border-radius: 10px;
+	padding: 0px 10px 0px 10px;
+	background-color: var(--accent-500);
+}
+
+.zoneRules {
+	list-style-type: none;
+}

@@ -5,7 +5,7 @@ function Editor({ config }: { config: GameConfig }) {
 	return (
 		<>
 			<div>
-				<ConfigDisplay config={config} />
+				<ConfigDisplay config={config} saveEdits={(e) => console.log(e)} />
 			</div>
 		</>
 	)

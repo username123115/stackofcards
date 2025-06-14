@@ -58,7 +58,7 @@ export default function ZoneList({ config, handleEditZones = null }:
 					others: "Visible",
 				},
 				cleanup: "Never",
-				rules: ["TEST"],
+				rules: [],
 			}
 			const updated = {
 				...config.zone_classes,
@@ -124,7 +124,7 @@ function ZoneRulesDisplay({ rules, editRules = null }:
 
 	function SingleRule({ name }: { name: string }) {
 		return (
-			<div>
+			<div className={styles.zoneRule}>
 				<span> {name} </span>
 				{editRules && <button onClick={
 					() => {
@@ -140,7 +140,7 @@ function ZoneRulesDisplay({ rules, editRules = null }:
 	);
 	const options = ["HI", "TEST", "BYE"];
 	return (
-		<div>
+		<div className={styles.zoneRulesContainer}>
 			{editRules &&
 				<select onChange={
 					(e) => {

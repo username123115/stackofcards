@@ -51,8 +51,35 @@
 	background-color: var(--accent-500);
 }
 
-.zoneRules {
+.zoneRulesContainer {
+	display: flex;
+}
+
+.zoneRules ul {
 	list-style-type: none;
+	display: flex;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+}
+
+.zoneRule {
+	color: inherit;
+	background-color: var(--primary-300);
+	padding: 0px 10px 0px 10px;
+	border-radius: 10px;
+}
+
+.zoneRule button {
+	background: transparent;
+	outline: none;
+	border: none;
+	color: var(--neutral-100);
+}
+
+
+.zoneRule button:hover {
+	color: var(--accent-300);
 }
 
 select {

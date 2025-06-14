@@ -2,6 +2,8 @@ import axios from 'axios';
 
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { handleAxiosError } from '@client/utility'
+
 import type { RulesetDescriber } from '@bindings/RulesetDescriber'
 import type { GameCreateRequest } from '@bindings/GameCreateRequest'
 import type { GameInfo } from '@bindings/GameInfo'
@@ -16,13 +18,6 @@ export const Route = createFileRoute('/create-game')({
 	component: RouteComponent,
 })
 
-function handleAxiosError(error: unknown, message: String): never {
-	if (axios.isAxiosError(error)) {
-		throw new Error(error.response?.data?.message || error.message || message);
-	} else {
-		throw new Error("Unexpected error");
-	}
-}
 
 async function fetchGameList(): Promise<Array<RulesetDescriber>> {
 	try {

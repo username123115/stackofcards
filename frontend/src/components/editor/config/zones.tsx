@@ -58,7 +58,7 @@ export default function ZoneList({ config, handleEditZones = null }:
 					others: "Visible",
 				},
 				cleanup: "Never",
-				rules: [],
+				rules: ["TEST"],
 			}
 			const updated = {
 				...config.zone_classes,
@@ -105,7 +105,10 @@ function ZoneName({ name, editName = null }:
 function ZoneDisplay({ zone, editZone = null }: { zone: ZoneClass, editZone: ((zone: ZoneClass) => void) | null }) {
 	return (
 		<div className={styles.zoneDisplay} >
-			<ZoneRulesDisplay rules={zone.rules} />
+			<ZoneRulesDisplay rules={zone.rules} editRules={
+				editZone ? (r) => editZone({ ...zone, rules: r }) : null
+			}
+			/>
 			<ZoneVisibilityDisplay visibility={zone.visibility}
 				editVisibility={editZone ? (v) => { editZone({ ...zone, visibility: v }) } : null}
 			/>
@@ -116,11 +119,46 @@ function ZoneDisplay({ zone, editZone = null }: { zone: ZoneClass, editZone: ((z
 	)
 }
 
-function ZoneRulesDisplay({ rules }: { rules: string[] }) {
+function ZoneRulesDisplay({ rules, editRules = null }:
+	{ rules: string[], editRules: ((rules: string[]) => void) | null }) {
+
+	function SingleRule({ name }: { name: string }) {
+		return (
+			<div>
+				<span> {name} </span>
+				{editRules && <button onClick={
+					() => {
+						editRules(rules.filter((n) => n !== name))
+					}
+				}> X </button>}
+			</div>
+		)
+	}
+
 	const ruleList = rules.map(
-		(ruleName) => (<li key={ruleName}> {ruleName} </li>)
+		(ruleName) => (<li key={ruleName}> <SingleRule name={ruleName} /> </li>)
 	);
-	return (<div className={styles.zoneRules}> <ul> {ruleList} </ul> </div>);
+	const options = ["HI", "TEST", "BYE"];
+	return (
+		<div>
+			{editRules &&
+				<select onChange={
+					(e) => {
+						const toAdd = e.target.value;
+						if (rules.includes(toAdd)) {
+							return;
+						}
+						editRules(rules.concat(toAdd));
+					}
+				}>
+					{options.map((option) => (<option key={option} value={option}> {option} </option>))}
+				</select>
+			}
+			<div className={styles.zoneRules}>
+				<ul> {ruleList} </ul>
+			</div>
+		</div>
+	);
 }
 
 function ZoneVisibilityDisplay({ visibility, editVisibility = null }:
@@ -162,11 +200,7 @@ function ZoneVisibilityRuleDisplay({ displayRule, editDisplayRule = null }:
 	return (
 		<div className={styles.zoneVisibilityRule}>
 			<select value={displayRule} onChange={(e) => editDisplayRule(e.target.value as ZoneVisibilityRule)}>
-				{options.map((option) => (
-					<option key={option} value={option}>
-						{option}
-					</option>
-				))}
+				{options.map((option) => (<option key={option} value={option}> {option} </option>))}
 			</select>
 		</div>
 	)

@@ -4,7 +4,9 @@ import type { ZoneCleanupBehavior } from "@bindings/ZoneCleanupBehavior";
 import type { ZoneVisibility } from "@bindings/ZoneVisibility";
 import type { ZoneVisibilityRule } from "@bindings/ZoneVisibilityRule";
 
-export default function ZoneList({ config }: { config: GameConfig }) {
+export default function ZoneList({ config, handleEditZones = null }:
+	{ config: GameConfig, handleEditZones: ((zones: GameConfig['zone_classes']) => void) | null }) {
+
 	const zoneList = Object.entries(config.zone_classes).map(
 		([zoneName, zone]) => {
 			return (
@@ -17,9 +19,36 @@ export default function ZoneList({ config }: { config: GameConfig }) {
 			)
 		}
 	)
+	function AddNewZone() {
+		if (handleEditZones) {
+			let untitled_zones = 0;
+			while (!config.zone_classes[`new_zone_${untitled_zones}`]) {
+				untitled_zones += 1;
+			}
+			const newZoneName = `new_zone_${untitled_zones}`;
+
+			let newZone: ZoneClass = {
+				visibility: {
+					owner: "Visible",
+					others: "Visible",
+				},
+				cleanup: "Never",
+				rules: [],
+			}
+			const updated = {
+				...config.zone_classes,
+				[newZoneName]: newZone,
+			}
+			handleEditZones(updated);
+		}
+	}
+
 	return (
 		<div>
 			<ul> {zoneList} </ul>
+			{handleEditZones &&
+				<button onClick={AddNewZone}> Add Zone </button>
+			}
 		</div>)
 
 }

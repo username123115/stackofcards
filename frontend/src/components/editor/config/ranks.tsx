@@ -12,9 +12,7 @@ export default function AllowedRanksList({ ranks }: { ranks: Rank[] }) {
 	)
 	return (
 		<div>
-			<ul>
-				{rlist}
-			</ul>
+			<ul> {rlist} </ul>
 		</div>
 	)
 }

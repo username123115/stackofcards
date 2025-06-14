@@ -8,7 +8,10 @@ export default function VariableList({ mappings }: { mappings: { [key in string]
 			)
 		}
 	)
-	return (<div> <ul> {mapList} </ul> </div>)
+	return (
+		<div>
+			<ul> {mapList} </ul>
+		</div>)
 
 }
 

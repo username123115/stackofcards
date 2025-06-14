@@ -16,7 +16,10 @@ export default function PlayerList({ config }: { config: GameConfig }) {
 			)
 		}
 	)
-	return (<div> <ul> {playerList} </ul> </div>)
+	return (
+		<div>
+			<ul> {playerList} </ul>
+		</div>)
 }
 
 function PlayerDisplay({ player }: { player: PlayerClass }) {

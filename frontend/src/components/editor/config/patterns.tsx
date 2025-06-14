@@ -1,4 +1,3 @@
-
 import type { GameConfig } from '@bindings/GameConfig'
 
 //import type { PatternPiece } from "@bindings/PatternPiece";
@@ -15,7 +14,10 @@ export default function PatternList({ config }: { config: GameConfig }) {
 			)
 		}
 	)
-	return (<div> <ul> {patternList} </ul> </div>)
+	return (
+		<div>
+			<ul> {patternList} </ul>
+		</div>)
 }
 
 function PatternDisplay({ pattern }: { pattern: Pattern }) {

@@ -17,7 +17,10 @@ export default function ZoneList({ config }: { config: GameConfig }) {
 			)
 		}
 	)
-	return (<div> <ul> {zoneList} </ul> </div>)
+	return (
+		<div>
+			<ul> {zoneList} </ul>
+		</div>)
 
 }
 

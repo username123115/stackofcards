@@ -1,4 +1,4 @@
-
+import type { Suit } from "@bindings/Suit";
 export default function AllowedSuitsList({ suits }: { suits: Suit[] }) {
 	const slist = suits.map(
 		(rank) => {
@@ -11,9 +11,7 @@ export default function AllowedSuitsList({ suits }: { suits: Suit[] }) {
 	)
 	return (
 		<div>
-			<ul>
-				{slist}
-			</ul>
+			<ul> {slist} </ul>
 		</div>
 	)
 }

@@ -137,7 +137,8 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 	const ruleList = rules.map(
 		(ruleName) => (<li key={ruleName}> <SingleRule name={ruleName} /> </li>)
 	);
-	const options = Object.entries(config.patterns).map(([n, _]) => n);
+	// const options = Object.entries(config.patterns).map(([n, _]) => n);
+	const options = ["PatternA", "PatternB", "PatternC"];
 	return (
 		<div className={styles.zoneRulesContainer}>
 			{editRules &&

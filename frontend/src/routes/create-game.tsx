@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { handleAxiosError } from '@client/utility'
+
+import { useState } from 'react'
 
 import type { RulesetDescriber } from '@bindings/RulesetDescriber'
 import type { GameCreateRequest } from '@bindings/GameCreateRequest'
@@ -58,11 +60,20 @@ function RouteComponent() {
 function InnerRouteComponent() {
 	const rulesets = useQuery({ queryKey: ['GET /v1/rulesets'], queryFn: fetchGameList })
 	const gameMutation = useMutation<GameInfo, Error, bigint>({ mutationFn: startNewGame })
+	const [rulesetToEdit, setRulesetToEdit] = useState<bigint | null>(null);
+
 
 	function handleSelection(ruleset: RulesetSelection) {
 		if (ruleset.action === "CreateGame") {
 			gameMutation.mutate(ruleset.selection);
 		}
+		if (ruleset.action === "Edit") {
+			setRulesetToEdit(ruleset.selection);
+		}
+	}
+
+	if (rulesetToEdit) {
+		return <Navigate to="/rulesets/$rulesetId/edit" params={{ rulesetId: String(rulesetToEdit) }} />
 	}
 
 	// User has choosen a ruleset, now we're waiting for a response from the server

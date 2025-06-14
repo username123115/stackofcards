@@ -17,11 +17,19 @@ function CreateGame({ selectRuleset = null, rulesets = [] }:
 
 	const listItems = rulesets.map((ruleset) =>
 		<li key={ruleset.identifier.toString()}>
-			<button className={styles.rulesetElement}
-				onClick={() => select(ruleset.identifier, "CreateGame")}>
+			<div className={styles.rulesetElement}>
 				<h1> {ruleset.name} </h1>
 				<p> {ruleset.description} </p>
-			</button>
+				<div className={styles.buttonContainers}>
+					<button className={styles.rulesetButton} onClick={() => select(ruleset.identifier, "CreateGame")}>
+						Start
+					</button>
+					<button className={styles.rulesetButton} onClick={() => select(ruleset.identifier, "Edit")}>
+						Edit
+					</button>
+				</div>
+
+			</div>
 		</li >
 	);
 

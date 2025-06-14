@@ -54,3 +54,29 @@
 .zoneRules {
 	list-style-type: none;
 }
+
+select {
+
+	margin: 0;
+	padding: 0;
+	/* Remove default select padding */
+	border: none;
+	background-color: transparent;
+	color: inherit;
+	font: inherit;
+
+	cursor: pointer;
+
+
+}
+
+input[type="text"] {
+	margin: 0;
+	padding: 0;
+
+	border: none;
+	background-color: transparent;
+	color: inherit;
+	font: inherit;
+	outline: none;
+}

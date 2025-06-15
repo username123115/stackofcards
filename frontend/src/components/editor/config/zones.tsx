@@ -61,8 +61,8 @@ export default function ZoneList({ config, handleEditZones = null }:
 		<div>
 			<ul className={styles.elementListing}>
 				{zoneList}
+				{handleEditZones && <button onClick={AddNewZone}> Add Zone </button>}
 			</ul>
-			{handleEditZones && <button onClick={AddNewZone}> Add Zone </button>}
 		</div>)
 
 }

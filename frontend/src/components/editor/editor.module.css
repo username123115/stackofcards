@@ -3,7 +3,7 @@
 .config {
 	margin: 8px;
 	padding: 8px;
-	background-color: var(--neutral-500);
+	background-color: var(--primary-500);
 	color: var(--primary-900);
 	border-radius: 3px;
 }

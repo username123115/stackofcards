@@ -3,6 +3,8 @@ import type { GameConfig } from '@bindings/GameConfig'
 import type { PlayerClass } from "@bindings/PlayerClass";
 import type { PlayerAssignmentRule } from "@bindings/PlayerAssignmentRule";
 
+import styles from './config.module.css'
+
 export default function PlayerList({ config }: { config: GameConfig }) {
 	const playerList = Object.entries(config.player_classes).map(
 		([playerName, player]) => {
@@ -18,13 +20,13 @@ export default function PlayerList({ config }: { config: GameConfig }) {
 	)
 	return (
 		<div>
-			<ul> {playerList} </ul>
+			<ul className={styles.elementListing}> {playerList} </ul>
 		</div>)
 }
 
 function PlayerDisplay({ player }: { player: PlayerClass }) {
 	return (
-		<div>
+		<div className={styles.fieldListing} >
 			<div>
 				<div> Zones </div>
 				<VariableList mappings={player.zones} />

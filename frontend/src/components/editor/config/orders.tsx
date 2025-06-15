@@ -59,8 +59,10 @@ export default function OrderList({ config, handleEditOrders = null }: OrderList
 	}
 	return (
 		<div>
-			<ul className={styles.elementListing}> {orders} </ul>
-			{handleEditOrders && <button onClick={AddNewOrder}> Add Order </button>}
+			<ul className={styles.elementListing}>
+				{orders}
+				{handleEditOrders && <button onClick={AddNewOrder}> Add Order </button>}
+			</ul>
 		</div>
 	)
 }

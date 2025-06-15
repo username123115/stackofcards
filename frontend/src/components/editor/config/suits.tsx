@@ -5,10 +5,10 @@ const ALL_SUITS: Suit[] = ["Hearts", "Diamonds", "Clubs", "Spades"];
 
 interface AllowedSuitsListProps {
 	suits: Suit[];
-	handleEditSuits?: (updatedSuits: Suit[]) => void;
+	handleEditSuits: ((updatedSuits: Suit[]) => void) | null;
 }
 
-export default function AllowedSuitsList({ suits, handleEditSuits }: AllowedSuitsListProps) {
+export default function AllowedSuitsList({ suits, handleEditSuits = null }: AllowedSuitsListProps) {
 	const handleCheckboxChange = (suit: Suit) => {
 		if (!handleEditSuits) return;
 

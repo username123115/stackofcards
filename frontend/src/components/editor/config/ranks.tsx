@@ -8,10 +8,10 @@ const ALL_RANKS: Rank[] = [
 
 interface AllowedRanksListProps {
 	ranks: Rank[];
-	handleEditRanks?: (updatedRanks: Rank[]) => void;
+	handleEditRanks: ((updatedRanks: Rank[]) => void) | null;
 }
 
-export default function AllowedRanksList({ ranks, handleEditRanks }: AllowedRanksListProps) {
+export default function AllowedRanksList({ ranks, handleEditRanks = null }: AllowedRanksListProps) {
 	const handleCheckboxChange = (rank: Rank) => {
 		if (!handleEditRanks) return;
 

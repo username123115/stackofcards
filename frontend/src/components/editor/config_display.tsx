@@ -15,18 +15,21 @@ function ConfigDisplay({ config, saveEdits = null }:
 	{ config: GameConfig, saveEdits: ((config: GameConfig) => void) | null }) {
 
 	const [currentConfig, setCurrentConfig] = useState<GameConfig>(config);
-	// console.log(currentConfig);
 
 	return (
 		<>
 			<div className={styles.config}>
 				<div>
 					<h1> Allowed Ranks </h1>
-					<AllowedRanksList ranks={currentConfig.allowed_ranks} />
+					<AllowedRanksList ranks={currentConfig.allowed_ranks}
+						handleEditRanks={saveEdits ? (r) => { setCurrentConfig({ ...currentConfig, allowed_ranks: r }); } : null}
+					/>
 				</div>
 				<div>
 					<h1> Allowed Suits </h1>
-					<AllowedSuitsList suits={currentConfig.allowed_suits} />
+					<AllowedSuitsList suits={currentConfig.allowed_suits}
+						handleEditSuits={saveEdits ? (s) => { setCurrentConfig({ ...currentConfig, allowed_suits: s }); } : null}
+					/>
 				</div>
 				<div>
 					<h1> Orders </h1>

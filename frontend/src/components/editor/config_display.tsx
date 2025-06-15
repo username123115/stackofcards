@@ -15,6 +15,7 @@ function ConfigDisplay({ config, saveEdits = null }:
 	{ config: GameConfig, saveEdits: ((config: GameConfig) => void) | null }) {
 
 	const [currentConfig, setCurrentConfig] = useState<GameConfig>(config);
+	console.log(currentConfig);
 
 	return (
 		<>

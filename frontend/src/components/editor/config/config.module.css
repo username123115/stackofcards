@@ -51,6 +51,7 @@ input[type="text"] {
 
 .horizontalList {
 	list-style-type: none;
+	flex-wrap: wrap;
 	display: flex;
 	gap: 10px;
 	margin: 0;

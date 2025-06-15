@@ -6,8 +6,8 @@ import type { ZoneVisibilityRule } from "@bindings/ZoneVisibilityRule";
 
 import { renameProperty, NameFieldComponent } from './utility'
 
-import styles from './zones.module.css'
-import cStyles from './config.module.css'
+import zoneStyles from './zones.module.css'
+import styles from './config.module.css'
 
 export default function ZoneList({ config, handleEditZones = null }:
 	{ config: GameConfig, handleEditZones: ((zones: GameConfig['zone_classes']) => void) | null }) {
@@ -22,11 +22,11 @@ export default function ZoneList({ config, handleEditZones = null }:
 	}
 	function AddNewZone() {
 		if (handleEditZones) {
-			let untitled_zones = 0;
-			while (config.zone_classes[`new_zone_${untitled_zones}`]) {
-				untitled_zones += 1;
+			let untitledZones = 0;
+			while (config.zone_classes[`new_zone_${untitledZones}`]) {
+				untitledZones += 1;
 			}
-			const newZoneName = `new_zone_${untitled_zones}`;
+			const newZoneName = `new_zone_${untitledZones}`;
 
 			let newZone: ZoneClass = {
 				visibility: {
@@ -59,7 +59,7 @@ export default function ZoneList({ config, handleEditZones = null }:
 
 	return (
 		<div>
-			<ul className={cStyles.elementListing}>
+			<ul className={styles.elementListing}>
 				{zoneList}
 			</ul>
 			{handleEditZones && <button onClick={AddNewZone}> Add Zone </button>}
@@ -69,7 +69,7 @@ export default function ZoneList({ config, handleEditZones = null }:
 
 function ZoneDisplay({ config, zone, editZone = null }: { config: GameConfig, zone: ZoneClass, editZone: ((zone: ZoneClass) => void) | null }) {
 	return (
-		<div className={cStyles.fieldListing} >
+		<div className={styles.fieldListing} >
 			<ZoneRulesDisplay config={config} rules={zone.rules} editRules={editZone ? (r) => editZone({ ...zone, rules: r }) : null} />
 			<ZoneVisibilityDisplay visibility={zone.visibility} editVisibility={editZone ? (v) => { editZone({ ...zone, visibility: v }) } : null} />
 			<ZoneCleanupDisplay cleanupRule={zone.cleanup} editCleanupRule={editZone ? (c) => { editZone({ ...zone, cleanup: c }) } : null} />
@@ -82,10 +82,10 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 
 	function SingleRule({ name }: { name: string }) {
 		return (
-			<div className={cStyles.listItem}>
+			<div className={styles.listItem}>
 				<span> {name} </span>
 				{editRules &&
-					<button className={cStyles.invisibleButton} onClick={() => { editRules(rules.filter((n) => n !== name)) }}> X </button>}
+					<button className={styles.invisibleButton} onClick={() => { editRules(rules.filter((n) => n !== name)) }}> X </button>}
 			</div>
 		)
 	}
@@ -96,7 +96,7 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 	// const options = Object.entries(config.patterns).map(([n, _]) => n);
 	const options = ["PatternA", "PatternB", "PatternC"];
 	return (
-		<div className={cStyles.horizontalList}>
+		<div className={styles.horizontalList}>
 			{editRules &&
 				<select onChange={
 					(e) => {
@@ -111,7 +111,7 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 				</select>
 			}
 			<div>
-				<ul className={cStyles.horizontalList}> {ruleList} </ul>
+				<ul className={styles.horizontalList}> {ruleList} </ul>
 			</div>
 		</div>
 	);
@@ -120,8 +120,8 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 function ZoneVisibilityDisplay({ visibility, editVisibility = null }:
 	{ visibility: ZoneVisibility, editVisibility: ((visibility: ZoneVisibility) => void) | null }) {
 	return (
-		<div className={cStyles.horizontalList} >
-			<div className={styles.zoneVisibilityHeader} >
+		<div className={styles.horizontalList} >
+			<div className={zoneStyles.zoneVisibilityHeader} >
 				<div> Owner </div>
 				<div>
 					<ZoneVisibilityRuleDisplay displayRule={visibility.owner}
@@ -129,7 +129,7 @@ function ZoneVisibilityDisplay({ visibility, editVisibility = null }:
 				</div>
 
 			</div>
-			<div className={styles.zoneVisibilityHeader}>
+			<div className={zoneStyles.zoneVisibilityHeader}>
 				<div> Others </div>
 				<div>
 					<ZoneVisibilityRuleDisplay displayRule={visibility.others}
@@ -145,12 +145,12 @@ function ZoneVisibilityRuleDisplay({ displayRule, editDisplayRule = null }:
 	{ displayRule: ZoneVisibilityRule, editDisplayRule: ((displayRule: ZoneVisibilityRule) => void) | null }) {
 
 	if (!editDisplayRule) {
-		return (<div className={cStyles.rounded}> {displayRule} </div>)
+		return (<div className={styles.rounded}> {displayRule} </div>)
 	}
 	const options: ZoneVisibilityRule[] = ["Visible", "Hidden", "Top", "Bottom"];
 
 	return (
-		<div className={cStyles.rounded}>
+		<div className={styles.rounded}>
 			<select value={displayRule} onChange={(e) => editDisplayRule(e.target.value as ZoneVisibilityRule)}>
 				{options.map((option) => (<option key={option} value={option}> {option} </option>))}
 			</select>
@@ -166,13 +166,13 @@ function ZoneCleanupDisplay({ cleanupRule, editCleanupRule = null }:
 	const options: ZoneCleanupBehavior[] = ["Never", "OnEmpty"];
 
 	if (!editCleanupRule) {
-		return (<div className={cStyles.rounded}>
+		return (<div className={styles.rounded}>
 			{cleanupRule}
 		</div>);
 	}
 
 	return (
-		<div className={cStyles.rounded}>
+		<div className={styles.rounded}>
 			<select value={cleanupRule} onChange={(e) => editCleanupRule(e.target.value as ZoneCleanupBehavior)}>
 				{options.map((option) => (
 					<option key={option} value={option}>

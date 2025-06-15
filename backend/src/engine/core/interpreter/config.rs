@@ -14,7 +14,7 @@ pub struct GameConfig {
     pub allowed_ranks: HashSet<ranks::Rank>,
     pub allowed_suits: HashSet<suits::Suit>,
     pub orders: HashMap<OrderIdentifier, rank_order::RankOrder>,
-    pub patterns: HashMap<patterns::PatternIdentifier, patterns::Pattern>,
+    pub patterns: HashMap<patterns::PatternIdentifier, Vec<patterns::Pattern>>,
 
     pub phases: HashMap<PhaseIdentifier, phases::Phase>,
     pub zone_classes: HashMap<ZoneClassIdentifier, zones::ZoneClass>,

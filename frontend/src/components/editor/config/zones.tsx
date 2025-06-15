@@ -6,44 +6,32 @@ import type { ZoneVisibilityRule } from "@bindings/ZoneVisibilityRule";
 
 import { useState } from 'react';
 
-import styles from './config.module.css'
+import styles from './zones.module.css'
+import cStyles from './config.module.css'
 
 export default function ZoneList({ config, handleEditZones = null }:
 	{ config: GameConfig, handleEditZones: ((zones: GameConfig['zone_classes']) => void) | null }) {
 
-	const zoneList = Object.entries(config.zone_classes).map(
-		([zoneName, zone]) => {
-			return (
-				<li key={zoneName}>
-					<div>
-						<ZoneName name={zoneName} editName={handleEditZones ? (newName) => {
-							if (!handleEditZones || newName.trim() === '' || newName === zoneName) {
-								return;
-							}
-
-							if (config.zone_classes.hasOwnProperty(newName)) {
-								return;
-							}
-
-							const updatedZones: GameConfig['zone_classes'] = {};
-							Object.entries(config.zone_classes).forEach(([key, val]) => {
-								if (key === zoneName) {
-									updatedZones[newName] = val;
-								} else {
-									updatedZones[key] = val;
-								}
-							});
-
-							handleEditZones(updatedZones);
-						} : null} />
-						<ZoneDisplay config={config} zone={zone!} editZone={
-							handleEditZones ? (z) => handleEditZones({ ...config.zone_classes, [zoneName]: z }) : null
-						} />
-					</div>
-				</li>
-			)
+	function RenameZone(newName: string, oldName: string) {
+		if (!handleEditZones || newName.trim() === '' || newName === oldName) {
+			return;
 		}
-	)
+
+		if (config.zone_classes.hasOwnProperty(newName)) {
+			return;
+		}
+
+		const updatedZones: GameConfig['zone_classes'] = {};
+		Object.entries(config.zone_classes).forEach(([key, val]) => {
+			if (key === oldName) {
+				updatedZones[newName] = val;
+			} else {
+				updatedZones[key] = val;
+			}
+		});
+
+		handleEditZones(updatedZones);
+	}
 	function AddNewZone() {
 		if (handleEditZones) {
 			let untitled_zones = 0;
@@ -68,12 +56,25 @@ export default function ZoneList({ config, handleEditZones = null }:
 		}
 	}
 
+	const zoneList = Object.entries(config.zone_classes).map(
+		([zoneName, zone]) => {
+			return (
+				<li key={zoneName}>
+					<div>
+						<ZoneName name={zoneName} editName={handleEditZones ? (newName) => { RenameZone(newName, zoneName) } : null} />
+						<ZoneDisplay config={config} zone={zone!} editZone={handleEditZones ? (z) => handleEditZones({ ...config.zone_classes, [zoneName]: z }) : null} />
+					</div>
+				</li>
+			)
+		}
+	)
+
 	return (
-		<div className={styles.zoneList}>
-			<ul> {zoneList} </ul>
-			{handleEditZones &&
-				<button onClick={AddNewZone}> Add Zone </button>
-			}
+		<div>
+			<ul className={cStyles.elementListing}>
+				{zoneList}
+			</ul>
+			{handleEditZones && <button onClick={AddNewZone}> Add Zone </button>}
 		</div>)
 
 }
@@ -104,32 +105,23 @@ function ZoneName({ name, editName = null }:
 
 function ZoneDisplay({ config, zone, editZone = null }: { config: GameConfig, zone: ZoneClass, editZone: ((zone: ZoneClass) => void) | null }) {
 	return (
-		<div className={styles.zoneDisplay} >
-			<div className={styles.seperator}>
-				<ZoneRulesDisplay config={config} rules={zone.rules} editRules={editZone ? (r) => editZone({ ...zone, rules: r }) : null} />
-			</div>
-			<div className={styles.seperator}>
-				<ZoneVisibilityDisplay visibility={zone.visibility} editVisibility={editZone ? (v) => { editZone({ ...zone, visibility: v }) } : null} />
-			</div>
-			<div className={styles.seperator}>
-				<ZoneCleanupDisplay cleanupRule={zone.cleanup} editCleanupRule={editZone ? (c) => { editZone({ ...zone, cleanup: c }) } : null} />
-			</div>
+		<div className={cStyles.fieldListing} >
+			<ZoneRulesDisplay config={config} rules={zone.rules} editRules={editZone ? (r) => editZone({ ...zone, rules: r }) : null} />
+			<ZoneVisibilityDisplay visibility={zone.visibility} editVisibility={editZone ? (v) => { editZone({ ...zone, visibility: v }) } : null} />
+			<ZoneCleanupDisplay cleanupRule={zone.cleanup} editCleanupRule={editZone ? (c) => { editZone({ ...zone, cleanup: c }) } : null} />
 		</div>
 	)
 }
 
 function ZoneRulesDisplay({ config, rules, editRules = null }:
-	{ config: GameConfig, rules: string[], editRules: ((rules: string[]) => void) | null }) {
+	{ config: GameConfig, rules: string[], editRules?: ((rules: string[]) => void) | null }) {
 
 	function SingleRule({ name }: { name: string }) {
 		return (
-			<div className={styles.zoneRule}>
+			<div className={cStyles.listItem}>
 				<span> {name} </span>
-				{editRules && <button onClick={
-					() => {
-						editRules(rules.filter((n) => n !== name))
-					}
-				}> X </button>}
+				{editRules &&
+					<button className={cStyles.invisibleButton} onClick={() => { editRules(rules.filter((n) => n !== name)) }}> X </button>}
 			</div>
 		)
 	}
@@ -140,7 +132,7 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 	// const options = Object.entries(config.patterns).map(([n, _]) => n);
 	const options = ["PatternA", "PatternB", "PatternC"];
 	return (
-		<div className={styles.zoneRulesContainer}>
+		<div className={cStyles.horizontalList}>
 			{editRules &&
 				<select onChange={
 					(e) => {
@@ -154,8 +146,8 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 					{options.map((option) => (<option key={option} value={option}> {option} </option>))}
 				</select>
 			}
-			<div className={styles.zoneRules}>
-				<ul> {ruleList} </ul>
+			<div>
+				<ul className={cStyles.horizontalList}> {ruleList} </ul>
 			</div>
 		</div>
 	);
@@ -164,14 +156,12 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 function ZoneVisibilityDisplay({ visibility, editVisibility = null }:
 	{ visibility: ZoneVisibility, editVisibility: ((visibility: ZoneVisibility) => void) | null }) {
 	return (
-		<div className={styles.zoneVisibility} >
+		<div className={cStyles.horizontalList} >
 			<div className={styles.zoneVisibilityHeader} >
 				<div> Owner </div>
 				<div>
 					<ZoneVisibilityRuleDisplay displayRule={visibility.owner}
-						editDisplayRule={editVisibility ? (e) => {
-							editVisibility({ ...visibility, owner: e, })
-						} : null} />
+						editDisplayRule={editVisibility ? (e) => { editVisibility({ ...visibility, owner: e, }) } : null} />
 				</div>
 
 			</div>
@@ -179,9 +169,7 @@ function ZoneVisibilityDisplay({ visibility, editVisibility = null }:
 				<div> Others </div>
 				<div>
 					<ZoneVisibilityRuleDisplay displayRule={visibility.others}
-						editDisplayRule={editVisibility ? (e) => {
-							editVisibility({ ...visibility, others: e, })
-						} : null} />
+						editDisplayRule={editVisibility ? (e) => { editVisibility({ ...visibility, others: e, }) } : null} />
 				</div>
 
 			</div>
@@ -193,12 +181,12 @@ function ZoneVisibilityRuleDisplay({ displayRule, editDisplayRule = null }:
 	{ displayRule: ZoneVisibilityRule, editDisplayRule: ((displayRule: ZoneVisibilityRule) => void) | null }) {
 
 	if (!editDisplayRule) {
-		return (<div className={styles.zoneVisibilityRule}> {displayRule} </div>)
+		return (<div className={cStyles.rounded}> {displayRule} </div>)
 	}
 	const options: ZoneVisibilityRule[] = ["Visible", "Hidden", "Top", "Bottom"];
 
 	return (
-		<div className={styles.zoneVisibilityRule}>
+		<div className={cStyles.rounded}>
 			<select value={displayRule} onChange={(e) => editDisplayRule(e.target.value as ZoneVisibilityRule)}>
 				{options.map((option) => (<option key={option} value={option}> {option} </option>))}
 			</select>
@@ -214,13 +202,13 @@ function ZoneCleanupDisplay({ cleanupRule, editCleanupRule = null }:
 	const options: ZoneCleanupBehavior[] = ["Never", "OnEmpty"];
 
 	if (!editCleanupRule) {
-		return (<div className={styles.zoneCleanup}>
+		return (<div className={cStyles.rounded}>
 			{cleanupRule}
 		</div>);
 	}
 
 	return (
-		<div className={styles.zoneCleanup}>
+		<div className={cStyles.rounded}>
 			<select value={cleanupRule} onChange={(e) => editCleanupRule(e.target.value as ZoneCleanupBehavior)}>
 				{options.map((option) => (
 					<option key={option} value={option}>

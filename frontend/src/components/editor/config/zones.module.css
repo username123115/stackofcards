@@ -1,0 +1,16 @@
+@import '@styles/colors.module.css';
+@import './config.module.css';
+
+.zoneVisibilityHeader {
+	display: flex;
+	flex-direction: row;
+	background-color: var(--neutral-300);
+	padding: 0px 0px 0px 5px;
+	border-radius: 10px;
+	gap: 4px;
+}
+
+
+.seperator {
+	display: flex;
+}

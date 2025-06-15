@@ -1,17 +1,48 @@
 import type { Suit } from "@bindings/Suit";
-export default function AllowedSuitsList({ suits }: { suits: Suit[] }) {
-	const slist = suits.map(
-		(rank) => {
-			return (
-				<li key={rank}>
-					{rank}
-				</li>
-			)
-		}
-	)
-	return (
-		<div>
-			<ul> {slist} </ul>
-		</div>
-	)
+import styles from "./config.module.css";
+
+const ALL_SUITS: Suit[] = ["Hearts", "Diamonds", "Clubs", "Spades"];
+
+interface AllowedSuitsListProps {
+	suits: Suit[];
+	handleEditSuits?: (updatedSuits: Suit[]) => void;
 }
+
+export default function AllowedSuitsList({ suits, handleEditSuits }: AllowedSuitsListProps) {
+	const handleCheckboxChange = (suit: Suit) => {
+		if (!handleEditSuits) return;
+
+		let updatedSuits: Suit[];
+		if (suits.includes(suit)) {
+			updatedSuits = suits.filter((s) => s !== suit);
+		} else {
+			updatedSuits = [...suits, suit];
+		}
+
+		updatedSuits.sort((a, b) => ALL_SUITS.indexOf(a) - ALL_SUITS.indexOf(b));
+		handleEditSuits(updatedSuits);
+	};
+
+	return (
+		<div className={styles.elementListing}>
+			<ul className={styles.horizontalList} >
+				{ALL_SUITS.map((suit) => (
+					<li key={suit} className={styles.zoneRule}>
+						<div className={styles.listItem}>
+							<label>
+								<input
+									type="checkbox"
+									checked={suits.includes(suit)}
+									disabled={!handleEditSuits}
+									onChange={() => handleCheckboxChange(suit)}
+								/>
+								{suit}
+							</label>
+						</div>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+

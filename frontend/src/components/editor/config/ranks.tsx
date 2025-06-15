@@ -1,18 +1,53 @@
 import type { Rank } from "@bindings/Rank";
+import styles from "./config.module.css";
 
-export default function AllowedRanksList({ ranks }: { ranks: Rank[] }) {
-	const rlist = ranks.map(
-		(rank) => {
-			return (
-				<li key={rank}>
-					{rank}
-				</li>
-			)
-		}
-	)
-	return (
-		<div>
-			<ul> {rlist} </ul>
-		</div>
-	)
+const ALL_RANKS: Rank[] = [
+	"Two", "Three", "Four", "Five", "Six", "Seven", "Eight",
+	"Nine", "Ten", "Jack", "Queen", "King", "Ace"
+];
+
+interface AllowedRanksListProps {
+	ranks: Rank[];
+	handleEditRanks?: (updatedRanks: Rank[]) => void;
 }
+
+export default function AllowedRanksList({ ranks, handleEditRanks }: AllowedRanksListProps) {
+	const handleCheckboxChange = (rank: Rank) => {
+		if (!handleEditRanks) return;
+
+		let updatedRanks: Rank[];
+		if (ranks.includes(rank)) {
+			updatedRanks = ranks.filter((r) => r !== rank);
+		} else {
+			updatedRanks = [...ranks, rank];
+		}
+
+		updatedRanks.sort((a, b) => ALL_RANKS.indexOf(a) - ALL_RANKS.indexOf(b));
+		handleEditRanks(updatedRanks);
+	};
+
+	return (
+		<div className={styles.elementListing}>
+			<ul className={styles.horizontalList} >
+				{
+					ALL_RANKS.map((rank) => (
+						<li key={rank}>
+							<div className={styles.listItem}>
+								<label>
+									<input
+										type="checkbox"
+										checked={ranks.includes(rank)}
+										disabled={!handleEditRanks}
+										onChange={() => handleCheckboxChange(rank)}
+									/>
+									{rank}
+								</label>
+							</div>
+						</li>
+					))
+				}
+			</ul>
+		</div >
+	);
+}
+

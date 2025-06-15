@@ -4,7 +4,7 @@ import type { ZoneCleanupBehavior } from "@bindings/ZoneCleanupBehavior";
 import type { ZoneVisibility } from "@bindings/ZoneVisibility";
 import type { ZoneVisibilityRule } from "@bindings/ZoneVisibilityRule";
 
-import { useState } from 'react';
+import { renameProperty, NameFieldComponent } from './utility'
 
 import styles from './zones.module.css'
 import cStyles from './config.module.css'
@@ -13,24 +13,12 @@ export default function ZoneList({ config, handleEditZones = null }:
 	{ config: GameConfig, handleEditZones: ((zones: GameConfig['zone_classes']) => void) | null }) {
 
 	function RenameZone(newName: string, oldName: string) {
-		if (!handleEditZones || newName.trim() === '' || newName === oldName) {
-			return;
-		}
-
-		if (config.zone_classes.hasOwnProperty(newName)) {
-			return;
-		}
-
-		const updatedZones: GameConfig['zone_classes'] = {};
-		Object.entries(config.zone_classes).forEach(([key, val]) => {
-			if (key === oldName) {
-				updatedZones[newName] = val;
-			} else {
-				updatedZones[key] = val;
+		if (handleEditZones) {
+			const result = renameProperty(config.zone_classes, newName, oldName);
+			if (result) {
+				handleEditZones(result);
 			}
-		});
-
-		handleEditZones(updatedZones);
+		}
 	}
 	function AddNewZone() {
 		if (handleEditZones) {
@@ -61,7 +49,7 @@ export default function ZoneList({ config, handleEditZones = null }:
 			return (
 				<li key={zoneName}>
 					<div>
-						<ZoneName name={zoneName} editName={handleEditZones ? (newName) => { RenameZone(newName, zoneName) } : null} />
+						<NameFieldComponent name={zoneName} editName={handleEditZones ? (newName) => { RenameZone(newName, zoneName) } : null} />
 						<ZoneDisplay config={config} zone={zone!} editZone={handleEditZones ? (z) => handleEditZones({ ...config.zone_classes, [zoneName]: z }) : null} />
 					</div>
 				</li>
@@ -77,30 +65,6 @@ export default function ZoneList({ config, handleEditZones = null }:
 			{handleEditZones && <button onClick={AddNewZone}> Add Zone </button>}
 		</div>)
 
-}
-
-function ZoneName({ name, editName = null }:
-	{ name: string, editName: ((newName: string) => void) | null }) {
-	const [currentName, setCurrentName] = useState(name);
-	if (!editName) {
-		return (<div> {name} </div>)
-	} else {
-		return (<div> <input type="text" value={currentName}
-			onChange={(e) => setCurrentName(e.target.value)}
-			onBlur={() => {
-				if (currentName !== name) {
-					editName(currentName);
-					setCurrentName(name);
-				}
-			}}
-			onKeyDown={(e) => {
-				if (e.key === 'Enter') {
-					e.currentTarget.blur();
-				}
-			}
-			}
-		/> </div>)
-	}
 }
 
 function ZoneDisplay({ config, zone, editZone = null }: { config: GameConfig, zone: ZoneClass, editZone: ((zone: ZoneClass) => void) | null }) {

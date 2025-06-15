@@ -33,7 +33,7 @@ function ConfigDisplay({ config, saveEdits = null }:
 				</div>
 				<div>
 					<h1> Orders </h1>
-					<OrderList config={currentConfig} />
+					<OrderList config={currentConfig} handleEditOrders={saveEdits ? (o) => { setCurrentConfig({ ...currentConfig, orders: o }) } : null} />
 				</div>
 				<div>
 					<h1> Patterns </h1>

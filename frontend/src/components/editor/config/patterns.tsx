@@ -1,12 +1,14 @@
 import type { GameConfig } from '@bindings/GameConfig'
 
+import type { Suit } from '@bindings/Suit'
+
 import { renameProperty, NameFieldComponent } from './utility'
 
 import type { PatternPiece } from "@bindings/PatternPiece";
 import type { Relation } from "@bindings/Relation";
 import type { Pattern } from "@bindings/Pattern";
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 
 import styles from './config.module.css';
 
@@ -125,6 +127,12 @@ function EditablePattern({ config, pattern, editPattern }:
 				<PatternRelation config={config} relation={currentPattern.Relation} setRelation={(r) => editPattern!({ Relation: r })} />
 			</div>)
 		}
+		if ("Suit" in currentPattern) {
+			const options: Array<Suit | null> = [null, ...config.allowed_suits]
+			return (<div>
+				<PatternPieces<Suit | null> pieces={currentPattern.Suit} possibleOptions={options} setPieces={(p) => editPattern!({ Suit: p })} />
+			</div>)
+		}
 		return (<div> TODO </div>)
 	}
 
@@ -172,4 +180,99 @@ function PatternRelation({ config, relation, setRelation = null }:
 	}
 }
 
-// function PatternSuit({ config, suit, setSuit = null }: { config: GameConfig, suit
+
+function PatternPieces<T>({ pieces, possibleOptions, setPieces = null }:
+	{ pieces: PatternPiece<T>[], possibleOptions: T[], setPieces: ((pieces: PatternPiece<T>[]) => void) | null }) {
+
+	const pieceListing = pieces.map(
+		(piece, index) => {
+			function EditPiece(newPiece: PatternPiece<T>) {
+				if (setPieces) {
+					setPieces(pieces.map((pce, idx) => (index === idx) ? newPiece : pce));
+				}
+			}
+			function NewMin(m: number) {
+				if (m < 0) return;
+				if (m > 1000) return; //idk
+				const copy = { ...piece, match_min: m };
+				if (copy.match_min > copy.match_max) {
+					copy.match_max = m;
+				}
+				EditPiece(copy);
+			}
+			function NewMax(m: number) {
+				if (m < 0) return;
+				if (m > 1000) return;
+				const copy = { ...piece, match_max: m };
+				if (copy.match_min > copy.match_max) {
+					copy.match_min = m;
+				}
+				EditPiece(copy);
+			}
+			function NewMatcher(t: T) {
+				let copy = { ...piece, pattern: t };
+				EditPiece(copy);
+			}
+
+			const potentialIndex = possibleOptions.indexOf(piece.pattern);
+			const IndexOfPattern = (potentialIndex < 0) ? 0 : potentialIndex;
+
+			return (
+				<li key={index + JSON.stringify(piece)}>
+					<div className={styles.rounded}>
+						<div className={styles.horizontalList}>
+							<div> <NumField num={piece.match_min} setNum={setPieces ? (n) => NewMin(n) : null} /> </div>
+							<div> <NumField num={piece.match_max} setNum={setPieces ? (n) => NewMax(n) : null} /> </div>
+							<div>
+								{setPieces ?
+									<select value={IndexOfPattern} onChange={(e) => NewMatcher(possibleOptions[Number(e.target.value)])} >
+										{
+											possibleOptions.map(
+												(opt, index) => <option value={index}> {opt ? String(opt) : "*"}</option>
+											)
+										}
+									</select>
+									:
+									<div> {piece.pattern ? String(piece.pattern) : "*"} </div>
+								}
+							</div>
+							{setPieces && <button className={styles.invisibleButton} onClick={() => setPieces(pieces.filter((_value, ind) => (index != ind)))}> X </button>}
+						</div>
+					</div>
+				</li>
+			)
+		}
+	)
+
+	return (
+		<div className={styles.horizontalList}>
+			{setPieces && <button className={styles.invisibleButton} onClick={() => {
+				const copy = [...pieces];
+				copy.push({
+					match_min: 0,
+					match_max: 0,
+					pattern: possibleOptions[0],
+				});
+				setPieces(copy);
+			}}> [+Pattern] </button>}
+			{pieceListing}
+		</div>)
+
+}
+
+function NumField({ num, setNum = null }: { num: number, setNum: ((num: number) => void) | null }) {
+	const [cnum, scnum] = useState(num);
+	if (!setNum) {
+		return (<div> {String(num)} </div>)
+	} else {
+		return (<div>
+			<input className={styles.smallInput} type="text" value={cnum} onChange={(e) => {
+				scnum(Number(e.target.value));
+			}} onBlur={() => setNum(cnum)}
+				onKeyDown={(e) => { e.key === 'Enter' ? e.currentTarget.blur() : null }}
+			/>
+		</div>
+		)
+	}
+
+}

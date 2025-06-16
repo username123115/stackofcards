@@ -91,3 +91,7 @@ input[type="text"] {
 	color: var(--primary-900);
 	border-radius: 8px;
 }
+
+.smallInput {
+	width: 1.5em;
+}

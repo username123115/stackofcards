@@ -9,8 +9,8 @@ pub type PatternIdentifier = String;
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub struct PatternPiece<T> {
-    pub match_min: u64,
-    pub match_max: u64,
+    pub match_min: u32,
+    pub match_max: u32,
     pub pattern: T,
 }
 

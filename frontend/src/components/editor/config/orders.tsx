@@ -61,7 +61,7 @@ export default function OrderList({ config, handleEditOrders = null }: OrderList
 		<div>
 			<ul className={styles.elementListing}>
 				{orders}
-				{handleEditOrders && <button onClick={AddNewOrder}> Add Order </button>}
+				{handleEditOrders && <button className={styles.menuButton} onClick={AddNewOrder}> Add Order </button>}
 			</ul>
 		</div>
 	)
@@ -137,8 +137,9 @@ function OrderDisplay({ config, order, editOrder }:
 			</ul>
 			{editOrder &&
 				<div className={styles.rounded}>
-					<select onChange={
+					<select value={undefined} onChange={
 						(e) => {
+							if (!e.target.value) return;
 							if (e.target.value === "ALL") {
 								AddRanks(config.allowed_ranks);
 							} else {
@@ -149,6 +150,7 @@ function OrderDisplay({ config, order, editOrder }:
 							}
 						}
 					}>
+						<option value={undefined}> </option>
 						{config.allowed_ranks.map(
 							(option) => (<option key={option} value={option}> {option} </option>)
 						)}

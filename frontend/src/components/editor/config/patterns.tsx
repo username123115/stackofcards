@@ -62,7 +62,7 @@ export default function PatternList({ config, handleEditPatterns = null }:
 		<div>
 			<ul className={styles.elementListing}>
 				{patternList}
-				{handleEditPatterns && <button onClick={() => AddNewPattern()}> Add pattern </button>}
+				{handleEditPatterns && <button className={styles.menuButton} onClick={() => AddNewPattern()}> Add pattern </button>}
 			</ul>
 
 		</div>)
@@ -77,7 +77,7 @@ function PatternVecDisplay({ config, patterns, editPatterns = null }:
 					{
 						editPatterns && (
 							<div className={styles.horizontalList}>
-								<button className={styles.invisibleButton}> X </button>
+								<button className={styles.invisibleButton} onClick={() => editPatterns(patterns.filter((_value, ind) => (ind != index)))}> X </button>
 								<EditablePattern config={config} pattern={pattern} editPattern={(p) => {
 									const copy = [...patterns];
 									copy[index] = p;
@@ -95,14 +95,14 @@ function PatternVecDisplay({ config, patterns, editPatterns = null }:
 				{editPatterns &&
 					(
 						<div>
-							<button onClick={() => {
+							<button className={styles.menuButton} onClick={() => {
 								const copy = [...patterns];
 								copy.push({ Suit: [] });
 								editPatterns(copy);
 							}
 							}> Add Pattern Part
 							</button>
-							<button onClick={() => editPatterns([])}> Clear Patterns </button>
+							<button className={styles.menuButton} onClick={() => editPatterns([])}> Clear Patterns </button>
 						</div>
 					)}
 			</ul>
@@ -166,7 +166,10 @@ function PatternRelation({ config, relation, setRelation = null }:
 						{Object.keys(config.orders).map((k) => <option value={k}> {k} </option>)}
 					</select>
 				}
+				<div className={styles.rounded}> {relation.Consecutive} </div>
 			</div>
 		)
 	}
 }
+
+// function PatternSuit({ config, suit, setSuit = null }: { config: GameConfig, suit

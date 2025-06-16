@@ -82,3 +82,12 @@ input[type="text"] {
 	padding: 0px 10px 0px 10px;
 	background-color: var(--accent-500);
 }
+
+.menuButton {
+	outline: none;
+	border: none;
+	padding: 5px;
+	margin: 5px;
+	color: var(--primary-900);
+	border-radius: 8px;
+}

@@ -1,6 +1,7 @@
 import type { GameConfig } from '@bindings/GameConfig'
 
 import type { Suit } from '@bindings/Suit'
+import type { Rank } from '@bindings/Rank'
 
 import { renameProperty, NameFieldComponent } from './utility'
 
@@ -80,6 +81,19 @@ function PatternVecDisplay({ config, patterns, editPatterns = null }:
 						editPatterns && (
 							<div className={styles.horizontalList}>
 								<button className={styles.invisibleButton} onClick={() => editPatterns(patterns.filter((_value, ind) => (ind != index)))}> X </button>
+								<button className={styles.invisibleButton} onClick={() => {
+									if (index === 0) return;
+									const copy = [...patterns];
+									[copy[index - 1], copy[index]] = [copy[index], copy[index - 1]];
+									editPatterns(copy);
+								}}> &lt; </button>
+								<button className={styles.invisibleButton} onClick={() => {
+									if ((index + 1) >= patterns.length) return;
+									const copy = [...patterns];
+									[copy[index], copy[index + 1]] = [copy[index + 1], copy[index]];
+									editPatterns(copy);
+
+								}}> &gt; </button>
 								<EditablePattern config={config} pattern={pattern} editPattern={(p) => {
 									const copy = [...patterns];
 									copy[index] = p;
@@ -132,6 +146,13 @@ function EditablePattern({ config, pattern, editPattern }:
 			return (<div>
 				<PatternPieces<Suit | null> pieces={currentPattern.Suit} possibleOptions={options} setPieces={(p) => editPattern!({ Suit: p })} />
 			</div>)
+		}
+		if ("Rank" in currentPattern) {
+			const options: Array<Rank | null> = [null, ...config.allowed_ranks]
+			return (<div>
+				<PatternPieces<Rank | null> pieces={currentPattern.Rank} possibleOptions={options} setPieces={(p) => editPattern!({ Rank: p })} />
+			</div>)
+
 		}
 		return (<div> TODO </div>)
 	}
@@ -236,7 +257,8 @@ function PatternPieces<T>({ pieces, possibleOptions, setPieces = null }:
 									<div> {piece.pattern ? String(piece.pattern) : "*"} </div>
 								}
 							</div>
-							{setPieces && <button className={styles.invisibleButton} onClick={() => setPieces(pieces.filter((_value, ind) => (index != ind)))}> X </button>}
+							{setPieces &&
+								<button className={styles.invisibleButton} onClick={() => setPieces(pieces.filter((_value, ind) => (index != ind)))}> X </button>}
 						</div>
 					</div>
 				</li>

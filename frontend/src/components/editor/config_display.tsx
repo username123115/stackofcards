@@ -38,7 +38,7 @@ function ConfigDisplay({ config, saveEdits = null }:
 				</div>
 				<div>
 					<h1> Patterns </h1>
-					<PatternList config={currentConfig} />
+					<PatternList config={currentConfig} handleEditPatterns={saveEdits ? (p) => { setCurrentConfig({ ...currentConfig, patterns: p }) } : null} />
 				</div>
 				<div>
 					<h1> Zones </h1>

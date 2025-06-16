@@ -93,20 +93,22 @@ function ZoneRulesDisplay({ config, rules, editRules = null }:
 	const ruleList = rules.map(
 		(ruleName) => (<li key={ruleName}> <SingleRule name={ruleName} /> </li>)
 	);
-	// const options = Object.entries(config.patterns).map(([n, _]) => n);
-	const options = ["PatternA", "PatternB", "PatternC"];
+	const options = Object.entries(config.patterns).map(([n, _]) => n);
 	return (
 		<div className={styles.horizontalList}>
 			{editRules &&
-				<select onChange={
-					(e) => {
-						const toAdd = e.target.value;
-						if (rules.includes(toAdd)) {
-							return;
+				<select value={undefined}
+					onChange={
+						(e) => {
+							const toAdd = e.target.value;
+							if (!toAdd) return;
+							if (rules.includes(toAdd)) {
+								return;
+							}
+							editRules(rules.concat(toAdd));
 						}
-						editRules(rules.concat(toAdd));
-					}
-				}>
+					}>
+					<option value={undefined}> </option>
 					{options.map((option) => (<option key={option} value={option}> {option} </option>))}
 				</select>
 			}

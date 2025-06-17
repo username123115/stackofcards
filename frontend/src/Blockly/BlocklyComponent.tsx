@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import React from 'react';
 
 import * as Blockly from 'blockly/core';
+import En from 'blockly/msg/en';
+
 import 'blockly/blocks'
 import { javascriptGenerator } from 'blockly/javascript';
 import type { ReactNode } from 'react';
@@ -24,6 +26,7 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 	};
 
 	useEffect(() => {
+		Blockly.setLocale(En);
 		const { initialXml, children, ...rest } = props;
 		primaryWorkspace.current = Blockly.inject(blocklyDiv.current!, {
 			toolbox: toolbox.current ?? undefined,

@@ -6,7 +6,7 @@ export default BlocklyComponent;
 const Block = (p: any) => {
 	const { children, ...props } = p;
 	props.is = 'blockly';
-	return React.createElement('block', props, children);
+	return React.createElement('block', props, props.children);
 };
 
 const Category = (p: any) => {

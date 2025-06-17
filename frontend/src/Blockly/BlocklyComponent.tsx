@@ -6,6 +6,8 @@ import 'blockly/blocks'
 import { javascriptGenerator } from 'blockly/javascript';
 import type { ReactNode } from 'react';
 
+import styles from './blockly.module.css'
+
 interface BlocklyComponentProps extends Blockly.BlocklyOptions {
 	initialXml?: string;
 	children?: ReactNode;
@@ -39,7 +41,7 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 	return (
 		<React.Fragment>
 			<button onClick={generateCode}>Convert</button>
-			<div ref={blocklyDiv} id="blocklyDiv" />
+			<div ref={blocklyDiv} className={styles.blocklyDiv} />
 			<div style={{ display: 'none' }} ref={toolbox}>
 				{props.children}
 			</div>

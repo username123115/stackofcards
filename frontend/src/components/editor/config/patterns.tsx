@@ -9,7 +9,7 @@ import type { PatternPiece } from "@bindings/PatternPiece";
 import type { Relation } from "@bindings/Relation";
 import type { Pattern } from "@bindings/Pattern";
 
-import { useState, useRef } from "react"
+import { useState, } from "react"
 
 import styles from './config.module.css';
 

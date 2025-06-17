@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { GameConfig } from '@bindings/GameConfig';
 import type { RankOrder } from "@bindings/RankOrder";
 import type { Rank } from "@bindings/Rank";
@@ -6,10 +5,6 @@ import styles from "./config.module.css";
 
 import { NameFieldComponent, renameProperty } from './utility'
 
-const ALL_RANKS: Rank[] = [
-	"Two", "Three", "Four", "Five", "Six", "Seven", "Eight",
-	"Nine", "Ten", "Jack", "Queen", "King", "Ace"
-];
 
 interface OrderListProps {
 	config: GameConfig;

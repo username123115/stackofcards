@@ -18,6 +18,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@components': path.resolve(__dirname, './src/components'),
+			'@Blockly': path.resolve(__dirname, './src/Blockly'),
 			'@pages': path.resolve(__dirname, 'src/pages'),
 			'@client': path.resolve(__dirname, './src/client'),
 			'@styles': path.resolve(__dirname, './src/styles'),

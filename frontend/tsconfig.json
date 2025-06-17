@@ -3,6 +3,7 @@
 	"baseUrl": ".",
     "paths": {
       "@components/*": ["./src/components/*"],
+      "@Blockly/*": ["./src/Blockly/*"],
 	  "@client/*": ["./src/client/*"],
 	  "@pages/*": ["./src/pages/*"],
 	  "@styles/*": ["./src/styles/*"],

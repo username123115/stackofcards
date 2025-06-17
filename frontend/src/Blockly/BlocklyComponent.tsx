@@ -4,8 +4,14 @@ import React from 'react';
 import * as Blockly from 'blockly/core';
 import 'blockly/blocks'
 import { javascriptGenerator } from 'blockly/javascript';
+import type { ReactNode } from 'react';
 
-function BlocklyComponent(props: any) {
+interface BlocklyComponentProps extends Blockly.BlocklyOptions {
+	initialXml?: string;
+	children?: ReactNode;
+}
+
+function BlocklyComponent(props: BlocklyComponentProps) {
 	const blocklyDiv = useRef<HTMLDivElement>(null);
 	const toolbox = useRef<HTMLDivElement>(null);
 	let primaryWorkspace = useRef<Blockly.Workspace | undefined>(undefined);
@@ -18,7 +24,7 @@ function BlocklyComponent(props: any) {
 	useEffect(() => {
 		const { initialXml, children, ...rest } = props;
 		primaryWorkspace.current = Blockly.inject(blocklyDiv.current!, {
-			toolbox: toolbox.current,
+			toolbox: toolbox.current ?? undefined,
 			...rest,
 		});
 

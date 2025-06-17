@@ -13,7 +13,6 @@ function RouteComponent() {
 			<BlocklyComponent
 				readOnly={false}
 				trashcan={true}
-				media={'media/'}
 				move={{
 					scrollbars: true,
 					drag: true,

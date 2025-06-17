@@ -36,6 +36,13 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 				primaryWorkspace.current,
 			);
 		}
+
+		return () => {
+			if (primaryWorkspace.current) {
+				primaryWorkspace.current.dispose();
+				primaryWorkspace.current = undefined;
+			}
+		}
 	}, [primaryWorkspace, toolbox, blocklyDiv, props]);
 
 	return (

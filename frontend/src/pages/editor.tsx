@@ -12,12 +12,13 @@ type ConfigDisplay = "Block" | "Settings";
 
 function Editor({ config }: { config: GameConfig }) {
 	const [currentDisplay, setCurrentDisplay] = useState<ConfigDisplay>("Block");
+	const [currentConfig, setCurrentConfig] = useState<GameConfig>(config);
 	return (
 		<>
 			<div>
 				<SwitchMenu options={["Settings", "Block"]} setOption={(o) => setCurrentDisplay(o)} />
-				{(currentDisplay === "Settings") && <ConfigDisplay config={config} saveEdits={(e) => console.log(e)} />}
-				{(currentDisplay === "Block") && <Blocks />}
+				{(currentDisplay === "Settings") && <ConfigDisplay config={currentConfig} saveEdits={(e) => setCurrentConfig(e)} />}
+				{(currentDisplay === "Block") && <Blocks config={currentConfig} />}
 
 			</div>
 		</>
@@ -36,7 +37,7 @@ function SwitchMenu({ options, setOption }: { options: ConfigDisplay[], setOptio
 	</div>)
 }
 
-function Blocks() {
+function Blocks({ config }: { config?: GameConfig }) {
 	return (
 		<BlocklyComponent
 			readOnly={false}
@@ -46,6 +47,7 @@ function Blocks() {
 				drag: true,
 				wheel: true,
 			}}
+			config={config}
 		>
 			<Block type="controls_ifelse" />
 			<Block type="logic_compare" />
@@ -62,6 +64,12 @@ function Blocks() {
 
 			<Block type="text" />
 			<Block type="text_print" />
+
+			<Block type="socs_phase" />
+			<Block type="socs_shuffle" />
+			<Block type="socs_init_zone" />
+			<Block type="socs_gen_cards" />
+			<Block type="socs_enter_phase" />
 
 		</BlocklyComponent>
 	)

@@ -4,6 +4,10 @@ import React from 'react';
 import * as Blockly from 'blockly/core';
 import * as En from 'blockly/msg/en';
 
+import type { GameConfig } from '@bindings/GameConfig';
+
+import { zonesFromConfig } from '@client/utility';
+
 import 'blockly/blocks'
 import { javascriptGenerator } from 'blockly/javascript';
 import type { ReactNode } from 'react';
@@ -13,6 +17,7 @@ import styles from './blockly.module.css'
 interface BlocklyComponentProps extends Blockly.BlocklyOptions {
 	initialXml?: string;
 	children?: ReactNode;
+	config?: GameConfig;
 }
 
 function BlocklyComponent(props: BlocklyComponentProps) {
@@ -26,12 +31,20 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 	};
 
 	useEffect(() => {
-		Blockly.setLocale(En);
-		const { initialXml, children, ...rest } = props;
+		const { initialXml, children, config, ...rest } = props;
 		primaryWorkspace.current = Blockly.inject(blocklyDiv.current!, {
 			toolbox: toolbox.current ?? undefined,
 			...rest,
 		});
+
+		if (config && primaryWorkspace.current) {
+			zonesFromConfig(config).map(
+				(zoneName) => {
+					primaryWorkspace.current?.getVariableMap().createVariable(zoneName, "socs_zone");
+				}
+			)
+			//primaryWorkspace.current.getVariableMap().createVariable
+		}
 
 		if (initialXml) {
 			Blockly.Xml.domToWorkspace(

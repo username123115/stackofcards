@@ -1,7 +1,19 @@
 import React from 'react';
 import BlocklyComponent from './BlocklyComponent';
 
+import generateBlockDefinitions from './customBlocks/socs'
+
+import * as Blockly from 'blockly/core';
+import * as En from 'blockly/msg/en';
+
+
 export default BlocklyComponent;
+
+// Run this one time to set everything up
+export function setupSocsBlockly() {
+	Blockly.setLocale(En);
+	generateBlockDefinitions();
+}
 
 const Block = (p: any) => {
 	const { children, ...props } = p;

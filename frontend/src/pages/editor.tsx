@@ -49,27 +49,45 @@ function Blocks({ config }: { config?: GameConfig }) {
 			}}
 			config={config}
 		>
-			<Block type="controls_ifelse" />
+			<Block type="socs_remade_if_else" />
 			<Block type="logic_compare" />
 			<Block type="logic_operation" />
 			<Block type="logic_operation" />
 			<Block type="logic_boolean" />
-			<Block type="logic_ternary" />
 
 			<Block type="math_number" />
-
-			<Block type="controls_for" />
-			<Block type="variables_get" />
-			<Block type="variables_set" />
 
 			<Block type="text" />
 			<Block type="text_print" />
 
 			<Block type="socs_phase" />
+			<Block type="socs_enter_phase" />
+
 			<Block type="socs_shuffle" />
 			<Block type="socs_init_zone" />
 			<Block type="socs_gen_cards" />
-			<Block type="socs_enter_phase" />
+
+			<Block type="socs_offer" />
+			<Block type="socs_offer_declareless" />
+			<Block type="socs_offer_case" />
+			<Block type="socs_offer_case_any" />
+
+			<Block type="socs_player_get" />
+			<Block type="socs_player_current" />
+
+			<Block type="socs_players_all" />
+
+			<Block type="socs_player_of_type" />
+			<Block type="socs_player_advance" />
+			<Block type="socs_player_advance_type" />
+
+			<Block type="socs_choice_player" />
+			<Block type="socs_choice_player_sel" />
+
+			<Block type="socs_card_get" />
+			<Block type="socs_choice_card" />
+
+
 
 		</BlocklyComponent>
 	)

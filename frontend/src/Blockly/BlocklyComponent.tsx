@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import React from 'react';
 
 import * as Blockly from 'blockly/core';
-import En from 'blockly/msg/en';
+import * as En from 'blockly/msg/en';
 
 import 'blockly/blocks'
 import { javascriptGenerator } from 'blockly/javascript';

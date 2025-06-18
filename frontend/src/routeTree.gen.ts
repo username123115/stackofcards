@@ -13,7 +13,6 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as CreateGameImport } from './routes/create-game'
 import { Route as CardsImport } from './routes/cards'
-import { Route as BlocklyImport } from './routes/blockly'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as GamesGameIdImport } from './routes/games/$gameId'
@@ -30,12 +29,6 @@ const CreateGameRoute = CreateGameImport.update({
 const CardsRoute = CardsImport.update({
   id: '/cards',
   path: '/cards',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const BlocklyRoute = BlocklyImport.update({
-  id: '/blockly',
-  path: '/blockly',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -81,13 +74,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
-    '/blockly': {
-      id: '/blockly'
-      path: '/blockly'
-      fullPath: '/blockly'
-      preLoaderRoute: typeof BlocklyImport
-      parentRoute: typeof rootRoute
-    }
     '/cards': {
       id: '/cards'
       path: '/cards'
@@ -124,7 +110,6 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blockly': typeof BlocklyRoute
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/games/$gameId': typeof GamesGameIdRoute
@@ -134,7 +119,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blockly': typeof BlocklyRoute
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/games/$gameId': typeof GamesGameIdRoute
@@ -145,7 +129,6 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blockly': typeof BlocklyRoute
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
   '/games/$gameId': typeof GamesGameIdRoute
@@ -157,7 +140,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/blockly'
     | '/cards'
     | '/create-game'
     | '/games/$gameId'
@@ -166,7 +148,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/blockly'
     | '/cards'
     | '/create-game'
     | '/games/$gameId'
@@ -175,7 +156,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
-    | '/blockly'
     | '/cards'
     | '/create-game'
     | '/games/$gameId'
@@ -186,7 +166,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  BlocklyRoute: typeof BlocklyRoute
   CardsRoute: typeof CardsRoute
   CreateGameRoute: typeof CreateGameRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
@@ -196,7 +175,6 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  BlocklyRoute: BlocklyRoute,
   CardsRoute: CardsRoute,
   CreateGameRoute: CreateGameRoute,
   GamesGameIdRoute: GamesGameIdRoute,
@@ -215,7 +193,6 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/about",
-        "/blockly",
         "/cards",
         "/create-game",
         "/games/$gameId",
@@ -227,9 +204,6 @@ export const routeTree = rootRoute
     },
     "/about": {
       "filePath": "about.tsx"
-    },
-    "/blockly": {
-      "filePath": "blockly.tsx"
     },
     "/cards": {
       "filePath": "cards.tsx"

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { PlayerCommand } from '@bindings/PlayerCommand'
+import type { GameConfig } from '@bindings/GameConfig'
 
 
 export function handleAxiosError(error: unknown, message: String): never {
@@ -18,3 +19,11 @@ export interface RulesetSelection {
 }
 export type RulesetAction = "Edit" | "CreateGame"
 
+
+export function phasesFromConfig(config: GameConfig): string[] {
+	return Object.keys(config.phases);
+}
+
+export function zonesFromConfig(config: GameConfig): string[] {
+	return Object.keys(config.zone_classes);
+}

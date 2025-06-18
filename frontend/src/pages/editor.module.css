@@ -1,0 +1,6 @@
+@import '@styles/colors.module.css';
+
+.pageMenu {
+	list-style-type: none;
+	display: flex;
+}

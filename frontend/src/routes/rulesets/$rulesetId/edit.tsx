@@ -2,6 +2,7 @@ import axios from 'axios'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react';
 
 import type { GameConfig } from '@bindings/GameConfig'
 import { handleAxiosError } from '@client/utility'
@@ -30,6 +31,8 @@ function RouteComponent() {
 	}
 
 	const config = useQuery({ queryKey: [`GET /v1/rulesets/${rulesetId}`], queryFn: getConfig })
+	type ConfigDisplay = "Block" | "Settings";
+	const [currentDisplay, setCurrentDisplay] = useState<ConfigDisplay>("Block");
 
 	if (config.status === 'pending') {
 		return <span> Fetching ruleset data... </span>

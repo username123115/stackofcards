@@ -73,7 +73,6 @@ function Blocks({ config }: { config?: GameConfig }) {
 			<Block type="socs_offer_case_any" />
 			<Block type="socs_choice_unified" />
 
-			<Block type="socs_player_get" />
 			<Block type="socs_player_current" />
 
 			<Block type="socs_players_all" />
@@ -82,7 +81,6 @@ function Blocks({ config }: { config?: GameConfig }) {
 			<Block type="socs_player_advance" />
 			<Block type="socs_player_advance_type" />
 
-			<Block type="socs_card_get" />
 			<Block type="socs_get_unified" />
 
 

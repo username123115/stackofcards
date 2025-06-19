@@ -133,14 +133,9 @@ const OFFER = {
 			"check": ["socs_t_player", "socs_t_player_sel"],
 		},
 		{
-			"type": "field_dropdown",
-			"name": "NAME",
-			"options": [
-				[
-					"todo",
-					"TODO"
-				]
-			]
+			"type": "field_input",
+			"name": "PLAYER_NAME",
+			"text": "var",
 		},
 		{
 			"type": "input_dummy",
@@ -231,56 +226,6 @@ const OFFER_CASE_ANY = {
 	"previousStatement": ["socs_offer", "socs_t_case"],
 	"nextStatement": ["socs_t_case"],
 	"colour": 100,
-}
-
-const PLAYER_GET = {
-	"type": "socs_player_get",
-	"tooltip": "",
-	"helpUrl": "",
-	"message0": "player %1 %2",
-	"args0": [
-		{
-			"type": "field_dropdown",
-			"name": "PLAYER",
-			"options": [
-				[
-					"todo",
-					"TODO"
-				]
-			]
-		},
-		{
-			"type": "input_dummy",
-			"name": "DUMMY"
-		}
-	],
-	"output": "socs_t_player",
-	"colour": 40
-}
-
-const CARD_GET = {
-	"type": "socs_card_get",
-	"tooltip": "",
-	"helpUrl": "",
-	"message0": "card %1 %2",
-	"args0": [
-		{
-			"type": "field_dropdown",
-			"name": "CARD",
-			"options": [
-				[
-					"todo",
-					"TODO"
-				]
-			]
-		},
-		{
-			"type": "input_dummy",
-			"name": "DUMMY"
-		}
-	],
-	"output": "socs_t_card",
-	"colour": 20,
 }
 
 const PLAYER_CURRENT = {
@@ -379,8 +324,49 @@ const PLAYER_ADVANCE_TYPE = {
 	"colour": 15
 }
 
+type InterpreterType = "socs_t_zone" | "socs_t_zone_sel" | "socs_t_card" | "socs_t_card_sel" | "socs_t_player" | "socs_t_player_sel"
+
+// Given a type search for offer blocks that declare this variable
+function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType): [string, string][] {
+	const declarations: [string, string][] = [];
+	let parentBlock: Blockly.Block | null = block.getSurroundParent();
+
+	while (parentBlock) {
+		if (["socs_offer_case", "socs_offer_case_any"].includes(parentBlock.type)) {
+			//Iterate through the choices field looking for socs_choice_unified blocks
+			const offerStatement = parentBlock.getInput('OFFERS');
+			if (offerStatement && offerStatement.connection) {
+				let childBlock = offerStatement.connection.targetBlock();
+				while (childBlock) {
+					if (childBlock.type === 'socs_choice_unified') {
+						const choiceTypeDropdownValue = childBlock.getFieldValue('CHOICE_TYPE');
+						const declaredVarName = childBlock.getFieldValue('AS');
+						const declaredType = choiceTypeDropdownValue as InterpreterType;
+
+						if (declaredType === targetType && declaredVarName && declaredVarName !== '') {
+							if (!declarations.some(dec => dec[1] === declaredVarName)) {
+								declarations.push([declaredVarName, declaredVarName]);
+							}
+						}
+					}
+
+
+					childBlock = childBlock.getNextBlock();
+				}
+			}
+		} else if (parentBlock.type === 'socs_offer' && targetType === 'socs_t_player') {
+			const playerName = parentBlock.getFieldValue('PLAYER_NAME');
+			if (!declarations.some(dec => dec[1] === playerName)) {
+				declarations.push([playerName, playerName]);
+			}
+		}
+		parentBlock = parentBlock.getSurroundParent();
+	}
+	return declarations;
+}
+
 export default function generateBlockDefinitions() {
-	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, INIT_ZONE, GEN_CARDS, OFFER_CASE, OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_GET, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE, PLAYER_CURRENT, PLAYERS_ALL, CARD_GET,]);
+	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, INIT_ZONE, GEN_CARDS, OFFER_CASE, OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE, PLAYER_CURRENT, PLAYERS_ALL]);
 	Blockly.Blocks['socs_enter_phase'] = {
 		init: function(this: Blockly.Block) {
 			const currentWorkspace = this.workspace;
@@ -416,16 +402,50 @@ export default function generateBlockDefinitions() {
 	};
 	Blockly.Blocks['socs_get_unified'] = {
 		init: function(this: Blockly.Block) {
-			const options: [string, string][] = [
-				["player", "SOCS_T_PLAYER"],
-				["player selection", "SOCS_T_PLAYER_SEL"],
-				["card", "SOCS_T_CARD"],
-				["card selection", "SOCS_T_CARD_SEL"],
+			const options: [string, InterpreterType][] = [
+				["player", "socs_t_player"],
+				["player selection", "socs_t_player_sel"],
+				["card", "socs_t_card"],
+				["card selection", "socs_t_card_sel"],
 			]
 
+			function typeValidator(newValue: string): string {
+				const selectedType: InterpreterType = newValue as InterpreterType;
+				const block = typeDropdown.getSourceBlock();
+				if (block) {
+					block.setOutput(true, selectedType);
+					const fieldVar = block.getField('VARIABLE');
+					if (fieldVar) {
+						fieldVar.setValue("");
+						fieldVar.forceRerender();
+					}
+
+				}
+
+				return newValue;
+			}
+
+			function generateVariables(this: Blockly.FieldDropdown): Blockly.MenuOption[] {
+				const block = this.getSourceBlock();
+				if (block) {
+					const selectedType = block.getFieldValue('TYPE');
+					const outputType = selectedType as InterpreterType;
+					const declaredOptions = getDeclaredVariables(block, outputType);
+					if (declaredOptions.length) {
+						return declaredOptions;
+					}
+
+				}
+				return [["", ""]];
+			}
+
+			const typeDropdown = new Blockly.FieldDropdown(options, typeValidator);
+			const varDropdown = new Blockly.FieldDropdown(generateVariables);
+
 			this.appendDummyInput()
-				.appendField(new Blockly.FieldDropdown(options), "TYPE")
-				.appendField("named");
+				.appendField(typeDropdown, "TYPE")
+				.appendField("named")
+				.appendField(varDropdown, "VARIABLE");
 
 			this.setColour(60);
 
@@ -435,11 +455,11 @@ export default function generateBlockDefinitions() {
 	Blockly.Blocks['socs_choice_unified'] = {
 		init: function(this: Blockly.Block) {
 			// Dropdown options and their corresponding input checks
-			const choiceOptions: [string, string, string[]][] = [
-				['player', 'SOCS_T_PLAYER', ['socs_t_player', 'socs_t_player_sel']],
-				['set of players', 'SOCS_T_PLAYER_SEL', ['socs_t_player', 'socs_t_player_sel']],
-				['card', 'SOCS_T_CARD', ['socs_t_zone', 'socs_t_zone_sel']],
-				['set of cards', 'SOCS_T_CARD_SEL', ['socs_t_zone', 'socs_t_zone_sel']],
+			const choiceOptions: [string, InterpreterType, InterpreterType[]][] = [
+				['player', 'socs_t_player', ['socs_t_player', 'socs_t_player_sel']],
+				['set of players', 'socs_t_player_sel', ['socs_t_player', 'socs_t_player_sel']],
+				['card', 'socs_t_card', ['socs_t_zone', 'socs_t_zone_sel']],
+				['set of cards', 'socs_t_card_sel', ['socs_t_zone', 'socs_t_zone_sel']],
 			];
 
 			const updateSourceCheck = (block: Blockly.Block, choiceValue: string) => {

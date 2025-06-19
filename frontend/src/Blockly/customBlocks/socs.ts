@@ -202,7 +202,8 @@ const OFFER_CASE = {
 		},
 		{
 			"type": "input_statement",
-			"name": "ACTIONS"
+			"name": "ACTIONS",
+			"check": "any",
 		}
 	],
 	"previousStatement": ["socs_offer", "socs_t_case"],
@@ -223,7 +224,8 @@ const OFFER_CASE_ANY = {
 		},
 		{
 			"type": "input_statement",
-			"name": "ACTIONS"
+			"name": "ACTIONS",
+			"check": "any",
 		}
 	],
 	"previousStatement": ["socs_offer", "socs_t_case"],
@@ -377,111 +379,8 @@ const PLAYER_ADVANCE_TYPE = {
 	"colour": 15
 }
 
-const CHOICE_PLAYER = {
-	"type": "socs_choice_player",
-	"tooltip": "",
-	"helpUrl": "",
-	"message0": "any player from %1 as %2 %3",
-	"args0": [
-		{
-			"type": "input_value",
-			"name": "PLAYERS",
-			"check": [
-				"socs_t_player",
-				"socs_t_player_sel"
-			]
-		},
-		{
-			"type": "field_dropdown",
-			"name": "AS",
-			"options": [
-				[
-					"todo",
-					"TODO"
-				]
-			]
-		},
-		{
-			"type": "input_dummy",
-			"name": "NAME"
-		}
-	],
-	"previousStatement": ["socs_t_choice"],
-	"nextStatement": "socs_t_choice",
-	"colour": 90
-}
-
-const CHOICE_PLAYER_SEL = {
-	"type": "socs_choice_player_sel",
-	"tooltip": "",
-	"helpUrl": "",
-	"message0": "any set of players from %1 as %2 %3",
-	"args0": [
-		{
-			"type": "input_value",
-			"name": "PLAYERS",
-			"check": [
-				"socs_t_player",
-				"socs_t_player_sel"
-			]
-		},
-		{
-			"type": "field_dropdown",
-			"name": "AS",
-			"options": [
-				[
-					"todo",
-					"TODO"
-				]
-			]
-		},
-		{
-			"type": "input_dummy",
-			"name": "NAME"
-		}
-	],
-	"previousStatement": ["socs_t_choice"],
-	"nextStatement": "socs_t_choice",
-	"colour": 90
-}
-
-const CHOICE_CARD = {
-	"type": "socs_choice_card",
-	"tooltip": "",
-	"helpUrl": "",
-	"message0": "any card from %1 as %2 %3",
-	"args0": [
-		{
-			"type": "input_value",
-			"name": "PLAYERS",
-			"check": [
-				"socs_t_zone",
-				"socs_t_zone_sel"
-			]
-		},
-		{
-			"type": "field_dropdown",
-			"name": "AS",
-			"options": [
-				[
-					"todo",
-					"TODO"
-				]
-			]
-		},
-		{
-			"type": "input_dummy",
-			"name": "NAME"
-		}
-	],
-	"previousStatement": ["socs_t_choice"],
-	"nextStatement": "socs_t_choice",
-	"colour": 90
-}
-
-
 export default function generateBlockDefinitions() {
-	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, INIT_ZONE, GEN_CARDS, OFFER_CASE, OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_GET, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE, PLAYER_CURRENT, PLAYERS_ALL, CHOICE_PLAYER, CHOICE_PLAYER_SEL, CARD_GET, CHOICE_CARD]);
+	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, INIT_ZONE, GEN_CARDS, OFFER_CASE, OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_GET, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE, PLAYER_CURRENT, PLAYERS_ALL, CARD_GET,]);
 	Blockly.Blocks['socs_enter_phase'] = {
 		init: function(this: Blockly.Block) {
 			const currentWorkspace = this.workspace;
@@ -515,22 +414,39 @@ export default function generateBlockDefinitions() {
 			this.setHelpUrl(""); // Add a help URL if needed
 		}
 	};
+	Blockly.Blocks['socs_get_unified'] = {
+		init: function(this: Blockly.Block) {
+			const options: [string, string][] = [
+				["player", "SOCS_T_PLAYER"],
+				["player selection", "SOCS_T_PLAYER_SEL"],
+				["card", "SOCS_T_CARD"],
+				["card selection", "SOCS_T_CARD_SEL"],
+			]
+
+			this.appendDummyInput()
+				.appendField(new Blockly.FieldDropdown(options), "TYPE")
+				.appendField("named");
+
+			this.setColour(60);
+
+		}
+	}
+
 	Blockly.Blocks['socs_choice_unified'] = {
 		init: function(this: Blockly.Block) {
 			// Dropdown options and their corresponding input checks
-			const choiceOptions = [
-				['any player', 'PLAYER', ['socs_t_player', 'socs_t_player_sel']],
-				['any set of players', 'PLAYER_SET', ['socs_t_player_sel']],
-				['any card', 'CARD', ['socs_t_zone', 'socs_t_zone_sel']]
+			const choiceOptions: [string, string, string[]][] = [
+				['player', 'SOCS_T_PLAYER', ['socs_t_player', 'socs_t_player_sel']],
+				['set of players', 'SOCS_T_PLAYER_SEL', ['socs_t_player', 'socs_t_player_sel']],
+				['card', 'SOCS_T_CARD', ['socs_t_zone', 'socs_t_zone_sel']],
+				['set of cards', 'SOCS_T_CARD_SEL', ['socs_t_zone', 'socs_t_zone_sel']],
 			];
 
-			// Function to update the source input's check based on dropdown selection
 			const updateSourceCheck = (block: Blockly.Block, choiceValue: string) => {
 				const sourceInput = block.getInput('SOURCE');
 				if (sourceInput) {
 					const option = choiceOptions.find(opt => opt[1] === choiceValue);
 					if (option) {
-						// Set the allowed connection types
 						sourceInput.setCheck(option[2] as string[]);
 					}
 				}
@@ -538,11 +454,10 @@ export default function generateBlockDefinitions() {
 
 			// Create the dropdown field
 			const choiceDropdown = new Blockly.FieldDropdown(
-				choiceOptions.map(opt => [opt[2][0], opt[2][1]]), // Map to [displayText, value]
+				choiceOptions.map(opt => [opt[0], opt[1]]),
 			);
 
 			function validator(newValue: string) {
-				// This is the callback function triggered when the dropdown value changes
 				const block = choiceDropdown.getSourceBlock();
 				if (block) {
 					updateSourceCheck(block, newValue);
@@ -553,7 +468,7 @@ export default function generateBlockDefinitions() {
 			choiceDropdown.setValidator(validator);
 
 			this.appendDummyInput()
-				.appendField("Choose")
+				.appendField("Choose any")
 				.appendField(choiceDropdown, "CHOICE_TYPE")
 				.appendField("from");
 
@@ -562,17 +477,13 @@ export default function generateBlockDefinitions() {
 
 			this.appendDummyInput()
 				.appendField("as")
-				.appendField(new Blockly.FieldDropdown([
-					[
-						"todo",
-						"TODO"
-					]
-				]), "AS");
+				.appendField(new Blockly.FieldTextInput(), "AS");
 
 			this.appendDummyInput("DUMMY");
 
-			this.setPreviousStatement(true, ["socs_t_choice"]);
+			this.setPreviousStatement(true, "socs_t_choice");
 			this.setNextStatement(true, "socs_t_choice");
+			this.setInputsInline(true);
 			this.setColour(90);
 			this.setTooltip("Defines a choice option for a player offer, dynamically adjusting allowed input types.");
 			this.setHelpUrl(""); // Add a help URL if available

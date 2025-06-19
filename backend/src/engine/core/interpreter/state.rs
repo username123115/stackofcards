@@ -20,9 +20,14 @@ pub struct GameActiveZone {
     pub zone_id: GameZoneID,
     pub cards: Vec<u64>,
     pub class: ZoneClassIdentifier,
-    pub owner: Option<PlayerOrderIndex>,
-    pub owner_name: Option<VariableIdentifier>,
+    pub owner: Option<GameZoneOwnership>,
     pub name: Option<VariableIdentifier>,
+}
+
+#[derive(Debug, Clone)]
+pub struct GameZoneOwnership {
+    player: PlayerOrderIndex,
+    zone_name: Option<VariableIdentifier>,
 }
 
 impl GameActiveZone {
@@ -30,8 +35,7 @@ impl GameActiveZone {
         zone_id: GameZoneID,
         cards: Vec<u64>,
         class: ZoneClassIdentifier,
-        owner: Option<PlayerOrderIndex>,
-        owner_name: Option<VariableIdentifier>,
+        owner: Option<GameZoneOwnership>,
         name: Option<VariableIdentifier>,
     ) -> Self {
         Self {
@@ -39,7 +43,6 @@ impl GameActiveZone {
             cards,
             class,
             owner,
-            owner_name,
             name,
         }
     }
@@ -96,8 +99,7 @@ impl CardState {
         &mut self,
         cards: Vec<u64>,
         class: &ZoneClassIdentifier,
-        owner: Option<PlayerOrderIndex>,
-        owner_name: Option<VariableIdentifier>,
+        owner: Option<GameZoneOwnership>,
         name: Option<VariableIdentifier>,
     ) -> Result<GameZoneID, RuntimeError> {
         if let Some(_) = self.config.zone_classes.get(class) {
@@ -110,7 +112,7 @@ impl CardState {
             } */
 
             let zone_id = self.next_zone_id();
-            let z = GameActiveZone::new(zone_id, cards, class.clone(), owner, owner_name, name);
+            let z = GameActiveZone::new(zone_id, cards, class.clone(), owner, name);
             self.zones.insert(zone_id, z);
             return Ok(zone_id);
         } else {
@@ -263,7 +265,7 @@ impl GameState {
             for (name, class) in self.config.initial_zones.iter() {
                 match self
                     .cards
-                    .create_zone(Vec::new(), &class, None, None, Some(name.clone()))
+                    .create_zone(Vec::new(), &class, None, Some(name.clone()))
                 {
                     Ok(_) => (),
                     Err(s) => {
@@ -273,25 +275,33 @@ impl GameState {
             }
 
             //Set up player zones
-            for (idx, class) in self.players.iter().enumerate() {
-                if let Some(class_definition) = self.config.player_classes.get(class) {
-                    for (name, class) in class_definition.zones.iter() {
-                        match self.cards.create_zone(
-                            Vec::new(),
-                            &class,
-                            None,
-                            None,
-                            Some(name.clone()),
-                        ) {
-                            Ok(_) => (),
-                            Err(s) => {
-                                return Err(StateMethodError::InternalError(s));
+            for (idx, player_class_name) in self.players.iter().enumerate() {
+                if let Some(player_class) = self.config.player_classes.get(player_class_name) {
+                    for zone_name in player_class.active_zones.iter() {
+                        if let Some(zone_class_name) = self.config.player_zones.get(zone_name) {
+                            match self.cards.create_zone(
+                                Vec::new(),
+                                &zone_class_name,
+                                Some(GameZoneOwnership {
+                                    player: idx as u64,
+                                    zone_name: Some(zone_name.clone()),
+                                }),
+                                None,
+                            ) {
+                                Ok(_) => (),
+                                Err(s) => {
+                                    return Err(StateMethodError::InternalError(s));
+                                }
                             }
+                        } else {
+                            return Err(StateMethodError::InternalError(RuntimeError::Init(
+                                InitError::Player(player_class_name.clone()),
+                            )));
                         }
                     }
                 } else {
                     return Err(StateMethodError::InternalError(RuntimeError::Init(
-                        InitError::Player(class.clone()),
+                        InitError::Player(player_class_name.clone()),
                     )));
                 }
             }

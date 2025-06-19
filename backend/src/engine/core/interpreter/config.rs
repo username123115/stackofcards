@@ -19,6 +19,7 @@ pub struct GameConfig {
     pub phases: HashMap<PhaseIdentifier, phases::Phase>,
     pub zone_classes: HashMap<ZoneClassIdentifier, zones::ZoneClass>,
     pub player_classes: HashMap<PlayerClassIdentifier, players::PlayerClass>,
+    pub player_zones: HashMap<VariableIdentifier, ZoneClassIdentifier>,
     // For each player, game will go in order of this list and find the first class that matches
     pub player_assignment: Vec<PlayerClassIdentifier>,
     pub initial_zones: HashMap<VariableIdentifier, ZoneClassIdentifier>, //Engine sets these up first and

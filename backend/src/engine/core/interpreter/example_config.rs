@@ -37,6 +37,8 @@ pub fn gen_example_config() -> config::GameConfig {
         player_classes,
         player_assignment,
 
+        player_zones: HashMap::new(),
+
         initial_zones: HashMap::new(),
         initial_phase: "Todo".into(),
 
@@ -46,7 +48,7 @@ pub fn gen_example_config() -> config::GameConfig {
 
 pub fn empty_player(rule: players::PlayerAssignmentRule) -> players::PlayerClass {
     players::PlayerClass {
-        zones: HashMap::new(),
+        active_zones: HashSet::new(),
         assignment_rule: rule,
     }
 }

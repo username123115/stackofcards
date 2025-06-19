@@ -1,5 +1,5 @@
 use super::{identifiers::*, patterns};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -7,9 +7,8 @@ use ts_rs::TS;
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub struct PlayerClass {
-    pub zones: HashMap<VariableIdentifier, ZoneClassIdentifier>,
+    pub active_zones: HashSet<VariableIdentifier>,
     pub assignment_rule: PlayerAssignmentRule, // Determines if a player in the lobby should have this
-                                               // class
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]

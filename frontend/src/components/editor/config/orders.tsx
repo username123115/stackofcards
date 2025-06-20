@@ -157,20 +157,3 @@ function OrderDisplay({ config, order, editOrder }:
 		</div>
 	)
 }
-
-
-// Original OrderDisplay for reference or simple read-only views if needed.
-// For now, OrderEditor will handle display.
-// function OrderDisplay({ order }: { order: RankOrder }) {
-// 	const elements = order.order.map(
-// 		(rank, index) => {
-// 			return (
-// 				<li key={index}> {rank} </li>
-// 			)
-// 		}
-// 	)
-// 	return (
-// 		<div> <ul> {elements} </ul> </div>
-// 	)
-// }
-

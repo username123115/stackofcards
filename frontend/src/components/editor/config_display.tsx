@@ -11,7 +11,7 @@ import VariableList from './config/variableMappings'
 import ZoneList from './config/zones'
 import PlayerList from './config/players'
 
-import PlayerTemplateList from './config/playerTemplate'
+import VariableMappingList from './config/playerTemplate'
 
 function ConfigDisplay({ config, saveEdits = null }:
 	{ config: GameConfig, saveEdits: ((config: GameConfig) => void) | null }) {
@@ -58,15 +58,15 @@ function ConfigDisplay({ config, saveEdits = null }:
 				</div>
 				<div>
 					<h1> Player Template </h1>
-					<PlayerTemplateList config={config} handleEditTemplate={saveEdits ? (t) => { setCurrentConfig({ ...currentConfig, player_zones: t }) } : null} />
+					<VariableMappingList config={config} variableMapping={config.player_zones} handleEditMapping={saveEdits ? (t) => { setCurrentConfig({ ...currentConfig, player_zones: t }) } : null} />
 				</div>
 				<div>
 					<h1> Players </h1>
 					<PlayerList config={currentConfig} />
 				</div>
 				<div>
-					<h1> Variable Mappings </h1>
-					<VariableList mappings={currentConfig.initial_zones} />
+					<h1> Initial Zones </h1>
+					<VariableMappingList config={config} variableMapping={config.initial_zones} handleEditMapping={saveEdits ? (t) => { setCurrentConfig({ ...currentConfig, initial_zones: t }) } : null} />
 				</div>
 
 				<div>

@@ -205,8 +205,8 @@ impl GameState {
                         Some(class) => match class.assignment_rule {
                             players::PlayerAssignmentRule::All => found = true,
                             players::PlayerAssignmentRule::Index(idx) => {
-                                let cur_idx = i as i64;
-                                let length = to_create as i64;
+                                let cur_idx = i as i32;
+                                let length = to_create as i32;
                                 if cur_idx == idx {
                                     found = true;
                                 } else if (idx < 0) && (cur_idx == (length + idx)) {

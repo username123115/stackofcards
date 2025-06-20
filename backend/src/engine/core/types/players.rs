@@ -15,7 +15,7 @@ pub struct PlayerClass {
 #[ts(export)]
 pub enum PlayerAssignmentRule {
     All,
-    Index(i64),
+    Index(i32),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]

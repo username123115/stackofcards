@@ -180,7 +180,6 @@ impl Game {
         use expressions::NumberExpression::*;
         match expr {
             Literal(n) => *n,
-            SumZones { zone, ordering } => todo!("IMPLEMENT ME"),
         }
     }
 
@@ -206,7 +205,7 @@ impl Game {
     pub fn evaluate_zone(&self, expr: &expressions::ZoneExpression) -> VariableIdentifier {
         use expressions::ZoneExpression::*;
         match expr {
-            SingleZone(z) => self.lookup_single_zone(z),
+            _ => todo!("uh oh"),
         }
     }
 
@@ -216,14 +215,14 @@ impl Game {
     ) -> Vec<VariableIdentifier> {
         use expressions::ZoneCollectionExpression::*;
         match expr {
-            ZoneCollection(zt) => self.lookup_zones(zt),
+            _ => todo!("uh oh"),
         }
     }
 
     pub fn evaluate_player(&self, expr: &expressions::PlayerExpression) -> VariableIdentifier {
         use expressions::PlayerExpression::*;
         match expr {
-            Player(p) => self.lookup_single_player(p),
+            _ => todo!("uh oh"),
         }
     }
 
@@ -233,7 +232,7 @@ impl Game {
     ) -> Vec<VariableIdentifier> {
         use expressions::PlayerCollectionExpression::*;
         match expr {
-            PlayerCollection(pt) => self.lookup_players(pt),
+            _ => todo!("uh oh"),
         }
     }
 }

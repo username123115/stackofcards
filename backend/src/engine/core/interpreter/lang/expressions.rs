@@ -15,6 +15,8 @@ pub enum Expression {
     PlayerCollection(PlayerCollectionExpression),
     Suit(SuitExpression),
     Rank(RankExpression),
+    Card(CardExpression),
+    CardCollection(CardCollectionExpression),
     CardSelector(CardSelectorExpression),
 }
 
@@ -23,6 +25,10 @@ pub enum Expression {
 pub enum CardExpression {
     Create(Box<SuitExpression>, Box<RankExpression>),
 }
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
+pub enum CardCollectionExpression {}
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
@@ -48,11 +54,6 @@ pub enum RankExpression {
 #[ts(export)]
 pub enum NumberExpression {
     Literal(BaseNumberType),
-    SumZones {
-        //Take the sum of a zone
-        zone: zones::SingleZoneTarget,
-        ordering: rank_order::RankOrder,
-    },
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -78,26 +79,20 @@ pub enum Comparison {
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub enum ZoneExpression {
-    SingleZone(zones::SingleZoneTarget),
-}
+pub enum ZoneExpression {}
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub enum ZoneCollectionExpression {
-    ZoneCollection(zones::ZoneTarget),
-}
+pub enum ZoneCollectionExpression {}
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub enum PlayerExpression {
-    Player(players::SinglePlayerTarget),
-}
+pub enum PlayerExpression {}
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub enum PlayerCollectionExpression {
-    PlayerCollection(players::PlayerTarget),
+    Single(Box<PlayerExpression>),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]

@@ -70,6 +70,10 @@ function ConfigDisplay({ config, saveEdits = null }:
 				</div>
 
 				<div>
+					<h1> Numbers </h1>
+				</div>
+
+				<div>
 					<div> Initial phase: {currentConfig.initial_phase} </div>
 				</div>
 			</div>

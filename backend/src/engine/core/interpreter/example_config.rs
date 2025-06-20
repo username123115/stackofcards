@@ -14,14 +14,6 @@ pub fn gen_example_config() -> config::GameConfig {
     ];
 
     player_classes.insert(
-        "FirstPlayer".into(),
-        empty_player(PlayerAssignmentRule::Index(0)),
-    );
-    player_classes.insert(
-        "LastPlayer".into(),
-        empty_player(PlayerAssignmentRule::Index(-1)),
-    );
-    player_classes.insert(
         "DefaultPlayer".into(),
         empty_player(PlayerAssignmentRule::All),
     );
@@ -43,6 +35,7 @@ pub fn gen_example_config() -> config::GameConfig {
         initial_phase: "Todo".into(),
 
         player_range: 2..6,
+        numbers: HashSet::new(),
     }
 }
 

@@ -65,6 +65,8 @@ function Blocks({ config }: { config?: GameConfig }) {
 
 			<Block type="socs_shuffle" />
 			<Block type="socs_gen_cards" />
+			<Block type="socs_deal_cards" />
+			<Block type="socs_num_cards" />
 
 			<Block type="socs_offer" />
 			<Block type="socs_offer_declareless" />

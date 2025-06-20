@@ -86,9 +86,14 @@ const GEN_CARDS = {
 	"message0": "generate cards %1 into %2",
 	"args0": [
 		{
-			"type": "field_variable",
-			"name": "NAME",
-			"variable": "item"
+			"type": "field_dropdown",
+			"name": "TYPE",
+			"options": [
+				[
+					"all allowed",
+					"ALL"
+				]
+			]
 		},
 		{
 			"type": "input_value",
@@ -99,6 +104,51 @@ const GEN_CARDS = {
 	"previousStatement": "any",
 	"nextStatement": "any",
 	"colour": 250,
+}
+
+const DEAL_CARD = {
+	"type": "socs_deal_cards",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "deal %1 cards from %2 into %3",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "COUNT",
+			"check": "Number",
+
+		},
+		{
+			"type": "input_value",
+			"name": "SOURCE",
+			"check": "socs_t_zone",
+		},
+		{
+			"type": "input_value",
+			"name": "DEST",
+			"check": ["socs_t_zone", "socs_t_zone_sel"]
+		}
+	],
+	"previousStatement": "any",
+	"nextStatement": "any",
+	"inputsInline": true,
+	"colour": 250,
+}
+
+const NUM_CARDS = {
+	"type": "socs_num_cards",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "# cards in %1",
+	"args0": [
+		{
+			"type": "input_value",
+			"check": "socs_t_zone",
+			"name": "TARGET"
+		}
+	],
+	"output": "Number",
+	"colour": 210
 }
 
 const OFFER = {
@@ -229,14 +279,9 @@ const PLAYER_OF_TYPE = {
 			"check": "socs_t_player"
 		},
 		{
-			"type": "field_dropdown",
+			"type": "input_value",
 			"name": "TYPE",
-			"options": [
-				[
-					"todo",
-					"TODO"
-				]
-			]
+			"check": "socs_t_player_class",
 		},
 		{
 			"type": "input_dummy",
@@ -374,7 +419,9 @@ function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType)
 }
 
 export default function generateBlockDefinitions() {
-	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, GEN_CARDS, OFFER_CASE, OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE, PLAYER_CURRENT, PLAYERS_ALL]);
+	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, GEN_CARDS, OFFER_CASE,
+		OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE,
+		PLAYER_CURRENT, PLAYERS_ALL, DEAL_CARD, NUM_CARDS]);
 	Blockly.Blocks['socs_enter_phase'] = {
 		init: function(this: Blockly.Block) {
 			const currentWorkspace = this.workspace;

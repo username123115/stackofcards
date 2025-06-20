@@ -28,7 +28,10 @@ export default function PlayerList({ config, handleEditPlayers = null }:
 	)
 	return (
 		<div>
-			<ul className={styles.elementListing}> {playerList} </ul>
+			<ul className={styles.elementListing}>
+				{playerList}
+				{handleEditPlayers && <button className={styles.menuButton}> Add player </button>}
+			</ul>
 		</div>)
 }
 

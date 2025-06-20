@@ -10,6 +10,7 @@ import PatternList from './config/patterns'
 import VariableList from './config/variableMappings'
 import ZoneList from './config/zones'
 import PlayerList from './config/players'
+import NumberList from './config/numbers'
 
 import VariableMappingList from './config/playerTemplate'
 
@@ -71,6 +72,7 @@ function ConfigDisplay({ config, saveEdits = null }:
 
 				<div>
 					<h1> Numbers </h1>
+					<NumberList numbers={config.numbers} handleEditNumbers={saveEdits ? (n) => { setCurrentConfig({ ...config, numbers: n }) } : null} />
 				</div>
 
 				<div>

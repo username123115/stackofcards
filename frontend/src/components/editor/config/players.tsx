@@ -81,12 +81,15 @@ function PlayerVariableDisplay({ assignments, allowedAssignments, editVariables 
 	)
 }
 
-function PlayerAssignmentDisplay({ assignment }: { assignment: PlayerAssignmentRule }) {
+function PlayerAssignmentDisplay({ assignment, editAssignment = null }:
+	{ assignment: PlayerAssignmentRule, editAssignment: ((assignment: PlayerAssignmentRule) => void) | null }) {
+
 	if (assignment === "All") {
-		return (<span> All </span>)
+		return "All";
+	} else {
+		return "Index";
 	}
-	if ("Index" in assignment) {
-		return (<span> {String(assignment.Index)} </span>)
-	}
+
+
 
 }

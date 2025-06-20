@@ -3,7 +3,7 @@ import type { GameConfig } from '@bindings/GameConfig'
 import type { Suit } from '@bindings/Suit'
 import type { Rank } from '@bindings/Rank'
 
-import { renameProperty, NameFieldComponent } from './utility'
+import { renameProperty, NameFieldComponent, NumField } from './utility'
 
 import type { PatternPiece } from "@bindings/PatternPiece";
 import type { Relation } from "@bindings/Relation";
@@ -277,24 +277,8 @@ function PatternPieces<T>({ pieces, possibleOptions, setPieces = null }:
 				});
 				setPieces(copy);
 			}}> [+Pattern] </button>}
-			{pieceListing}
+			<ul className={styles.horizontalList}> {pieceListing} </ul>
 		</div>)
 
 }
 
-function NumField({ num, setNum = null }: { num: number, setNum: ((num: number) => void) | null }) {
-	const [cnum, scnum] = useState(num);
-	if (!setNum) {
-		return (<div> {String(num)} </div>)
-	} else {
-		return (<div>
-			<input className={styles.smallInput} type="text" value={cnum} onChange={(e) => {
-				scnum(Number(e.target.value));
-			}} onBlur={() => setNum(cnum)}
-				onKeyDown={(e) => { e.key === 'Enter' ? e.currentTarget.blur() : null }}
-			/>
-		</div>
-		)
-	}
-
-}

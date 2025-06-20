@@ -46,14 +46,21 @@ export function NameFieldComponent({ name, editName = null }:
 }
 
 export function NumField({ num, setNum = null }: { num: number, setNum: ((num: number) => void) | null }) {
-	const [cnum, scnum] = useState(num);
+	const [cnum, scnum] = useState(String(num));
 	if (!setNum) {
-		return (<div> {String(num)} </div>)
+		return (<div> {cnum} </div>)
 	} else {
 		return (<div>
 			<input className={styles.smallInput} type="text" value={cnum} onChange={(e) => {
-				scnum(Number(e.target.value));
-			}} onBlur={() => setNum(cnum)}
+				scnum(e.target.value);
+			}} onBlur={() => {
+				const pending = Number(cnum);
+				if (Number.isInteger(pending)) {
+					setNum(Number(cnum))
+				} else {
+					setNum(0)
+				}
+			}}
 				onKeyDown={(e) => { e.key === 'Enter' ? e.currentTarget.blur() : null }}
 			/>
 		</div>

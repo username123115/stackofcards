@@ -3,6 +3,8 @@ import type { GameConfig } from '@bindings/GameConfig'
 import type { PlayerClass } from "@bindings/PlayerClass";
 import type { PlayerAssignmentRule } from "@bindings/PlayerAssignmentRule";
 
+import { NumField } from "./utility"
+
 import styles from './config.module.css'
 
 export default function PlayerList({ config, handleEditPlayers = null }:
@@ -39,7 +41,9 @@ function PlayerDisplay({ player, allowedClasses, editPlayer = null }:
 					editPlayer ? (variables) => editPlayer({ ...player, active_zones: variables }) : null
 
 				} />
-				<PlayerAssignmentDisplay assignment={player.assignment_rule} />
+				<PlayerAssignmentDisplay assignment={player.assignment_rule} editAssignment={
+					editPlayer ? (rules) => editPlayer({ ...player, assignment_rule: rules }) : null
+				} />
 			</div>
 		</div>
 	)
@@ -84,12 +88,60 @@ function PlayerVariableDisplay({ assignments, allowedAssignments, editVariables 
 function PlayerAssignmentDisplay({ assignment, editAssignment = null }:
 	{ assignment: PlayerAssignmentRule, editAssignment: ((assignment: PlayerAssignmentRule) => void) | null }) {
 
-	if (assignment === "All") {
-		return "All";
-	} else {
-		return "Index";
+	function FieldContentsComp() {
+		if (assignment === "All") {
+			return <div> </div>
+		} else if ("Index" in assignment) {
+			return (
+				<div>
+					<NumField num={assignment.Index} setNum={editAssignment ? (n) => {
+						editAssignment({ ...assignment, Index: n })
+					} : null} />
+				</div>)
+
+		}
 	}
 
+	function FieldNameComp() {
+		type fieldTypes = "all" | "index";
+		const ALL_FIELDS: fieldTypes[] = ["all", "index"]
+
+		let currentType: fieldTypes = "all";
+		if (assignment === "All") {
+			currentType = "all"
+		} else if ("Index" in assignment) {
+			currentType = "index"
+		}
+		if (!editAssignment) {
+			return <div> {currentType} </div>
+		} else {
+			return (
+				<div>
+					<select value={currentType} onChange={(e) => {
+						const sel = e.target.value as fieldTypes
+						if (sel === "all") {
+							editAssignment("All");
+						} else if (sel === "index") {
+							editAssignment({ Index: 0 });
+						}
+					}}>
+						{
+							ALL_FIELDS.map(
+								(f) => <option value={f}> {f} </option>
+							)
+						}
+					</select>
+				</div>
+			)
+		}
+	}
+	return (
+		<div className={styles.horizontalList}>
+			<div className={styles.rounded} > <FieldNameComp /> </div>
+			<FieldContentsComp />
+		</div>
+	)
 
 
 }
+

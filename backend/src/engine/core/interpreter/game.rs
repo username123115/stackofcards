@@ -179,7 +179,7 @@ impl Game {
     ) -> types_instances::BaseNumberType {
         use expressions::NumberExpression::*;
         match expr {
-            Literal(n) => *n,
+            _ => todo!("uh oh"),
         }
     }
 
@@ -199,6 +199,7 @@ impl Game {
                     Eq => va == vb,
                 }
             }
+            _ => todo!("uh oh"),
         }
     }
 

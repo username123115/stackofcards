@@ -7,6 +7,7 @@ use ts_rs::TS;
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub enum Expression {
+    Order(OrderExpression),
     Number(NumberExpression),
     Boolean(BooleanExpression),
     Zone(ZoneExpression),
@@ -22,18 +23,38 @@ pub enum Expression {
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
+pub enum OrderExpression {
+    GetVariable(String),
+}
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub enum CardExpression {
     Create(Box<SuitExpression>, Box<RankExpression>),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub enum CardCollectionExpression {}
+pub enum CardCollectionExpression {
+    GetVariable(String),
+    InZoneMatchingSuit {
+        zone: Box<ZoneExpression>,
+        suit: Box<SuitExpression>,
+    },
+    InZoneMatchingRank {
+        zone: Box<ZoneExpression>,
+        rank: Box<RankExpression>,
+    },
+}
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub enum CardSetExpression {
-    Literal(cards::CardSet),
+    Single(Box<CardExpression>),
+    GetVariable(String),
+    ZoneTopCard(Box<ZoneExpression>),
+    ZoneBottomCard(Box<ZoneExpression>),
+    ZoneAllCards(Box<ZoneExpression>),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -54,6 +75,8 @@ pub enum RankExpression {
 #[ts(export)]
 pub enum NumberExpression {
     Literal(BaseNumberType),
+    GetVariable(String),
+    CardsIn(Box<CardCollectionExpression>),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -64,6 +87,10 @@ pub enum BooleanExpression {
         a: Box<NumberExpression>,
         compared_to: Comparison,
         b: Box<NumberExpression>,
+    },
+    PlayerIsType {
+        player: Box<PlayerExpression>,
+        type_name: String,
     },
 }
 
@@ -79,20 +106,33 @@ pub enum Comparison {
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub enum ZoneExpression {}
+pub enum ZoneExpression {
+    OwnedByPlayer {
+        player: Box<PlayerExpression>,
+        zone_name: String,
+    },
+    GetVariable(String),
+}
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub enum ZoneCollectionExpression {}
+pub enum ZoneCollectionExpression {
+    Single(Box<ZoneExpression>),
+    OfType(String),
+    GetVariable(String),
+}
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub enum PlayerExpression {}
+pub enum PlayerExpression {
+    CurrentPlayer,
+}
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub enum PlayerCollectionExpression {
     Single(Box<PlayerExpression>),
+    AllPlayers,
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]

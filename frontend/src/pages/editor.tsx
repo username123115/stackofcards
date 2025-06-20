@@ -59,9 +59,6 @@ function Blocks({ config }: { config?: GameConfig }) {
 
 			<Block type="math_number" />
 
-			<Block type="text" />
-			<Block type="text_print" />
-
 			<Block type="socs_phase" />
 			<Block type="socs_enter_phase" />
 

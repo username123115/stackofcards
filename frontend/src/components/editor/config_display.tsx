@@ -62,7 +62,7 @@ function ConfigDisplay({ config, saveEdits = null }:
 				</div>
 				<div>
 					<h1> Players </h1>
-					<PlayerList config={currentConfig} />
+					<PlayerList config={currentConfig} handleEditPlayers={saveEdits ? (p) => { setCurrentConfig({ ...currentConfig, player_classes: p }) } : null} />
 				</div>
 				<div>
 					<h1> Initial Zones </h1>

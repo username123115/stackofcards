@@ -79,26 +79,6 @@ const SHUFFLE_JSON = {
 	"colour": 250,
 }
 
-const INIT_ZONE = {
-	"type": "socs_init_zone",
-	"tooltip": "",
-	"helpUrl": "",
-	"message0": "zone named %1 %2",
-	"args0": [
-		{
-			"type": "field_variable",
-			"name": "NAME",
-			"variable": "item"
-		},
-		{
-			"type": "input_dummy",
-			"name": "zonetarget"
-		}
-	],
-	"output": "socs_t_zone",
-	"colour": 250,
-}
-
 const GEN_CARDS = {
 	"type": "socs_gen_cards",
 	"tooltip": "",
@@ -325,6 +305,14 @@ const PLAYER_ADVANCE_TYPE = {
 }
 
 type InterpreterType = "socs_t_zone" | "socs_t_zone_sel" | "socs_t_card" | "socs_t_card_sel" | "socs_t_player" | "socs_t_player_sel"
+const TYPE_TO_HUE: { [key in InterpreterType]: number } = {
+	"socs_t_zone": 230,
+	"socs_t_zone_sel": 250,
+	"socs_t_card": 80,
+	"socs_t_card_sel": 100,
+	"socs_t_player": 40,
+	"socs_t_player_sel": 60,
+}
 
 // Given a type search for offer blocks that declare this variable
 function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType): [string, string][] {
@@ -362,11 +350,22 @@ function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType)
 		}
 		parentBlock = parentBlock.getSurroundParent();
 	}
+
+	if (targetType === 'socs_t_zone') {
+		block.workspace.getVariableMap().getVariablesOfType('socs_v_zone').map(
+			(v) => {
+				const n = v.getName();
+				const l: [string, string] = [n, n];
+				declarations.push(l);
+			}
+		)
+	}
+
 	return declarations;
 }
 
 export default function generateBlockDefinitions() {
-	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, INIT_ZONE, GEN_CARDS, OFFER_CASE, OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE, PLAYER_CURRENT, PLAYERS_ALL]);
+	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, GEN_CARDS, OFFER_CASE, OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE, PLAYER_CURRENT, PLAYERS_ALL]);
 	Blockly.Blocks['socs_enter_phase'] = {
 		init: function(this: Blockly.Block) {
 			const currentWorkspace = this.workspace;
@@ -407,6 +406,7 @@ export default function generateBlockDefinitions() {
 				["player selection", "socs_t_player_sel"],
 				["card", "socs_t_card"],
 				["card selection", "socs_t_card_sel"],
+				["zone", "socs_t_zone"],
 			]
 
 			function typeValidator(newValue: string): string {
@@ -414,6 +414,7 @@ export default function generateBlockDefinitions() {
 				const block = typeDropdown.getSourceBlock();
 				if (block) {
 					block.setOutput(true, selectedType);
+					block.setColour(TYPE_TO_HUE[selectedType]);
 					const fieldVar = block.getField('VARIABLE');
 					if (fieldVar) {
 						fieldVar.setValue("");

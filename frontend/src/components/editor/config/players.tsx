@@ -29,7 +29,6 @@ function PlayerDisplay({ player }: { player: PlayerClass }) {
 		<div className={styles.fieldListing} >
 			<div>
 				<div> Zones </div>
-				<VariableList mappings={player.zones} />
 			</div>
 			<div>
 				<div> Assignment Rule </div>

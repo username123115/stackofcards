@@ -64,7 +64,6 @@ function Blocks({ config }: { config?: GameConfig }) {
 			<Block type="socs_enter_phase" />
 
 			<Block type="socs_shuffle" />
-			<Block type="socs_init_zone" />
 			<Block type="socs_gen_cards" />
 
 			<Block type="socs_offer" />

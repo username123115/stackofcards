@@ -40,7 +40,7 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 		if (config && primaryWorkspace.current) {
 			zonesFromConfig(config).map(
 				(zoneName) => {
-					primaryWorkspace.current?.getVariableMap().createVariable(zoneName, "socs_zone");
+					primaryWorkspace.current?.getVariableMap().createVariable(zoneName, "socs_v_zone");
 				}
 			)
 			//primaryWorkspace.current.getVariableMap().createVariable

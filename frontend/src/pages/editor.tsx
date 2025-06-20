@@ -50,6 +50,8 @@ function Blocks({ config }: { config?: GameConfig }) {
 			config={config}
 		>
 			<Block type="socs_remade_if_else" />
+			<Block type="socs_remade_while" />
+
 			<Block type="logic_compare" />
 			<Block type="logic_operation" />
 			<Block type="logic_operation" />
@@ -67,22 +69,38 @@ function Blocks({ config }: { config?: GameConfig }) {
 			<Block type="socs_gen_cards" />
 			<Block type="socs_deal_cards" />
 			<Block type="socs_num_cards" />
+			<Block type="socs_cards_move" />
+			<Block type="socs_cards_matching_rank" />
+			<Block type="socs_cards_matching_suit" />
 
 			<Block type="socs_offer" />
 			<Block type="socs_offer_declareless" />
 			<Block type="socs_offer_case" />
 			<Block type="socs_offer_case_any" />
 			<Block type="socs_choice_unified" />
+			<Block type="socs_choice_move" />
+
+			<Block type="socs_rank_from_card" />
+			<Block type="socs_suit_from_card" />
 
 			<Block type="socs_player_current" />
 
 			<Block type="socs_players_all" />
+			<Block type="socs_zone_for_player" />
+			<Block type="socs_zones_of_type" />
+
 
 			<Block type="socs_player_of_type" />
 			<Block type="socs_player_advance" />
 			<Block type="socs_player_advance_type" />
 
+			<Block type="socs_card_selector" />
+
 			<Block type="socs_get_unified" />
+			<Block type="socs_get_number" />
+			<Block type="socs_set_number" />
+
+			<Block type="socs_declare_winner" />
 
 
 

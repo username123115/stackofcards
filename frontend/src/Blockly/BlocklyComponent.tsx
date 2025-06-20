@@ -47,6 +47,7 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 			registerVariables(Object.keys(config.player_zones), "socs_v_player_zone");
 			registerVariables(Object.keys(config.orders), "socs_v_order");
 			registerVariables(Object.keys(config.patterns), "socs_v_pattern");
+			registerVariables(config.numbers, "socs_v_number");
 			//primaryWorkspace.current.getVariableMap().createVariable
 		}
 

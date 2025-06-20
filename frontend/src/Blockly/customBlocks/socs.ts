@@ -1,21 +1,19 @@
 import * as Blockly from 'blockly/core';
 
-function generatedTypedBlockGet(name: String, blockName: String) {
-	return {
-		type: blockName,
-		message0: "%1",
-		args0: [
-			{
-				type: "field_variable",
-				name: "VAR",
-				variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-				variableTypes: [name],
-				defaultType: name,
-				check: name,
-			}
-
-		],
-	}
+type InterpreterType = "socs_t_zone" | "socs_t_zone_sel" | "socs_t_card" | "socs_t_card_sel" | "socs_t_player" |
+	"socs_t_player_sel" | "socs_t_order" | "socs_t_zone_class" | "socs_t_player_class" | "socs_t_rank" | "socs_t_suit"
+const TYPE_TO_HUE: { [key in InterpreterType]: number } = {
+	"socs_t_zone": 230,
+	"socs_t_zone_sel": 250,
+	"socs_t_card": 80,
+	"socs_t_card_sel": 100,
+	"socs_t_player": 40,
+	"socs_t_player_sel": 60,
+	"socs_t_zone_class": 210,
+	"socs_t_player_class": 40,
+	"socs_t_order": 40,
+	"socs_t_rank": 10,
+	"socs_t_suit": 20,
 }
 
 const REMADE_IF_ELSE = {
@@ -45,6 +43,27 @@ const REMADE_IF_ELSE = {
 	"colour": 210
 }
 
+const REMADE_WHILE = {
+	"type": "socs_remade_while",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "while %1 do %2",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "WHILE",
+			"check": "Boolean"
+		},
+		{
+			"type": "input_statement",
+			"name": "DO",
+			"check": "any"
+		},
+	],
+	"previousStatement": "any",
+	"nextStatement": "any",
+	"colour": 210
+}
 
 const PHASE_JSON = {
 	type: "socs_phase",
@@ -143,12 +162,47 @@ const NUM_CARDS = {
 	"args0": [
 		{
 			"type": "input_value",
-			"check": "socs_t_zone",
+			"check": ["socs_t_card", "socs_t_card_sel"],
 			"name": "TARGET"
 		}
 	],
 	"output": "Number",
 	"colour": 210
+}
+
+const CARD_SELECTOR = {
+	"type": "socs_card_selector",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "%1 in %2",
+	"args0": [
+		{
+			"type": "field_dropdown",
+			"name": "SELCTOR",
+			"options": [
+				[
+					"top card",
+					"TOP"
+				],
+				[
+					"bottom card",
+					"BOTTOM"
+				],
+				[
+					"all cards",
+					"ALL"
+				]
+			]
+		},
+		{
+			"type": "input_value",
+			"name": "ZONE",
+			"check": "socs_t_zone"
+		}
+	],
+	"output": "socs_t_card_sel",
+	"colour": 100,
+	"inputsInline": true
 }
 
 const OFFER = {
@@ -213,7 +267,7 @@ const OFFER_CASE = {
 	"type": "socs_offer_case",
 	"tooltip": "",
 	"helpUrl": "",
-	"message0": "only if %1 choices %2 handle %3",
+	"message0": "only if %1 choices %2 handle %3 %4",
 	"args0": [
 		{
 			"type": "input_value",
@@ -229,6 +283,11 @@ const OFFER_CASE = {
 			"type": "input_statement",
 			"name": "ACTIONS",
 			"check": "any",
+		},
+		{
+			"type": "field_input",
+			"name": "PROMPT",
+			"text": "",
 		}
 	],
 	"previousStatement": ["socs_offer", "socs_t_case"],
@@ -240,7 +299,7 @@ const OFFER_CASE_ANY = {
 	"type": "socs_offer_case_any",
 	"tooltip": "",
 	"helpUrl": "",
-	"message0": "choices %1 handle %2",
+	"message0": "choices %1 handle %2 %3",
 	"args0": [
 		{
 			"type": "input_statement",
@@ -251,6 +310,11 @@ const OFFER_CASE_ANY = {
 			"type": "input_statement",
 			"name": "ACTIONS",
 			"check": "any",
+		},
+		{
+			"type": "field_input",
+			"name": "PROMPT",
+			"text": "",
 		}
 	],
 	"previousStatement": ["socs_offer", "socs_t_case"],
@@ -349,18 +413,159 @@ const PLAYER_ADVANCE_TYPE = {
 	"colour": 15
 }
 
-type InterpreterType = "socs_t_zone" | "socs_t_zone_sel" | "socs_t_card" | "socs_t_card_sel" | "socs_t_player" |
-	"socs_t_player_sel" | "socs_t_order" | "socs_t_zone_class" | "socs_t_player_class"
-const TYPE_TO_HUE: { [key in InterpreterType]: number } = {
-	"socs_t_zone": 230,
-	"socs_t_zone_sel": 250,
-	"socs_t_card": 80,
-	"socs_t_card_sel": 100,
-	"socs_t_player": 40,
-	"socs_t_player_sel": 60,
-	"socs_t_zone_class": 210,
-	"socs_t_player_class": 40,
-	"socs_t_order": 40,
+const CHOICE_MOVE = {
+	"type": "socs_choice_move",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "move any from %1 to %2",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "SOURCE",
+			"check": "socs_t_zone"
+		},
+		{
+			"type": "input_value",
+			"name": "DEST",
+			"check": "socs_t_zone"
+		}
+	],
+	"previousStatement": "socs_t_choice",
+	"nextStatement": "socs_t_choice",
+	"colour": 90,
+	"inputsInline": true
+}
+
+const CARDS_MOVE = {
+	"type": "socs_cards_move",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "move cards %1 to %2",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "SOURCE",
+			"check": ["socs_t_card", "socs_t_card_sel"]
+		},
+		{
+			"type": "input_value",
+			"name": "DEST",
+			"check": "socs_t_zone"
+		}
+	],
+	"previousStatement": "any",
+	"nextStatement": "any",
+	"colour": 80,
+	"inputsInline": true
+}
+
+const RANK_FROM_CARD = {
+	"type": "socs_rank_from_card",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "rank of %1",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "NAME",
+			"check": "socs_t_card"
+		}
+	],
+	"output": "socs_t_rank",
+	"colour": TYPE_TO_HUE["socs_t_rank"],
+}
+
+const SUIT_FROM_CARD = {
+	"type": "socs_suit_from_card",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "suit of %1",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "NAME",
+			"check": "socs_t_card"
+		}
+	],
+	"output": "socs_t_suit",
+	"colour": TYPE_TO_HUE["socs_t_suit"],
+}
+
+const CARDS_MATCHING_RANK = {
+	"type": "socs_cards_matching_rank",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "cards in %1 matching rank %2",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "ZONE",
+			"check": "socs_t_zone"
+		},
+		{
+			"type": "input_value",
+			"name": "RANK",
+			"check": "socs_t_rank"
+		}
+	],
+	"output": "socs_t_card_sel",
+	"colour": TYPE_TO_HUE["socs_t_card_sel"],
+	"inputsInline": true
+}
+
+const CARDS_MATCHING_SUIT = {
+	"type": "socs_cards_matching_suit",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "cards in %1 matching suit %2",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "ZONE",
+			"check": "socs_t_zone"
+		},
+		{
+			"type": "input_value",
+			"name": "RANK",
+			"check": "socs_t_suit"
+		}
+	],
+	"output": "socs_t_card_sel",
+	"colour": TYPE_TO_HUE["socs_t_card_sel"],
+	"inputsInline": true
+}
+
+const DECLARE_WINNER = {
+	"type": "socs_declare_winner",
+	"tooltip": "",
+	"helpUrl": "",
+	"message0": "declare %1 as winner",
+	"args0": [
+		{
+			"type": "input_value",
+			"name": "PLAYER",
+			"check": "socs_t_player"
+		}
+	],
+	"previousStatement": "any",
+	"colour": 225
+}
+
+
+
+function getVarOfType(block: Blockly.Block, typeName: string): string[] {
+	return block.workspace.getVariableMap().getVariablesOfType(typeName).map(
+		(v) => v.getName()
+	)
+}
+
+function getVarOfTypeOptions(block: Blockly.Block, typeName: string, pad: boolean = false): [string, string][] {
+	const results: [string, string][] = [];
+	getVarOfType(block, typeName).map((v) => results.push([v, v]));
+	if (pad && (results.length === 0)) {
+		results.push(["", ""]);
+	}
+	return results;
 }
 
 // Given a type search for offer blocks that declare this variable
@@ -400,20 +605,14 @@ function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType)
 		parentBlock = parentBlock.getSurroundParent();
 	}
 
-	function getVarofType(t: string) {
-		block.workspace.getVariableMap().getVariablesOfType(t).map(
-			(v) => {
-				const n = v.getName();
-				const l: [string, string] = [n, n];
-				declarations.push(l);
-			}
-		)
+	function getOptionVarsOfType(t: string) {
+		getVarOfTypeOptions(block, t).map((v) => { declarations.push(v) })
 	}
 
-	if (targetType === 'socs_t_zone') { getVarofType('socs_v_zone'); }
-	if (targetType === 'socs_t_zone_class') { getVarofType('socs_v_zone_class'); }
-	if (targetType === 'socs_t_player_class') { getVarofType('socs_v_player_class'); }
-	if (targetType === 'socs_t_order') { getVarofType('socs_v_order'); }
+	if (targetType === 'socs_t_zone') { getOptionVarsOfType('socs_v_zone'); }
+	if (targetType === 'socs_t_zone_class') { getOptionVarsOfType('socs_v_zone_class'); }
+	if (targetType === 'socs_t_player_class') { getOptionVarsOfType('socs_v_player_class'); }
+	if (targetType === 'socs_t_order') { getOptionVarsOfType('socs_v_order'); }
 
 	return declarations;
 }
@@ -421,7 +620,62 @@ function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType)
 export default function generateBlockDefinitions() {
 	Blockly.defineBlocksWithJsonArray([REMADE_IF_ELSE, PHASE_JSON, SHUFFLE_JSON, GEN_CARDS, OFFER_CASE,
 		OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE,
-		PLAYER_CURRENT, PLAYERS_ALL, DEAL_CARD, NUM_CARDS]);
+		PLAYER_CURRENT, PLAYERS_ALL, DEAL_CARD, NUM_CARDS, REMADE_WHILE, CARD_SELECTOR, CHOICE_MOVE, CARDS_MOVE,
+		RANK_FROM_CARD, SUIT_FROM_CARD, CARDS_MATCHING_RANK, CARDS_MATCHING_SUIT, DECLARE_WINNER]);
+
+	Blockly.Blocks['socs_get_number'] = {
+		init: function(this: Blockly.Block) {
+			const currentBlock = this;
+			this.appendDummyInput()
+				.appendField("number")
+				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_number', true)), "NUMBER");
+			this.setColour(230);
+			this.setOutput(true, "Number");
+		}
+	}
+
+	Blockly.Blocks['socs_zone_for_player'] = {
+		init: function(this: Blockly.Block) {
+			const currentBlock = this;
+			this.appendValueInput("OWNER")
+				.appendField("zone owned by")
+				.setCheck("socs_t_player")
+			this.appendDummyInput()
+				.appendField("named")
+				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_player_zone', true)), "NUMBER");
+			this.setColour(TYPE_TO_HUE['socs_t_zone']);
+			this.setOutput(true, "socs_t_zone");
+		}
+	}
+
+	Blockly.Blocks['socs_zones_of_type'] = {
+		init: function(this: Blockly.Block) {
+			const currentBlock = this;
+			this.appendDummyInput()
+				.appendField("zones of type")
+				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_zone_class', true)), "NUMBER");
+			this.setColour(TYPE_TO_HUE['socs_t_zone_sel']);
+			this.setOutput(true, "socs_t_zone_sel");
+		}
+	}
+
+	Blockly.Blocks['socs_set_number'] = {
+		init: function(this: Blockly.Block) {
+			const currentBlock = this;
+			this.appendDummyInput()
+				.appendField("set number")
+				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_number', true)), "NUMBER")
+				.appendField("to")
+			this.appendValueInput("SOURCE")
+				.setCheck(['Number']);
+
+			this.setColour(230);
+			this.setPreviousStatement(true, "any");
+			this.setNextStatement(true, "any");
+			this.setInputsInline(true);
+		}
+	}
+
 	Blockly.Blocks['socs_enter_phase'] = {
 		init: function(this: Blockly.Block) {
 			const currentWorkspace = this.workspace;
@@ -439,7 +693,6 @@ export default function generateBlockDefinitions() {
 					}
 				}
 
-				// Add a default option if no phases are found
 				if (options.length === 0) {
 					options.push(['(define a phase)', '']);
 				}
@@ -448,11 +701,10 @@ export default function generateBlockDefinitions() {
 			};
 			this.appendDummyInput()
 				.appendField("enter phase")
-				.appendField(new Blockly.FieldDropdown(getPhaseOptions), "PHASE_NAME"); // Use the dynamic options function
-			this.setPreviousStatement(true, null);
-			this.setColour(60); // Keep the same colour as the phase definition block
-			this.setTooltip("Enter a specific game phase");
-			this.setHelpUrl(""); // Add a help URL if needed
+				.appendField(new Blockly.FieldDropdown(getPhaseOptions), "PHASE_NAME");
+			this.setPreviousStatement(true, "any");
+			this.setColour(60); this.setTooltip("Enter a specific game phase");
+			this.setHelpUrl("");
 		}
 	};
 	Blockly.Blocks['socs_get_unified'] = {
@@ -518,8 +770,8 @@ export default function generateBlockDefinitions() {
 			const choiceOptions: [string, InterpreterType, InterpreterType[]][] = [
 				['player', 'socs_t_player', ['socs_t_player', 'socs_t_player_sel']],
 				['set of players', 'socs_t_player_sel', ['socs_t_player', 'socs_t_player_sel']],
-				['card', 'socs_t_card', ['socs_t_zone', 'socs_t_zone_sel']],
-				['set of cards', 'socs_t_card_sel', ['socs_t_zone', 'socs_t_zone_sel']],
+				['card', 'socs_t_card', ['socs_t_card', 'socs_t_card_sel']],
+				['set of cards', 'socs_t_card_sel', ['socs_t_card', 'socs_t_card_sel']],
 			];
 
 			const updateSourceCheck = (block: Blockly.Block, choiceValue: string) => {

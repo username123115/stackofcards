@@ -304,7 +304,8 @@ const PLAYER_ADVANCE_TYPE = {
 	"colour": 15
 }
 
-type InterpreterType = "socs_t_zone" | "socs_t_zone_sel" | "socs_t_card" | "socs_t_card_sel" | "socs_t_player" | "socs_t_player_sel"
+type InterpreterType = "socs_t_zone" | "socs_t_zone_sel" | "socs_t_card" | "socs_t_card_sel" | "socs_t_player" |
+	"socs_t_player_sel" | "socs_t_order" | "socs_t_zone_class" | "socs_t_player_class"
 const TYPE_TO_HUE: { [key in InterpreterType]: number } = {
 	"socs_t_zone": 230,
 	"socs_t_zone_sel": 250,
@@ -312,6 +313,9 @@ const TYPE_TO_HUE: { [key in InterpreterType]: number } = {
 	"socs_t_card_sel": 100,
 	"socs_t_player": 40,
 	"socs_t_player_sel": 60,
+	"socs_t_zone_class": 210,
+	"socs_t_player_class": 40,
+	"socs_t_order": 40,
 }
 
 // Given a type search for offer blocks that declare this variable
@@ -351,8 +355,8 @@ function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType)
 		parentBlock = parentBlock.getSurroundParent();
 	}
 
-	if (targetType === 'socs_t_zone') {
-		block.workspace.getVariableMap().getVariablesOfType('socs_v_zone').map(
+	function getVarofType(t: string) {
+		block.workspace.getVariableMap().getVariablesOfType(t).map(
 			(v) => {
 				const n = v.getName();
 				const l: [string, string] = [n, n];
@@ -360,6 +364,11 @@ function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType)
 			}
 		)
 	}
+
+	if (targetType === 'socs_t_zone') { getVarofType('socs_v_zone'); }
+	if (targetType === 'socs_t_zone_class') { getVarofType('socs_v_zone_class'); }
+	if (targetType === 'socs_t_player_class') { getVarofType('socs_v_player_class'); }
+	if (targetType === 'socs_t_order') { getVarofType('socs_v_order'); }
 
 	return declarations;
 }
@@ -407,6 +416,9 @@ export default function generateBlockDefinitions() {
 				["card", "socs_t_card"],
 				["card selection", "socs_t_card_sel"],
 				["zone", "socs_t_zone"],
+				["zone type", "socs_t_zone_class"],
+				["player type", "socs_t_player_class"],
+				["order", "socs_t_order"],
 			]
 
 			function typeValidator(newValue: string): string {

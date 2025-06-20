@@ -38,11 +38,15 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 		});
 
 		if (config && primaryWorkspace.current) {
-			zonesFromConfig(config).map(
-				(zoneName) => {
-					primaryWorkspace.current?.getVariableMap().createVariable(zoneName, "socs_v_zone");
-				}
-			)
+			function registerVariables(vlist: string[], name: string) {
+				vlist.map((v) => primaryWorkspace.current?.getVariableMap().createVariable(v, name));
+			}
+			registerVariables(Object.keys(config.zone_classes), "socs_v_zone_class");
+			registerVariables(Object.keys(config.initial_zones), "socs_v_zone");
+			registerVariables(Object.keys(config.player_classes), "socs_v_player_class");
+			registerVariables(Object.keys(config.player_zones), "socs_v_player_zone");
+			registerVariables(Object.keys(config.orders), "socs_v_order");
+			registerVariables(Object.keys(config.patterns), "socs_v_pattern");
 			//primaryWorkspace.current.getVariableMap().createVariable
 		}
 

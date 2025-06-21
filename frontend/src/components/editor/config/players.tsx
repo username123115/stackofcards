@@ -1,4 +1,3 @@
-import VariableList from './variableMappings'
 import type { GameConfig } from '@bindings/GameConfig'
 import type { PlayerClass } from "@bindings/PlayerClass";
 import type { PlayerAssignmentRule } from "@bindings/PlayerAssignmentRule";

@@ -11,6 +11,7 @@ export default BlocklyComponent;
 
 // Run this one time to set everything up
 export function setupSocsBlockly() {
+	// @ts-ignore
 	Blockly.setLocale(En);
 	generateBlockDefinitions();
 }

@@ -15,45 +15,46 @@ export const TYPE_TO_HUE: { [key in InterpreterType]: number } = {
 	"socs_t_suit": 20,
 }
 
-export const BNAME_IF_ELSE = "socs_remade_if_else"
-export const BNAME_WHILE = "socs_remade_while"
-export const BNAME_PHASE = "socs_phase"
-export const BNAME_SHUFFLE = "socs_shuffle"
-export const BNAME_GEN_CARDS = "socs_gen_cards"
-export const BNAME_DEAL_CARD = "socs_deal_cards"
-export const BNAME_OFFER = "socs_offer"
-export const BNAME_OFFER_DECLARELESS = "socs_offer_declareless"
-export const BNAME_OFFER_CASE = "socs_offer_case"
-export const BNAME_OFFER_CASE_ANY = "socs_offer_case_any"
-export const BNAME_PLAYER_ADVANCE = "socs_player_advance"
-export const BNAME_PLAYER_ADVANCE_TYPE = "socs_player_advance_type"
-export const BNAME_CARDS_MOVE = "socs_cards_move"
-export const BNAME_DECLARE_WINNER = "socs_declare_winner"
-export const BNAME_ZONE_FOR_PLAYER = "socs_zone_for_player"
-export const BNAME_SET_NUMBER = "socs_set_number"
-export const BNAME_ENTER_PHASE = "socs_enter_phase"
+export const B_IF_ELSE = "socs_remade_if_else"
+export const B_WHILE = "socs_remade_while"
+export const B_PHASE = "socs_phase"
+export const B_SHUFFLE = "socs_shuffle"
+export const B_GEN_CARDS = "socs_gen_cards"
+export const B_DEAL_CARD = "socs_deal_cards"
+export const B_OFFER = "socs_offer"
+export const B_OFFER_DECLARELESS = "socs_offer_declareless"
+export const B_OFFER_CASE = "socs_offer_case"
+export const B_OFFER_CASE_ANY = "socs_offer_case_any"
+export const B_PLAYER_ADVANCE = "socs_player_advance"
+export const B_PLAYER_ADVANCE_TYPE = "socs_player_advance_type"
+export const B_CARDS_MOVE = "socs_cards_move"
+export const B_DECLARE_WINNER = "socs_declare_winner"
+export const B_ZONE_FOR_PLAYER = "socs_zone_for_player"
+export const B_SET_NUMBER = "socs_set_number"
+export const B_ENTER_PHASE = "socs_enter_phase"
 
-export const VNAME_GET_UNIFIED = "socs_get_unified"
+export const V_GET_UNIFIED = "socs_get_unified"
 
-export const VNAME_GET_NUMBER = "socs_get_number"
-export const VNAME_ZONES_OF_TYPE = "socs_zones_of_type"
+export const V_GET_NUMBER = "socs_get_number"
+export const V_ZONES_OF_TYPE = "socs_zones_of_type"
 
-export const VNAME_CHOICE_UNIFIED = "socs_choice_unified"
-export const VNAME_CHOICE_MOVE = "socs_choice_move"
+export const V_CHOICE_UNIFIED = "socs_choice_unified"
+export const V_CHOICE_MOVE = "socs_choice_move"
 
-export const VNAME_NUM_CARDS = "socs_num_cards"
-export const VNAME_CARD_SELECTOR = "socs_card_selector"
+export const V_NUM_CARDS = "socs_num_cards"
+export const V_CARD_SELECTOR = "socs_card_selector"
 
-export const VNAME_RANK_FROM_CARD = "socs_rank_from_card"
-export const VNAME_SUIT_FROM_CARD = "socs_suit_from_card"
-export const VNAME_CARDS_MATCHING_RANK = "socs_cards_matching_rank"
-export const VNAME_CARDS_MATCHING_SUIT = "socs_cards_matching_suit"
+export const V_RANK_FROM_CARD = "socs_rank_from_card"
+export const V_SUIT_FROM_CARD = "socs_suit_from_card"
+export const VN_CARDS_MATCHING_RANK = "socs_cards_matching_rank"
+export const V_CARDS_MATCHING_SUIT = "socs_cards_matching_suit"
 
-export const VNAME_PLAYER_CURRENT = "socs_player_current"
-export const VNAME_PLAYER_OF_TYPE = "socs_player_of_type"
-export const VNAME_PLAYERS_ALL = "socs_players_all"
+export const V_PLAYER_CURRENT = "socs_player_current"
+export const V_PLAYER_OF_TYPE = "socs_player_of_type"
+export const V_PLAYERS_ALL = "socs_players_all"
+
 export const IF_ELSE = {
-	"type": BNAME_IF_ELSE,
+	"type": B_IF_ELSE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "if %1 do %2 else %3",
@@ -80,7 +81,7 @@ export const IF_ELSE = {
 }
 
 export const WHILE = {
-	"type": BNAME_WHILE,
+	"type": B_WHILE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "while %1 do %2",
@@ -102,7 +103,7 @@ export const WHILE = {
 }
 
 export const PHASE_JSON = {
-	"type": BNAME_PHASE,
+	"type": B_PHASE,
 	"tooltip": "Game phase",
 	"message0": "phase %1",
 	"args0": [
@@ -118,7 +119,7 @@ export const PHASE_JSON = {
 }
 
 export const SHUFFLE_JSON = {
-	"type": BNAME_SHUFFLE,
+	"type": B_SHUFFLE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "shuffle %1",
@@ -135,7 +136,7 @@ export const SHUFFLE_JSON = {
 }
 
 export const GEN_CARDS = {
-	"type": BNAME_GEN_CARDS,
+	"type": B_GEN_CARDS,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "generate cards %1 into %2",
@@ -162,7 +163,7 @@ export const GEN_CARDS = {
 }
 
 export const DEAL_CARD = {
-	"type": BNAME_DEAL_CARD,
+	"type": B_DEAL_CARD,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "deal %1 cards from %2 into %3",
@@ -191,7 +192,7 @@ export const DEAL_CARD = {
 }
 
 export const NUM_CARDS = {
-	"type": VNAME_NUM_CARDS,
+	"type": V_NUM_CARDS,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "# cards in %1",
@@ -207,7 +208,7 @@ export const NUM_CARDS = {
 }
 
 export const CARD_SELECTOR = {
-	"type": VNAME_CARD_SELECTOR,
+	"type": V_CARD_SELECTOR,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "%1 in %2",
@@ -242,7 +243,7 @@ export const CARD_SELECTOR = {
 }
 
 export const OFFER = {
-	"type": BNAME_OFFER,
+	"type": B_OFFER,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "offer to %1 as %2 %3 %4",
@@ -273,7 +274,7 @@ export const OFFER = {
 }
 
 export const OFFER_DECLARELESS = {
-	"type": BNAME_OFFER_DECLARELESS,
+	"type": B_OFFER_DECLARELESS,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "offer to %1 %2 %3",
@@ -300,7 +301,7 @@ export const OFFER_DECLARELESS = {
 
 
 export const OFFER_CASE = {
-	"type": BNAME_OFFER_CASE,
+	"type": B_OFFER_CASE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "only if %1 choices %2 handle %3 %4",
@@ -332,7 +333,7 @@ export const OFFER_CASE = {
 }
 
 export const OFFER_CASE_ANY = {
-	"type": BNAME_OFFER_CASE_ANY,
+	"type": B_OFFER_CASE_ANY,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "choices %1 handle %2 %3",
@@ -359,7 +360,7 @@ export const OFFER_CASE_ANY = {
 }
 
 export const PLAYER_CURRENT = {
-	"type": VNAME_PLAYER_CURRENT,
+	"type": V_PLAYER_CURRENT,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "current player",
@@ -368,7 +369,7 @@ export const PLAYER_CURRENT = {
 }
 
 export const PLAYER_OF_TYPE = {
-	"type": VNAME_PLAYER_OF_TYPE,
+	"type": V_PLAYER_OF_TYPE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "player %1 is %2 %3",
@@ -393,7 +394,7 @@ export const PLAYER_OF_TYPE = {
 }
 
 export const PLAYERS_ALL = {
-	"type": VNAME_PLAYERS_ALL,
+	"type": V_PLAYERS_ALL,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "all players",
@@ -402,7 +403,7 @@ export const PLAYERS_ALL = {
 }
 
 export const PLAYER_ADVANCE = {
-	"type": BNAME_PLAYER_ADVANCE,
+	"type": B_PLAYER_ADVANCE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "advance player state by %1",
@@ -419,7 +420,7 @@ export const PLAYER_ADVANCE = {
 }
 
 export const PLAYER_ADVANCE_TYPE = {
-	"type": BNAME_PLAYER_ADVANCE_TYPE,
+	"type": B_PLAYER_ADVANCE_TYPE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "advance player state by %1 of type %2 %3",
@@ -450,7 +451,7 @@ export const PLAYER_ADVANCE_TYPE = {
 }
 
 export const CHOICE_MOVE = {
-	"type": VNAME_CHOICE_MOVE,
+	"type": V_CHOICE_MOVE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "move any from %1 to %2",
@@ -473,7 +474,7 @@ export const CHOICE_MOVE = {
 }
 
 export const CARDS_MOVE = {
-	"type": BNAME_CARDS_MOVE,
+	"type": B_CARDS_MOVE,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "move cards %1 to %2",
@@ -496,7 +497,7 @@ export const CARDS_MOVE = {
 }
 
 export const RANK_FROM_CARD = {
-	"type": VNAME_RANK_FROM_CARD,
+	"type": V_RANK_FROM_CARD,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "rank of %1",
@@ -512,7 +513,7 @@ export const RANK_FROM_CARD = {
 }
 
 export const SUIT_FROM_CARD = {
-	"type": VNAME_SUIT_FROM_CARD,
+	"type": V_SUIT_FROM_CARD,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "suit of %1",
@@ -528,7 +529,7 @@ export const SUIT_FROM_CARD = {
 }
 
 export const CARDS_MATCHING_RANK = {
-	"type": VNAME_CARDS_MATCHING_RANK,
+	"type": VN_CARDS_MATCHING_RANK,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "cards in %1 matching rank %2",
@@ -550,7 +551,7 @@ export const CARDS_MATCHING_RANK = {
 }
 
 export const CARDS_MATCHING_SUIT = {
-	"type": VNAME_CARDS_MATCHING_SUIT,
+	"type": V_CARDS_MATCHING_SUIT,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "cards in %1 matching suit %2",
@@ -572,7 +573,7 @@ export const CARDS_MATCHING_SUIT = {
 }
 
 export const DECLARE_WINNER = {
-	"type": BNAME_DECLARE_WINNER,
+	"type": B_DECLARE_WINNER,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "declare %1 as winner",
@@ -592,4 +593,4 @@ export const ALL_STATIC_DEFS = [IF_ELSE, PHASE_JSON, SHUFFLE_JSON, GEN_CARDS, OF
 	PLAYER_CURRENT, PLAYERS_ALL, DEAL_CARD, NUM_CARDS, WHILE, CARD_SELECTOR, CHOICE_MOVE, CARDS_MOVE,
 	RANK_FROM_CARD, SUIT_FROM_CARD, CARDS_MATCHING_RANK, CARDS_MATCHING_SUIT, DECLARE_WINNER]
 
-export const ALL_OFFER_CASES = [BNAME_OFFER_CASE, BNAME_OFFER_CASE_ANY]
+export const ALL_OFFER_CASES = [B_OFFER_CASE, B_OFFER_CASE_ANY]

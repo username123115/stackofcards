@@ -31,7 +31,7 @@ function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType)
 			if (offerStatement && offerStatement.connection) {
 				let childBlock = offerStatement.connection.targetBlock();
 				while (childBlock) {
-					if (childBlock.type === Defs.VNAME_CHOICE_UNIFIED) {
+					if (childBlock.type === Defs.V_CHOICE_UNIFIED) {
 						const choiceTypeDropdownValue = childBlock.getFieldValue('CHOICE_TYPE');
 						const declaredVarName = childBlock.getFieldValue('AS');
 						const declaredType = choiceTypeDropdownValue as InterpreterType;
@@ -47,7 +47,7 @@ function getDeclaredVariables(block: Blockly.Block, targetType: InterpreterType)
 					childBlock = childBlock.getNextBlock();
 				}
 			}
-		} else if (parentBlock.type === Defs.BNAME_OFFER && targetType === 'socs_t_player') {
+		} else if (parentBlock.type === Defs.B_OFFER && targetType === 'socs_t_player') {
 			const playerName = parentBlock.getFieldValue('PLAYER_NAME');
 			if (!declarations.some(dec => dec[1] === playerName)) {
 				declarations.push([playerName, playerName]);
@@ -72,7 +72,7 @@ export default function generateBlockDefinitions() {
 
 	Blockly.defineBlocksWithJsonArray(Defs.ALL_STATIC_DEFS);
 
-	Blockly.Blocks[Defs.VNAME_GET_NUMBER] = {
+	Blockly.Blocks[Defs.V_GET_NUMBER] = {
 		init: function(this: Blockly.Block) {
 			const currentBlock = this;
 			this.appendDummyInput()
@@ -83,7 +83,7 @@ export default function generateBlockDefinitions() {
 		}
 	}
 
-	Blockly.Blocks[Defs.BNAME_ZONE_FOR_PLAYER] = {
+	Blockly.Blocks[Defs.B_ZONE_FOR_PLAYER] = {
 		init: function(this: Blockly.Block) {
 			const currentBlock = this;
 			this.appendValueInput("OWNER")
@@ -97,7 +97,7 @@ export default function generateBlockDefinitions() {
 		}
 	}
 
-	Blockly.Blocks[Defs.VNAME_ZONES_OF_TYPE] = {
+	Blockly.Blocks[Defs.V_ZONES_OF_TYPE] = {
 		init: function(this: Blockly.Block) {
 			const currentBlock = this;
 			this.appendDummyInput()
@@ -108,7 +108,7 @@ export default function generateBlockDefinitions() {
 		}
 	}
 
-	Blockly.Blocks[Defs.BNAME_SET_NUMBER] = {
+	Blockly.Blocks[Defs.B_SET_NUMBER] = {
 		init: function(this: Blockly.Block) {
 			const currentBlock = this;
 			this.appendDummyInput()
@@ -125,7 +125,7 @@ export default function generateBlockDefinitions() {
 		}
 	}
 
-	Blockly.Blocks[Defs.BNAME_ENTER_PHASE] = {
+	Blockly.Blocks[Defs.B_ENTER_PHASE] = {
 		init: function(this: Blockly.Block) {
 			const currentWorkspace = this.workspace;
 			const getPhaseOptions = function(): Blockly.MenuOption[] {
@@ -134,7 +134,7 @@ export default function generateBlockDefinitions() {
 
 				for (let i = 0; i < blocks.length; i++) {
 					const block = blocks[i];
-					if (block.type === Defs.BNAME_PHASE) {
+					if (block.type === Defs.B_PHASE) {
 						const phaseName = block.getFieldValue('PHASE');
 						if (phaseName) {
 							options.push([phaseName, phaseName]);
@@ -156,7 +156,7 @@ export default function generateBlockDefinitions() {
 			this.setHelpUrl("");
 		}
 	};
-	Blockly.Blocks[Defs.VNAME_GET_UNIFIED] = {
+	Blockly.Blocks[Defs.V_GET_UNIFIED] = {
 		init: function(this: Blockly.Block) {
 			const options: [string, InterpreterType][] = [
 				["player", "socs_t_player"],
@@ -213,7 +213,7 @@ export default function generateBlockDefinitions() {
 		}
 	}
 
-	Blockly.Blocks[Defs.VNAME_CHOICE_UNIFIED] = {
+	Blockly.Blocks[Defs.V_CHOICE_UNIFIED] = {
 		init: function(this: Blockly.Block) {
 			// Dropdown options and their corresponding input checks
 			const choiceOptions: [string, InterpreterType, InterpreterType[]][] = [

@@ -3,6 +3,7 @@ import type { BooleanExpression } from "./BooleanExpression";
 import type { CardCollectionExpression } from "./CardCollectionExpression";
 import type { CardExpression } from "./CardExpression";
 import type { CardSelectorExpression } from "./CardSelectorExpression";
+import type { CardSetExpression } from "./CardSetExpression";
 import type { NumberExpression } from "./NumberExpression";
 import type { OrderExpression } from "./OrderExpression";
 import type { PlayerCollectionExpression } from "./PlayerCollectionExpression";
@@ -12,4 +13,4 @@ import type { SuitExpression } from "./SuitExpression";
 import type { ZoneCollectionExpression } from "./ZoneCollectionExpression";
 import type { ZoneExpression } from "./ZoneExpression";
 
-export type Expression = { "Order": OrderExpression } | { "Number": NumberExpression } | { "Boolean": BooleanExpression } | { "Zone": ZoneExpression } | { "ZoneCollection": ZoneCollectionExpression } | { "Player": PlayerExpression } | { "PlayerCollection": PlayerCollectionExpression } | { "Suit": SuitExpression } | { "Rank": RankExpression } | { "Card": CardExpression } | { "CardCollection": CardCollectionExpression } | { "CardSelector": CardSelectorExpression };
+export type Expression = { "CardSet": CardSetExpression } | { "Order": OrderExpression } | { "Number": NumberExpression } | { "Boolean": BooleanExpression } | { "Zone": ZoneExpression } | { "ZoneCollection": ZoneCollectionExpression } | { "Player": PlayerExpression } | { "PlayerCollection": PlayerCollectionExpression } | { "Suit": SuitExpression } | { "Rank": RankExpression } | { "Card": CardExpression } | { "CardCollection": CardCollectionExpression } | { "CardSelector": CardSelectorExpression };

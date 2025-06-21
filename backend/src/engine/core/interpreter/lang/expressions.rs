@@ -7,6 +7,7 @@ use ts_rs::TS;
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub enum Expression {
+    CardSet(CardSetExpression),
     Order(OrderExpression),
     Number(NumberExpression),
     Boolean(BooleanExpression),
@@ -19,6 +20,12 @@ pub enum Expression {
     Card(CardExpression),
     CardCollection(CardCollectionExpression),
     CardSelector(CardSelectorExpression),
+}
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
+pub enum CardSetExpression {
+    AllAllowed,
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -45,16 +52,6 @@ pub enum CardCollectionExpression {
         zone: Box<ZoneExpression>,
         rank: Box<RankExpression>,
     },
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub enum CardSetExpression {
-    Single(Box<CardExpression>),
-    GetVariable(String),
-    ZoneTopCard(Box<ZoneExpression>),
-    ZoneBottomCard(Box<ZoneExpression>),
-    ZoneAllCards(Box<ZoneExpression>),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]

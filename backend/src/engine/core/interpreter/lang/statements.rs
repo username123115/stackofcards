@@ -11,7 +11,7 @@ pub enum Statement {
     Conditional(ConditionalStatement), //if else block
     While {
         condition: Box<expressions::BooleanExpression>,
-        body: Box<Statement>,
+        r#do: Box<Statement>,
     },
     Broadcast {
         msg: String,
@@ -26,11 +26,13 @@ pub enum Statement {
         to_advance: Box<expressions::NumberExpression>,
         type_name: String,
     },
-    AdvancePlayerState {
-        to_advance: Box<expressions::NumberExpression>,
-    },
+    AdvancePlayerState(Box<expressions::NumberExpression>),
     MoveCardsTo {
         source: Box<expressions::CardCollectionExpression>,
+        dest: Box<expressions::ZoneExpression>,
+    },
+    GenerateCards {
+        cards: Box<expressions::CardSetExpression>,
         dest: Box<expressions::ZoneExpression>,
     },
     Deal {

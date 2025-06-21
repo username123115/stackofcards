@@ -68,17 +68,17 @@ export const IF_ELSE = {
 	"args0": [
 		{
 			"type": "input_value",
-			"name": "IF",
+			"name": "CONDITION",
 			"check": "Boolean"
 		},
 		{
 			"type": "input_statement",
-			"name": "DO",
+			"name": "GO_TRUE",
 			"check": "any"
 		},
 		{
 			"type": "input_statement",
-			"name": "ELSE",
+			"name": "GO_FALSE",
 			"check": "any"
 		}
 	],
@@ -95,7 +95,7 @@ export const WHILE = {
 	"args0": [
 		{
 			"type": "input_value",
-			"name": "WHILE",
+			"name": "CONDITION",
 			"check": "Boolean"
 		},
 		{
@@ -133,7 +133,7 @@ export const SHUFFLE_JSON = {
 	"args0": [
 		{
 			"type": "input_value",
-			"name": "NAME",
+			"name": "ZONES",
 			"check": ["socs_t_zones", "socs_t_zone"]
 		}
 	],
@@ -142,6 +142,7 @@ export const SHUFFLE_JSON = {
 	"colour": 250,
 }
 
+//TODO, more dropdown options
 export const GEN_CARDS = {
 	"type": B_GEN_CARDS,
 	"tooltip": "",
@@ -150,7 +151,7 @@ export const GEN_CARDS = {
 	"args0": [
 		{
 			"type": "field_dropdown",
-			"name": "TYPE",
+			"name": "CARDS",
 			"options": [
 				[
 					"all allowed",
@@ -160,7 +161,7 @@ export const GEN_CARDS = {
 		},
 		{
 			"type": "input_value",
-			"name": "NAME",
+			"name": "DEST",
 			"check": "socs_t_zone"
 		}
 	],
@@ -177,7 +178,7 @@ export const DEAL_CARD = {
 	"args0": [
 		{
 			"type": "input_value",
-			"name": "COUNT",
+			"name": "NUM_CARDS",
 			"check": "Number",
 
 		},
@@ -257,7 +258,7 @@ export const OFFER = {
 	"args0": [
 		{
 			"type": "input_value",
-			"name": "PLAYER_SELECTION",
+			"name": "OFFER_TO",
 			"check": ["socs_t_player", "socs_t_player_sel"],
 		},
 		{
@@ -267,7 +268,7 @@ export const OFFER = {
 		},
 		{
 			"type": "input_dummy",
-			"name": "PLAYER"
+			"name": "IDK_WHAT_THIS_DUMMY_DOES"
 		},
 		{
 			"type": "input_statement",
@@ -288,12 +289,12 @@ export const OFFER_DECLARELESS = {
 	"args0": [
 		{
 			"type": "input_value",
-			"name": "PLAYER_SELECTION",
+			"name": "OFFER_TO",
 			"check": ["socs_t_player", "socs_t_player_sel"],
 		},
 		{
 			"type": "input_dummy",
-			"name": "PLAYER"
+			"name": "IDK_WHAT_THIS_DUMMY_DOES"
 		},
 		{
 			"type": "input_statement",

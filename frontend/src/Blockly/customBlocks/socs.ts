@@ -113,9 +113,9 @@ export default function generateBlockDefinitions() {
 			const currentBlock = this;
 			this.appendDummyInput()
 				.appendField("set number")
-				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_number', true)), "NUMBER")
+				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_number', true)), "NAME")
 				.appendField("to")
-			this.appendValueInput("SOURCE")
+			this.appendValueInput("VALUE")
 				.setCheck(['Number']);
 
 			this.setColour(230);

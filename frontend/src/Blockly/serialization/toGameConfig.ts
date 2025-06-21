@@ -102,7 +102,7 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
 			const phaseName = block.getFieldValue('PHASE_NAME');
 			if (!phaseName) {
 				console.warn('EnterPhase block is missing phase name.', block);
-				return null;
+				return { EnterPhase: "" };
 			}
 			return { EnterPhase: phaseName };
 		}
@@ -111,15 +111,15 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
 			const toAdvanceExpr = valueBlockToNumberExpression(toAdvanceBlock);
 			if (!toAdvanceExpr) {
 				console.warn('AdvancePlayerState block is missing to_advance expression.', block);
-				return null;
+				return { AdvancePlayerState: { Literal: 0 } };
 			}
-			return { AdvancePlayerState: { to_advance: toAdvanceExpr } };
+			return { AdvancePlayerState: toAdvanceExpr };
 		}
 		case Defs.B_IF_ELSE: {
 			const conditionBlock = block.getInput('CONDITION')?.connection?.targetBlock() ?? null;
 			const conditionExpr = valueBlockToBooleanExpression(conditionBlock);
 			if (!conditionExpr) {
-				console.warn('IfElse block missing condition.', block);
+				console.warn('If Else block missing condition.', block);
 				return null;
 			}
 
@@ -149,12 +149,12 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
 			return {
 				While: {
 					condition: conditionExpr,
-					body: arrayToSingleStatementOrBlock(bodyStatements),
+					do: arrayToSingleStatementOrBlock(bodyStatements),
 				}
 			};
 		}
 		case Defs.B_SET_NUMBER: { // TASK 1: Ensure this maps to SetNumber
-			const varName = block.getFieldValue('VAR_NAME');
+			const varName = block.getFieldValue('NAME');
 			if (!varName) {
 				console.warn('SetNumber block missing variable name.', block);
 				return null;
@@ -165,10 +165,6 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
 				console.warn('SetNumber block missing value expression for variable.', block);
 				return null;
 			}
-			// Assuming Statement type has SetNumber: { name: string, value: NumberExpression }
-			// If it's SetVariable: { name: string, value: Expression } (more generic),
-			// that would also be fine, but task asks for SetNumber.
-			// Let's assume the binding is specific:
 			return { SetNumber: { name: varName, value: valueExpr } };
 		}
 		case Defs.B_SHUFFLE: {
@@ -181,43 +177,43 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
 			return { Shuffle: zoneCollExpr };
 		}
 		case Defs.B_DEAL_CARD: {
-			const countBlock = block.getInput('COUNT')?.connection?.targetBlock() ?? null;
+			const countBlock = block.getInput('NUM_CARDS')?.connection?.targetBlock() ?? null;
 			const countExpr = valueBlockToNumberExpression(countBlock);
 			if (!countExpr) {
 				console.warn('DealCards block missing count expression.', block);
 				return null;
 			}
-			const fromZoneBlock = block.getInput('FROM_ZONE')?.connection?.targetBlock() ?? null;
+			const fromZoneBlock = block.getInput('SOURCE')?.connection?.targetBlock() ?? null;
 			const fromZoneExpr = valueBlockToZoneExpression(fromZoneBlock);
 			if (!fromZoneExpr) {
 				console.warn('DealCards block missing from_zone expression.', block);
 				return null;
 			}
-			const toZonesBlock = block.getInput('TO_ZONES')?.connection?.targetBlock() ?? null;
+			const toZonesBlock = block.getInput('DEST')?.connection?.targetBlock() ?? null;
 			const toZonesExpr = valueBlockToZoneCollectionExpression(toZonesBlock);
 			if (!toZonesExpr) {
 				console.warn('DealCards block missing to_zones expression.', block);
 				return null;
 			}
-			return { DealCards: { count: countExpr, from: fromZoneExpr, to: toZonesExpr } };
+			return { Deal: { num_cards: countExpr, source: fromZoneExpr, dest: toZonesExpr } };
 		}
 		case Defs.B_CARDS_MOVE: {
-			const cardsBlock = block.getInput('CARDS')?.connection?.targetBlock() ?? null;
+			const cardsBlock = block.getInput('SOURCE')?.connection?.targetBlock() ?? null;
 			const cardsExpr = valueBlockToCardCollectionExpression(cardsBlock);
 			if (!cardsExpr) {
 				console.warn('CardsMove block missing cards expression.', block);
 				return null;
 			}
-			const toZoneBlock = block.getInput('TO_ZONE')?.connection?.targetBlock() ?? null;
+			const toZoneBlock = block.getInput('DEST')?.connection?.targetBlock() ?? null;
 			const toZoneExpr = valueBlockToZoneExpression(toZoneBlock);
 			if (!toZoneExpr) {
 				console.warn('CardsMove block missing to_zone expression.', block);
 				return null;
 			}
-			return { MoveCards: { cards: cardsExpr, to: toZoneExpr } };
+			return { MoveCardsTo: { source: cardsExpr, dest: toZoneExpr } };
 		}
 		case Defs.B_DECLARE_WINNER: {
-			const playersBlock = block.getInput('PLAYERS')?.connection?.targetBlock() ?? null;
+			const playersBlock = block.getInput('PLAYER')?.connection?.targetBlock() ?? null;
 			const playersExpr = valueBlockToPlayerCollectionExpression(playersBlock);
 			if (!playersExpr) {
 				console.warn('DeclareWinner block missing players expression.', block);
@@ -226,13 +222,13 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
 			return { DeclareWinner: playersExpr };
 		}
 		case Defs.B_OFFER: {
-			const playerSelectionBlock = block.getInput('PLAYER_SELECTION')?.connection?.targetBlock() ?? null;
+			const playerSelectionBlock = block.getInput('OFFER_TO')?.connection?.targetBlock() ?? null;
 			const offerToExpr = valueBlockToPlayerCollectionExpression(playerSelectionBlock);
 			if (!offerToExpr) {
 				console.warn('Offer block missing player_selection expression for offer_to.', block);
 				return null;
 			}
-			const playerNameVar = block.getFieldValue('PLAYER_NAME_VAR');
+			const playerNameVar = block.getFieldValue('PLAYER_NAME');
 			if (!playerNameVar) {
 				console.warn('Offer block missing player_name_var field (variable to store chosen player).', block);
 				return null;
@@ -242,21 +238,46 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
 			const casesArray = blocksToOfferCasesArray(firstCaseBlock);
 			if (casesArray.length === 0) {
 				console.warn('Offer block has no valid cases.', block);
-				// Depending on strictness, might return null or an Offer statement with empty cases.
-				// For now, let's assume an Offer with no cases is valid but perhaps unusual.
 			}
 
 			return {
 				Offer: {
-					to: offerToExpr, // Assuming backend field is 'to'
-					player_name_var: playerNameVar, // Assuming backend field is 'player_name_var'
+					offer_to: offerToExpr,
+					player_name: playerNameVar,
 					cases: casesArray,
 				}
 			};
 		}
-		case Defs.B_GEN_CARDS: { // TASK 4: Mark socs_gen_cards as unsupported
-			console.warn('socs_gen_cards block is currently unsupported for serialization.', block);
-			return null;
+
+		case Defs.B_OFFER_DECLARELESS: {
+			const playerSelectionBlock = block.getInput('OFFER_TO')?.connection?.targetBlock() ?? null;
+			const offerToExpr = valueBlockToPlayerCollectionExpression(playerSelectionBlock);
+			if (!offerToExpr) {
+				console.warn('Offer block missing player_selection expression for offer_to.', block);
+				return null;
+			}
+
+			const firstCaseBlock = block.getInput('CASES')?.connection?.targetBlock() ?? null;
+			const casesArray = blocksToOfferCasesArray(firstCaseBlock);
+			if (casesArray.length === 0) {
+				console.warn('Offer block has no valid cases.', block);
+			}
+
+			return { Offer: { offer_to: offerToExpr, player_name: null, cases: casesArray } };
+
+		}
+
+		case Defs.B_GEN_CARDS: { // TODO selection thingy
+			const destBlock = block.getInput('DEST')?.connection?.targetBlock() ?? null;
+			const zoneExpr = valueBlockToZoneExpression(destBlock);
+			if (!zoneExpr) {
+				console.warn('Generate block missing expression for target zone', block);
+				return null;
+			}
+
+			return {
+				GenerateCards: { cards: "AllAllowed", dest: zoneExpr }
+			}
 		}
 		default:
 			console.warn(`Unknown or unhandled statement block type: ${block.type}`, block);

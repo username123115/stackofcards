@@ -20,6 +20,8 @@ import type { Suit } from '@bindings/Suit';
 import type { SuitExpression } from '@bindings/SuitExpression';
 import type { CardExpression } from '@bindings/CardExpression';
 
+import type { ChoiceSelectionEnum } from '@bindings/ChoiceSelectionEnum';
+
 import type { Comparison } from '@bindings/Comparison';
 
 
@@ -680,7 +682,7 @@ export function valueBlockToOfferChoiceArray(firstChoiceBlock: Blockly.Block | n
 					break; // to next block in chain
 				}
 
-				let selectionType: ChoiceSelectionType | null = null;
+				let selectionType: ChoiceSelectionEnum | null = null;
 				if (choiceTypeStr === 'player') {
 					const playerCollExpr = valueBlockToPlayerCollectionExpression(sourceBlock);
 					if (playerCollExpr) selectionType = { Player: playerCollExpr };

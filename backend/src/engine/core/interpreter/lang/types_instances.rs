@@ -1,5 +1,5 @@
 use crate::engine::core::types;
-pub type BaseNumberType = u64;
+pub type BaseNumberType = i32;
 
 pub enum TypeInstance {
     Number(BaseNumberType),

@@ -11,7 +11,7 @@ pub enum Statement {
     Conditional(ConditionalStatement), //if else block
     While {
         condition: Box<expressions::BooleanExpression>,
-        body: Vec<Statement>,
+        body: Box<Statement>,
     },
     Broadcast {
         msg: String,

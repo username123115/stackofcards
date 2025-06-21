@@ -101,7 +101,8 @@ pub enum Comparison {
     LT,
     GTE,
     LTE,
-    Eq,
+    EQ,
+    NEQ,
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -126,6 +127,7 @@ pub enum ZoneCollectionExpression {
 #[ts(export)]
 pub enum PlayerExpression {
     CurrentPlayer,
+    GetVariable(String),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -133,6 +135,7 @@ pub enum PlayerExpression {
 pub enum PlayerCollectionExpression {
     Single(Box<PlayerExpression>),
     AllPlayers,
+    GetVariable(String),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]

@@ -5,6 +5,7 @@ import * as Blockly from 'blockly/core';
 import * as En from 'blockly/msg/en';
 
 import type { GameConfig } from '@bindings/GameConfig';
+import { workspaceToGameConfig } from '@Blockly/serialization/toGameConfig';
 
 import { zonesFromConfig } from '@client/utility';
 
@@ -26,8 +27,9 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 	let primaryWorkspace = useRef<Blockly.Workspace | undefined>(undefined);
 
 	const generateCode = () => {
-		var code = javascriptGenerator.workspaceToCode(primaryWorkspace.current);
-		console.log(code);
+		//var code = javascriptGenerator.workspaceToCode(primaryWorkspace.current);
+		let result = workspaceToGameConfig(primaryWorkspace.current);
+		console.log(result);
 	};
 
 	useEffect(() => {

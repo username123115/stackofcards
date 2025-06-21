@@ -28,21 +28,20 @@ import type { Comparison } from '@bindings/Comparison';
  * @param workspace The Blockly workspace.
  * @returns The generated GameConfig.
  */
-export function workspaceToGameConfig(workspace: Blockly.WorkspaceSvg): GameConfig['phases'] {
+export function workspaceToGameConfig(workspace: Blockly.Workspace): GameConfig['phases'] {
 	const phases: { [key in string]: Phase } = {};
 	const allBlocks = workspace.getAllBlocks(false);
 
 	const phaseBlocks = allBlocks.filter(block => block.type === Defs.B_PHASE);
 
 	for (const phaseBlock of phaseBlocks) {
-		const phaseName = phaseBlock.getFieldValue('PHASE_NAME');
+		const phaseName = phaseBlock.getFieldValue('PHASE');
 		if (!phaseName) {
 			console.warn('Phase block is missing a name.', phaseBlock);
 			continue;
 		}
 
-		const statementsConnection = phaseBlock.getInput('STATEMENTS')?.connection;
-		const firstStatementBlock = statementsConnection?.targetBlock() ?? null;
+		const firstStatementBlock = phaseBlock.getNextBlock();
 		const statementsArray = blocksToStatementArray(firstStatementBlock);
 		const phaseEvaluateStatement = arrayToSingleStatementOrBlock(statementsArray);
 
@@ -186,7 +185,7 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
 			const fromZoneBlock = block.getInput('SOURCE')?.connection?.targetBlock() ?? null;
 			const fromZoneExpr = valueBlockToZoneExpression(fromZoneBlock);
 			if (!fromZoneExpr) {
-				console.warn('DealCards block missing from_zone expression.', block);
+				console.warn('DealCards block missing from zone expression.', block);
 				return null;
 			}
 			const toZonesBlock = block.getInput('DEST')?.connection?.targetBlock() ?? null;
@@ -457,7 +456,7 @@ export function valueBlockToZoneExpression(block: Blockly.Block | null): ZoneExp
 			return { OwnedByPlayer: { player: playerExpr, zone_name: zoneType } };
 		}
 		case Defs.V_GET_UNIFIED:
-			const varName = block.getFieldValue('VARIABLE');
+			const varName = block.getFieldValue('VARIABLE') ?? "";
 			if (!varName) {
 				console.warn('socs_get_unified (for zone) block missing VARIABLE field.', block);
 				return null;

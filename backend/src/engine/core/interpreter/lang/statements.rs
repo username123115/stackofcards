@@ -66,6 +66,7 @@ pub struct Offer {
 pub struct OfferCase {
     condition: Option<Box<expressions::BooleanExpression>>,
     choices: Vec<OfferChoice>,
+    handle: Box<Statement>,
     message: String,
 }
 

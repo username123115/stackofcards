@@ -14,9 +14,7 @@ import type { ZoneCollectionExpression } from '@bindings/ZoneCollectionExpressio
 import type { CardCollectionExpression } from '@bindings/CardCollectionExpression';
 import type { OfferCase } from '@bindings/OfferCase';
 import type { OfferChoice } from '@bindings/OfferChoice';
-import type { Rank } from '@bindings/Rank';
 import type { RankExpression } from '@bindings/RankExpression';
-import type { Suit } from '@bindings/Suit';
 import type { SuitExpression } from '@bindings/SuitExpression';
 import type { CardExpression } from '@bindings/CardExpression';
 
@@ -737,7 +735,7 @@ export function valueBlockToOfferChoiceArray(firstChoiceBlock: Blockly.Block | n
  * @param firstCaseBlock The first socs_offer_case block.
  * @returns An array of OfferCase objects.
  */
-export function blocksToOfferCasesArray(firstCaseBlock: Blockly.Block | null): Array<OfferCase> { // TASK 6: Refine
+export function blocksToOfferCasesArray(firstCaseBlock: Blockly.Block | null): Array<OfferCase> {
 	const cases: Array<OfferCase> = [];
 	let currentBlock = firstCaseBlock;
 
@@ -752,26 +750,8 @@ export function blocksToOfferCasesArray(firstCaseBlock: Blockly.Block | null): A
 			const firstChoiceBlock = currentBlock.getInput('OFFERS')?.connection?.targetBlock() ?? null;
 			const choices = valueBlockToOfferChoiceArray(firstChoiceBlock);
 
-			// The 'then' part of an OfferCase is a Statement, executed after selections are made.
-			// This seems to be missing from the current socs_offer_case block structure if 'OFFERS' leads to choices.
-			// The original `blocksToOfferCasesArray` took 'STATEMENTS' as the `then` branch.
-			// Re-evaluating: `socs_offer_case` seems to have `PROMPT`, `FILTER` (condition), and `OFFERS` (choices).
-			// It does NOT seem to have a `STATEMENTS` input for a `then` branch directly on the case.
-			// This implies the `OfferCase` in the backend might be simpler, or the `then` is implicit/handled differently.
-			// Let's assume for now OfferCase only has condition, message, and choices.
-			// The previous version had a `then: Statement` from a `STATEMENTS` input. This input is not visible in the current task description for `socs_offer_case`.
-			// If `OfferCase` *requires* a `then: Statement`, this model is incomplete.
-			// Let's consult the `OfferCase` binding: `{ condition: BooleanExpression | null, message: string, choices: OfferChoice[], then: Statement }`
-			// The `then: Statement` would come from the actions taken *after* a choice is made. This is usually part of the choice itself or a general handler.
-			// The `socs_offer_case` block's `STATEMENTS` input (if it existed) would be the `then` for *this specific case*.
-			// If `socs_offer_case` has `PROMPT`, `FILTER`, `OFFERS` and *also* a `STATEMENTS` for the `then` branch, then we need to add it.
-			// The previous `blocksToOfferCasesArray` used:
-			//    const statementsConnection = currentBlock.getInput('STATEMENTS')?.connection;
-			//    const firstStatementInCase = statementsConnection?.targetBlock() ?? null;
-			//    const thenStatement = arrayToSingleStatementOrBlock(blocksToStatementArray(firstStatementInCase));
-			// This implies `socs_offer_case` *does* have a `STATEMENTS` input.
 
-			const thenStatementsConnection = currentBlock.getInput('STATEMENTS')?.connection;
+			const thenStatementsConnection = currentBlock.getInput('ACTIONS')?.connection;
 			const firstThenStatement = thenStatementsConnection?.targetBlock() ?? null;
 			const thenStatement = arrayToSingleStatementOrBlock(blocksToStatementArray(firstThenStatement));
 
@@ -790,14 +770,14 @@ export function blocksToOfferCasesArray(firstCaseBlock: Blockly.Block | null): A
 					condition: condition, // OK if null
 					message: message,
 					choices: choices,
-					then: thenStatement, // Added back based on typical OfferCase structure
+					handle: thenStatement, // Added back based on typical OfferCase structure
 				});
 			} else { // socs_offer_case_any (assumed to have no specific condition, always a fallback)
 				cases.push({
 					condition: null, // "AnyOther" case typically has no condition of its own
 					message: message, // Prompt for "any other" can still be useful
 					choices: choices, // Choices for "any other"
-					then: thenStatement, // Statements for "any other"
+					handle: thenStatement, // Statements for "any other"
 				});
 			}
 		} else {

@@ -2,38 +2,29 @@ import { useEffect, useRef } from 'react';
 import React from 'react';
 
 import * as Blockly from 'blockly/core';
-import * as En from 'blockly/msg/en';
 
 import type { GameConfig } from '@bindings/GameConfig';
-import { workspaceToGameConfig } from '@Blockly/serialization/toGameConfig';
-
-import { zonesFromConfig } from '@client/utility';
 
 import 'blockly/blocks'
-import { javascriptGenerator } from 'blockly/javascript';
 import type { ReactNode } from 'react';
 
 import styles from './blockly.module.css'
+import { gameConfigToWorkspace } from '@Blockly/serialization/fromGameConfig';
 
 interface BlocklyComponentProps extends Blockly.BlocklyOptions {
 	initialXml?: string;
 	children?: ReactNode;
 	config?: GameConfig;
+	setWorkspace?: ((wkspc: Blockly.WorkspaceSvg | null) => void);
 }
 
 function BlocklyComponent(props: BlocklyComponentProps) {
 	const blocklyDiv = useRef<HTMLDivElement>(null);
 	const toolbox = useRef<HTMLDivElement>(null);
-	let primaryWorkspace = useRef<Blockly.Workspace | undefined>(undefined);
-
-	const generateCode = () => {
-		//var code = javascriptGenerator.workspaceToCode(primaryWorkspace.current);
-		let result = workspaceToGameConfig(primaryWorkspace.current);
-		console.log(result);
-	};
+	let primaryWorkspace = useRef<Blockly.WorkspaceSvg | undefined>(undefined);
 
 	useEffect(() => {
-		const { initialXml, children, config, ...rest } = props;
+		const { initialXml, children, config, setWorkspace, ...rest } = props;
 		primaryWorkspace.current = Blockly.inject(blocklyDiv.current!, {
 			toolbox: toolbox.current ?? undefined,
 			...rest,
@@ -51,6 +42,7 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 			registerVariables(Object.keys(config.patterns), "socs_v_pattern");
 			registerVariables(config.numbers, "socs_v_number");
 			//primaryWorkspace.current.getVariableMap().createVariable
+			gameConfigToWorkspace(config.phases, primaryWorkspace.current);
 		}
 
 		if (initialXml) {
@@ -58,6 +50,10 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 				Blockly.utils.xml.textToDom(initialXml),
 				primaryWorkspace.current,
 			);
+		}
+
+		if (setWorkspace) {
+			setWorkspace(primaryWorkspace.current);
 		}
 
 		return () => {
@@ -70,7 +66,6 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 
 	return (
 		<React.Fragment>
-			<button onClick={generateCode}>Convert</button>
 			<div ref={blocklyDiv} className={styles.blocklyDiv} />
 			<div style={{ display: 'none' }} ref={toolbox}>
 				{props.children}

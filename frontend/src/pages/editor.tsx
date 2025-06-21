@@ -6,19 +6,42 @@ import { useState } from 'react';
 import styles from './editor.module.css';
 
 import BlocklyComponent from '@Blockly/index';
-import { Block, Value, Shadow, Field, Category } from '@Blockly/index';
+import { Block } from '@Blockly/index';
+
+import * as Blockly from 'blockly/core';
+
+import { useRef } from 'react';
+
+import { workspaceToGameConfig } from '@Blockly/serialization/toGameConfig';
 
 type ConfigDisplay = "Block" | "Settings";
 
 function Editor({ config }: { config: GameConfig }) {
 	const [currentDisplay, setCurrentDisplay] = useState<ConfigDisplay>("Block");
 	const [currentConfig, setCurrentConfig] = useState<GameConfig>(config);
+	const primaryWorkspace = useRef<Blockly.WorkspaceSvg | null>(null);
+
+	function handleSetWorkspace(workspace: Blockly.WorkspaceSvg | null) {
+		primaryWorkspace.current = workspace;
+	}
+
+	function handleSwitchDisplay(option: ConfigDisplay) {
+		if (option !== currentDisplay) {
+			if (currentDisplay === "Block" && primaryWorkspace.current) {
+				const savedCode = workspaceToGameConfig(primaryWorkspace.current);
+				console.log(savedCode);
+				setCurrentConfig({ ...currentConfig, phases: savedCode });
+			}
+			setCurrentDisplay(option);
+		}
+	}
+
 	return (
 		<>
 			<div>
-				<SwitchMenu options={["Settings", "Block"]} setOption={(o) => setCurrentDisplay(o)} />
+				<SwitchMenu options={["Settings", "Block"]} setOption={handleSwitchDisplay} />
 				{(currentDisplay === "Settings") && <ConfigDisplay config={currentConfig} saveEdits={(e) => setCurrentConfig(e)} />}
-				{(currentDisplay === "Block") && <Blocks config={currentConfig} />}
+				{(currentDisplay === "Block") && <Blocks config={currentConfig} setWorkspace={handleSetWorkspace} />}
 
 			</div>
 		</>
@@ -37,7 +60,10 @@ function SwitchMenu({ options, setOption }: { options: ConfigDisplay[], setOptio
 	</div>)
 }
 
-function Blocks({ config }: { config?: GameConfig }) {
+function Blocks({ config, setWorkspace }: {
+	config?: GameConfig,
+	setWorkspace?: ((wkspc: Blockly.WorkspaceSvg | null) => void);
+}) {
 	return (
 		<BlocklyComponent
 			readOnly={false}
@@ -48,6 +74,7 @@ function Blocks({ config }: { config?: GameConfig }) {
 				wheel: true,
 			}}
 			config={config}
+			setWorkspace={setWorkspace}
 		>
 			<Block type="socs_remade_if_else" />
 			<Block type="socs_remade_while" />

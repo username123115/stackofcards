@@ -504,6 +504,28 @@ export function valueBlockToZoneCollectionExpression(block: Blockly.Block | null
 	}
 }
 
+/**
+ * Converts a value block to a CardExpression (single card) or null.
+ * @param block The value block.
+ * @returns A CardExpression or null.
+ */
+export function valueBlockToCardExpression(block: Blockly.Block | null): CardExpression | null { // TASK 3
+	if (!block || block.isShadow()) return null;
+
+	switch (block.type) {
+		case Defs.V_GET_UNIFIED: // Represents an existing card variable
+			const varName = block.getFieldValue('VARIABLE');
+			if (!varName) {
+				console.warn('socs_get_unified (for card) block missing VARIABLE field.', block);
+				return null;
+			}
+			return { GetVariable: varName }
+		default:
+			console.warn(`CardExpression (single card) conversion not implemented for block type: ${block.type}.`, block);
+			return null;
+	}
+}
+
 
 /**
  * Converts a value block to a CardCollectionExpression or null.
@@ -512,6 +534,11 @@ export function valueBlockToZoneCollectionExpression(block: Blockly.Block | null
  */
 export function valueBlockToCardCollectionExpression(block: Blockly.Block | null): CardCollectionExpression | null {
 	if (!block || block.isShadow()) return null;
+
+	const attemptSingleExpression = valueBlockToCardExpression(block);
+	if (attemptSingleExpression) {
+		return { Single: attemptSingleExpression };
+	}
 
 	switch (block.type) {
 		case Defs.V_CARDS_MATCHING_RANK: {
@@ -524,7 +551,7 @@ export function valueBlockToCardCollectionExpression(block: Blockly.Block | null
 				console.warn('socs_cards_matching_rank missing rank or zone.', block);
 				return null;
 			}
-			return { MatchingRank: { rank: rankExpr, zone: zoneExpr } };
+			return { InZoneMatchingRank: { rank: rankExpr, zone: zoneExpr } };
 		}
 		case Defs.V_CARDS_MATCHING_SUIT: {
 			const suitBlock = block.getInput('SUIT')?.connection?.targetBlock() ?? null;
@@ -536,9 +563,9 @@ export function valueBlockToCardCollectionExpression(block: Blockly.Block | null
 				console.warn('socs_cards_matching_suit missing suit or zone.', block);
 				return null;
 			}
-			return { MatchingSuit: { suit: suitExpr, zone: zoneExpr } };
+			return { InZoneMatchingSuit: { suit: suitExpr, zone: zoneExpr } };
 		}
-		case Defs.V_CARD_SELECTOR: { // TASK 5: Update for TOP/BOTTOM
+		case Defs.V_CARD_SELECTOR: {
 			const zoneInput = block.getInput('ZONE');
 			if (!zoneInput || !zoneInput.connection) {
 				console.warn('socs_card_selector block missing ZONE input.', block);
@@ -554,24 +581,22 @@ export function valueBlockToCardCollectionExpression(block: Blockly.Block | null
 			const selectorType = block.getFieldValue('SELECTOR');
 			switch (selectorType) {
 				case 'ALL':
-					return { InZone: zoneExpr };
+					return { AllInZone: zoneExpr };
 				case 'TOP':
+					return { TopInZone: zoneExpr };
 				case 'BOTTOM':
-					console.warn(`socs_card_selector type '${selectorType}' is currently unsupported for CardCollectionExpression due to lack of specific backend bindings (e.g., TopN, BottomN).`, block);
-					return null;
+					return { BottomInZone: zoneExpr };
 				default:
 					console.warn(`Unknown selector type in socs_card_selector: ${selectorType}`, block);
 					return null;
 			}
 		}
 		case Defs.V_GET_UNIFIED:
-			const varName = block.getFieldValue('VAR_NAME');
+			const varName = block.getFieldValue('VARIABLE');
 			if (!varName) {
-				console.warn('socs_get_unified (for card collection) block missing VAR_NAME field.', block);
+				console.warn('socs_get_unified (for card collection) block missing VARIABLE field.', block);
 				return null;
 			}
-			// TODO: Verify CardCollectionExpression supports GetVariable
-			console.warn(`CardCollectionExpression.GetVariable for "${varName}" not confirmed. Assuming it exists.`, block);
 			return { GetVariable: varName };
 		default:
 			console.warn(`CardCollectionExpression conversion not implemented for block type: ${block.type}.`, block);
@@ -636,30 +661,6 @@ export function valueBlockToSuitExpression(block: Blockly.Block | null): SuitExp
 	}
 }
 
-/**
- * Converts a value block to a CardExpression (single card) or null.
- * @param block The value block.
- * @returns A CardExpression or null.
- */
-export function valueBlockToCardExpression(block: Blockly.Block | null): CardExpression | null { // TASK 3
-	if (!block || block.isShadow()) return null;
-
-	switch (block.type) {
-		case Defs.V_GET_UNIFIED: // Represents an existing card variable
-			const varName = block.getFieldValue('VAR_NAME');
-			if (!varName) {
-				console.warn('socs_get_unified (for card) block missing VAR_NAME field.', block);
-				return null;
-			}
-			// CardExpression is currently only { Create: [SuitExpression, RankExpression] }
-			// It does not have a { GetVariable: string } variant.
-			console.warn(`Binding Limitation: CardExpression does not support GetVariable for "${varName}". Cannot serialize reference to existing card variable.`, block);
-			return null;
-		default:
-			console.warn(`CardExpression (single card) conversion not implemented for block type: ${block.type}.`, block);
-			return null;
-	}
-}
 
 /**
  * Converts a chain of Blockly blocks to an array of OfferChoice objects.

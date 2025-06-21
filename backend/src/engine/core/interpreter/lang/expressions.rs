@@ -38,12 +38,17 @@ pub enum OrderExpression {
 #[ts(export)]
 pub enum CardExpression {
     Create(Box<SuitExpression>, Box<RankExpression>),
+    GetVariable(String),
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub enum CardCollectionExpression {
+    Single(Box<CardExpression>),
     GetVariable(String),
+    AllInZone(Box<ZoneExpression>),
+    TopInZone(Box<ZoneExpression>),
+    BottomInZone(Box<ZoneExpression>),
     InZoneMatchingSuit {
         zone: Box<ZoneExpression>,
         suit: Box<SuitExpression>,

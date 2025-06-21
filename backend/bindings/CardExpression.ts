@@ -2,4 +2,4 @@
 import type { RankExpression } from "./RankExpression";
 import type { SuitExpression } from "./SuitExpression";
 
-export type CardExpression = { "Create": [SuitExpression, RankExpression] };
+export type CardExpression = { "Create": [SuitExpression, RankExpression] } | { "GetVariable": string };

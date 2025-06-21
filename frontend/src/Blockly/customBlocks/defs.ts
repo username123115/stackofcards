@@ -223,7 +223,7 @@ export const CARD_SELECTOR = {
 	"args0": [
 		{
 			"type": "field_dropdown",
-			"name": "SELCTOR",
+			"name": "SELECTOR",
 			"options": [
 				[
 					"top card",
@@ -571,7 +571,7 @@ export const CARDS_MATCHING_SUIT = {
 		},
 		{
 			"type": "input_value",
-			"name": "RANK",
+			"name": "SUIT",
 			"check": "socs_t_suit"
 		}
 	],

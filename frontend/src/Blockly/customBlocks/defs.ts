@@ -208,7 +208,7 @@ export const NUM_CARDS = {
 		{
 			"type": "input_value",
 			"check": ["socs_t_card", "socs_t_card_sel"],
-			"name": "TARGET"
+			"name": "CARD_COLLECTION"
 		}
 	],
 	"output": "Number",

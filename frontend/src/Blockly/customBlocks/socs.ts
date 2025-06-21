@@ -77,7 +77,7 @@ export default function generateBlockDefinitions() {
 			const currentBlock = this;
 			this.appendDummyInput()
 				.appendField("number")
-				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_number', true)), "NUMBER");
+				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_number', true)), "VAR_NAME");
 			this.setColour(230);
 			this.setOutput(true, "Number");
 		}

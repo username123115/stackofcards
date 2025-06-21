@@ -291,7 +291,7 @@ export function blockToStatement(block: Blockly.Block): Statement | null {
  * @returns A NumberExpression or null.
  */
 export function valueBlockToNumberExpression(block: Blockly.Block | null): NumberExpression | null {
-	if (!block || block.isShadow()) return null;
+	if (!block || block.isShadow()) return { Literal: 0 };
 
 	switch (block.type) {
 		case 'math_number':
@@ -315,7 +315,7 @@ export function valueBlockToNumberExpression(block: Blockly.Block | null): Numbe
 			if (!cardCollectionExpr) {
 				console.warn('socs_num_cards block missing card collection.', block);
 				//TODO
-				return null;
+				return { Literal: 0 };
 			}
 			return { CardsIn: cardCollectionExpr };
 		default:
@@ -338,14 +338,14 @@ export function valueBlockToBooleanExpression(block: Blockly.Block | null): Bool
 		case 'logic_compare': {
 			const leftBlock = block.getInput('A')?.connection?.targetBlock() ?? null;
 			const rightBlock = block.getInput('B')?.connection?.targetBlock() ?? null;
-			// TODO: Extend to compare more than just numbers if necessary
-			const leftExpr = valueBlockToNumberExpression(leftBlock); // Assuming Number comparison for now
+
+			const leftExpr = valueBlockToNumberExpression(leftBlock);
 			const rightExpr = valueBlockToNumberExpression(rightBlock);
 			const op = block.getFieldValue('OP') as string;
 
 			if (!leftExpr || !rightExpr || !op) {
 				console.warn('logic_compare block missing inputs or operator.', block);
-				return null;
+				return { Literal: false };
 			}
 			let backendOp: Comparison;
 			switch (op) {
@@ -357,7 +357,7 @@ export function valueBlockToBooleanExpression(block: Blockly.Block | null): Bool
 				case 'GTE': backendOp = 'GTE'; break;
 				default:
 					console.warn(`Unsupported comparison operator: ${op}`, block);
-					return null;
+					return { Literal: false };
 			}
 			return { Comparison: { a: leftExpr, compared_to: backendOp, b: rightExpr } };
 		}
@@ -374,11 +374,11 @@ export function valueBlockToBooleanExpression(block: Blockly.Block | null): Bool
 				console.warn(`socs_player_of_type currently only supports 'CurrentPlayer' due to PlayerExpression limitations. Got: ${JSON.stringify(playerExpr)}`);
 				return null;
 			}
-			return { PlayerIsType: { player: playerExpr as "Current", type_name: typeName } };
+			return { PlayerIsType: { player: playerExpr, type_name: typeName } };
 		}
 		default:
 			console.warn(`BooleanExpression conversion not implemented for block type: ${block.type}.`, block);
-			return null;
+			return { Literal: false };
 	}
 }
 

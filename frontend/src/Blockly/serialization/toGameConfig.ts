@@ -448,24 +448,18 @@ export function valueBlockToZoneExpression(block: Blockly.Block | null): ZoneExp
 		case Defs.B_ZONE_FOR_PLAYER: {
 			const playerBlock = block.getInput('PLAYER')?.connection?.targetBlock() ?? null;
 			const playerExpr = valueBlockToPlayerExpression(playerBlock);
-			const zoneType = block.getFieldValue('ZONE_TYPE');
+			const zoneType = block.getFieldValue('ZONE_NAME');
 
 			if (!playerExpr || !zoneType) {
 				console.warn('socs_zone_for_player block missing player or zone_type.', block);
 				return null;
 			}
-			// TODO: Revisit if PlayerExpression supports GetVariable.
-			if (typeof playerExpr !== 'string' || playerExpr !== 'Current') {
-				console.warn(`socs_zone_for_player: PlayerExpression for player is not "Current", which might be the only supported direct value. Got ${JSON.stringify(playerExpr)}. Needs robust GetVariable in PlayerExpression.`);
-				// If playerExpr is {GetVariable: "name"}, this should ideally be valid.
-				// For now, proceeding as if it might be.
-			}
-			return { PlayerZone: { player: playerExpr, type: zoneType } };
+			return { OwnedByPlayer: { player: playerExpr, zone_name: zoneType } };
 		}
 		case Defs.V_GET_UNIFIED:
-			const varName = block.getFieldValue('VAR_NAME');
+			const varName = block.getFieldValue('VARIABLE');
 			if (!varName) {
-				console.warn('socs_get_unified (for zone) block missing VAR_NAME field.', block);
+				console.warn('socs_get_unified (for zone) block missing VARIABLE field.', block);
 				return null;
 			}
 			return { GetVariable: varName };
@@ -483,6 +477,11 @@ export function valueBlockToZoneExpression(block: Blockly.Block | null): ZoneExp
 export function valueBlockToZoneCollectionExpression(block: Blockly.Block | null): ZoneCollectionExpression | null {
 	if (!block || block.isShadow()) return null;
 
+	const AttemptedSingleExpression = valueBlockToZoneExpression(block);
+	if (AttemptedSingleExpression) {
+		return { Single: AttemptedSingleExpression };
+	}
+
 	switch (block.type) {
 		case Defs.V_ZONES_OF_TYPE: {
 			const zoneType = block.getFieldValue('ZONE_TYPE');
@@ -490,16 +489,14 @@ export function valueBlockToZoneCollectionExpression(block: Blockly.Block | null
 				console.warn('socs_zones_of_type block missing ZONE_TYPE field.', block);
 				return null;
 			}
-			return { AllOfType: zoneType };
+			return { OfType: zoneType };
 		}
 		case Defs.V_GET_UNIFIED:
-			const varName = block.getFieldValue('VAR_NAME');
+			const varName = block.getFieldValue('VARIABLE');
 			if (!varName) {
-				console.warn('socs_get_unified (for zone collection) block missing VAR_NAME field.', block);
+				console.warn('socs_get_unified (for zone collection) block missing VARIABLE field.', block);
 				return null;
 			}
-			// TODO: Verify ZoneCollectionExpression supports GetVariable
-			console.warn(`ZoneCollectionExpression.GetVariable for "${varName}" not confirmed. Assuming it exists.`, block);
 			return { GetVariable: varName };
 		default:
 			console.warn(`ZoneCollectionExpression conversion not implemented for block type: ${block.type}.`, block);

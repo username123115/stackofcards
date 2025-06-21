@@ -86,12 +86,12 @@ export default function generateBlockDefinitions() {
 	Blockly.Blocks[Defs.B_ZONE_FOR_PLAYER] = {
 		init: function(this: Blockly.Block) {
 			const currentBlock = this;
-			this.appendValueInput("OWNER")
+			this.appendValueInput("PLAYER")
 				.appendField("zone owned by")
 				.setCheck("socs_t_player")
 			this.appendDummyInput()
 				.appendField("named")
-				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_player_zone', true)), "NUMBER");
+				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_player_zone', true)), "ZONE_NAME");
 			this.setColour(TYPE_TO_HUE['socs_t_zone']);
 			this.setOutput(true, "socs_t_zone");
 		}
@@ -102,7 +102,7 @@ export default function generateBlockDefinitions() {
 			const currentBlock = this;
 			this.appendDummyInput()
 				.appendField("zones of type")
-				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_zone_class', true)), "NUMBER");
+				.appendField(new Blockly.FieldDropdown(() => getVarOfTypeOptions(currentBlock, 'socs_v_zone_class', true)), "ZONE_TYPE");
 			this.setColour(TYPE_TO_HUE['socs_t_zone_sel']);
 			this.setOutput(true, "socs_t_zone_sel");
 		}

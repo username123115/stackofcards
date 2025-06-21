@@ -388,7 +388,7 @@ export function valueBlockToBooleanExpression(block: Blockly.Block | null): Bool
  */
 export function valueBlockToPlayerCollectionExpression(block: Blockly.Block | null): PlayerCollectionExpression | null {
 	if (!block || block.isShadow()) return null;
-	const attemptSingleExpression = valueBlockToPlayerExpression(block);
+	const attemptSingleExpression = valueBlockToPlayerExpression(block, false);
 	if (attemptSingleExpression) {
 		return { Single: attemptSingleExpression };
 	}
@@ -414,7 +414,7 @@ export function valueBlockToPlayerCollectionExpression(block: Blockly.Block | nu
  * @param block The value block.
  * @returns A PlayerExpression or null.
  */
-export function valueBlockToPlayerExpression(block: Blockly.Block | null): PlayerExpression | null {
+export function valueBlockToPlayerExpression(block: Blockly.Block | null, doWarnings: boolean = true): PlayerExpression | null {
 	if (!block || block.isShadow()) return null;
 
 	switch (block.type) {
@@ -423,13 +423,12 @@ export function valueBlockToPlayerExpression(block: Blockly.Block | null): Playe
 		case Defs.V_GET_UNIFIED:
 			const varName = block.getFieldValue('VARIABLE');
 			if (!varName) {
-				console.warn('socs_get_unified (for player) block missing VARIABLE field.', block);
+				doWarnings && console.warn('socs_get_unified (for player) block missing VARIABLE field.', block);
 				return { GetVariable: "" };
 			}
-			console.warn(`PlayerExpression.GetVariable for "${varName}" not confirmed. PlayerExpression might only be "Current".`, block);
 			return { GetVariable: varName };
 		default:
-			console.warn(`PlayerExpression conversion not implemented for block type: ${block.type}.`, block);
+			doWarnings && console.warn(`PlayerExpression conversion not implemented for block type: ${block.type}.`, block);
 			return null;
 	}
 }
@@ -440,7 +439,7 @@ export function valueBlockToPlayerExpression(block: Blockly.Block | null): Playe
  * @param block The value block.
  * @returns A ZoneExpression or null.
  */
-export function valueBlockToZoneExpression(block: Blockly.Block | null): ZoneExpression | null {
+export function valueBlockToZoneExpression(block: Blockly.Block | null, doWarnings: boolean = true): ZoneExpression | null {
 	if (!block || block.isShadow()) return null;
 
 	switch (block.type) {
@@ -450,7 +449,7 @@ export function valueBlockToZoneExpression(block: Blockly.Block | null): ZoneExp
 			const zoneType = block.getFieldValue('ZONE_NAME');
 
 			if (!playerExpr || !zoneType) {
-				console.warn('socs_zone_for_player block missing player or zone_type.', block);
+				doWarnings && console.warn('socs_zone_for_player block missing player or zone_type.', block);
 				return null;
 			}
 			return { OwnedByPlayer: { player: playerExpr, zone_name: zoneType } };
@@ -458,12 +457,12 @@ export function valueBlockToZoneExpression(block: Blockly.Block | null): ZoneExp
 		case Defs.V_GET_UNIFIED:
 			const varName = block.getFieldValue('VARIABLE') ?? "";
 			if (!varName) {
-				console.warn('socs_get_unified (for zone) block missing VARIABLE field.', block);
+				doWarnings && console.warn('socs_get_unified (for zone) block missing VARIABLE field.', block);
 				return null;
 			}
 			return { GetVariable: varName };
 		default:
-			console.warn(`ZoneExpression conversion not implemented for block type: ${block.type}.`, block);
+			doWarnings && console.warn(`ZoneExpression conversion not implemented for block type: ${block.type}.`, block);
 			return null;
 	}
 }
@@ -476,7 +475,7 @@ export function valueBlockToZoneExpression(block: Blockly.Block | null): ZoneExp
 export function valueBlockToZoneCollectionExpression(block: Blockly.Block | null): ZoneCollectionExpression | null {
 	if (!block || block.isShadow()) return null;
 
-	const AttemptedSingleExpression = valueBlockToZoneExpression(block);
+	const AttemptedSingleExpression = valueBlockToZoneExpression(block, false);
 	if (AttemptedSingleExpression) {
 		return { Single: AttemptedSingleExpression };
 	}
@@ -508,19 +507,19 @@ export function valueBlockToZoneCollectionExpression(block: Blockly.Block | null
  * @param block The value block.
  * @returns A CardExpression or null.
  */
-export function valueBlockToCardExpression(block: Blockly.Block | null): CardExpression | null { // TASK 3
+export function valueBlockToCardExpression(block: Blockly.Block | null, doWarnings: boolean = true): CardExpression | null { // TASK 3
 	if (!block || block.isShadow()) return null;
 
 	switch (block.type) {
 		case Defs.V_GET_UNIFIED: // Represents an existing card variable
 			const varName = block.getFieldValue('VARIABLE');
 			if (!varName) {
-				console.warn('socs_get_unified (for card) block missing VARIABLE field.', block);
+				doWarnings && console.warn('socs_get_unified (for card) block missing VARIABLE field.', block);
 				return null;
 			}
 			return { GetVariable: varName }
 		default:
-			console.warn(`CardExpression (single card) conversion not implemented for block type: ${block.type}.`, block);
+			doWarnings && console.warn(`CardExpression (single card) conversion not implemented for block type: ${block.type}.`, block);
 			return null;
 	}
 }
@@ -534,7 +533,7 @@ export function valueBlockToCardExpression(block: Blockly.Block | null): CardExp
 export function valueBlockToCardCollectionExpression(block: Blockly.Block | null): CardCollectionExpression | null {
 	if (!block || block.isShadow()) return null;
 
-	const attemptSingleExpression = valueBlockToCardExpression(block);
+	const attemptSingleExpression = valueBlockToCardExpression(block, false);
 	if (attemptSingleExpression) {
 		return { Single: attemptSingleExpression };
 	}
@@ -680,16 +679,16 @@ export function valueBlockToOfferChoiceArray(firstChoiceBlock: Blockly.Block | n
 				}
 
 				let selectionType: ChoiceSelectionEnum | null = null;
-				if (choiceTypeStr === 'player') {
+				if (choiceTypeStr === 'socs_t_player') {
 					const playerCollExpr = valueBlockToPlayerCollectionExpression(sourceBlock);
 					if (playerCollExpr) selectionType = { Player: playerCollExpr };
-				} else if (choiceTypeStr === 'set of players') {
+				} else if (choiceTypeStr === 'socs_t_player_sel') {
 					const playerSelExpr = valueBlockToPlayerCollectionExpression(sourceBlock);
 					if (playerSelExpr) selectionType = { PlayerSelection: playerSelExpr };
-				} else if (choiceTypeStr === 'card') {
+				} else if (choiceTypeStr === 'socs_t_card') {
 					const cardCollExpr = valueBlockToCardCollectionExpression(sourceBlock);
 					if (cardCollExpr) selectionType = { Card: cardCollExpr };
-				} else if (choiceTypeStr === 'set of cards') {
+				} else if (choiceTypeStr === 'socs_t_card_sel') {
 					const cardSelExpr = valueBlockToCardCollectionExpression(sourceBlock);
 					if (cardSelExpr) selectionType = { CardSelection: cardSelExpr };
 				} else {

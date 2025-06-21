@@ -1,13 +1,14 @@
 import { useState } from 'react'
 
 import styles from './editor.module.css'
+import cStyles from './config/config.module.css'
+
 import type { GameConfig } from '@bindings/GameConfig'
 
 import OrderList from './config/orders'
 import AllowedRanksList from './config/ranks'
 import AllowedSuitsList from './config/suits'
 import PatternList from './config/patterns'
-import VariableList from './config/variableMappings'
 import ZoneList from './config/zones'
 import PlayerList from './config/players'
 import NumberList from './config/numbers'
@@ -21,6 +22,24 @@ function ConfigDisplay({ config, saveEdits = null }:
 
 	if (saveEdits && (currentConfig != config)) {
 		saveEdits(currentConfig);
+	}
+
+	function PhaseComponent() {
+		return (
+			<div className={cStyles.elementListing}>
+				<div className={cStyles.rounded}>
+					{saveEdits ?
+						<select value={currentConfig.initial_phase} onChange={(e) => setCurrentConfig({ ...currentConfig, initial_phase: e.target.value })}>
+							{
+								Object.keys(config.phases).map(
+									(pname) => <option value={pname}> {pname} </option>
+								)
+							}
+						</select>
+						: <div> currentConfig.initial_phase </div>}
+				</div>
+			</div>
+		)
 	}
 
 	return (
@@ -75,8 +94,10 @@ function ConfigDisplay({ config, saveEdits = null }:
 					<NumberList numbers={config.numbers} handleEditNumbers={saveEdits ? (n) => { setCurrentConfig({ ...config, numbers: n }) } : null} />
 				</div>
 
+
 				<div>
-					<div> Initial phase: {currentConfig.initial_phase} </div>
+					<h1> Initial phase </h1>
+					<PhaseComponent />
 				</div>
 			</div>
 		</>

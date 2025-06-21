@@ -34,6 +34,8 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 			function registerVariables(vlist: string[], name: string) {
 				vlist.map((v) => primaryWorkspace.current?.getVariableMap().createVariable(v, name));
 			}
+			gameConfigToWorkspace(config.phases, primaryWorkspace.current);
+
 			registerVariables(Object.keys(config.zone_classes), "socs_v_zone_class");
 			registerVariables(Object.keys(config.initial_zones), "socs_v_zone");
 			registerVariables(Object.keys(config.player_classes), "socs_v_player_class");
@@ -42,7 +44,6 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 			registerVariables(Object.keys(config.patterns), "socs_v_pattern");
 			registerVariables(config.numbers, "socs_v_number");
 			//primaryWorkspace.current.getVariableMap().createVariable
-			gameConfigToWorkspace(config.phases, primaryWorkspace.current);
 		}
 
 		if (initialXml) {

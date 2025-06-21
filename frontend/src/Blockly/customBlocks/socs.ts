@@ -5,6 +5,7 @@ import type { InterpreterType } from './defs';
 import { TYPE_TO_HUE } from './defs';
 
 function getVarOfType(block: Blockly.Block, typeName: string): string[] {
+	console.log(`searching for variables declared as ${typeName}`);
 	return block.workspace.getVariableMap().getVariablesOfType(typeName).map(
 		(v) => v.getName()
 	)

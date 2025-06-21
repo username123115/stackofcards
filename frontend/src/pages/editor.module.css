@@ -3,4 +3,14 @@
 .pageMenu {
 	list-style-type: none;
 	display: flex;
+	gap: 10px;
+}
+
+.menuButton {
+	background-color: var(--accent-500);
+	border-style: none;
+	color: var(--primary-900);
+	border-radius: 8px;
+	font-size: 1.2rem;
+	padding: 10px;
 }

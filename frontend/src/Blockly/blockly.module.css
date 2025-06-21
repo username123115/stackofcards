@@ -1,6 +1,10 @@
 .blocklyDiv {
-	height: 50%;
 	width: 100%;
-	position: absolute;
-	bottom: 0;
+	height: 100%;
+}
+
+.container {
+	display: flex;
+	width: 80vw;
+	height: 80vh;
 }

@@ -2,12 +2,15 @@ import axios from 'axios'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react';
 
 import type { GameConfig } from '@bindings/GameConfig'
 import { handleAxiosError } from '@client/utility'
 
 import Editor from '@pages/editor'
+
+import Header from '@components/header.tsx'
+import Footer from '@components/footer.tsx'
+import styles from '@styles/utility.module.css'
 
 export const Route = createFileRoute('/rulesets/$rulesetId/edit')({
 	component: RouteComponent,
@@ -41,8 +44,10 @@ function RouteComponent() {
 
 	return (
 		<>
-			<div>
+			<div className={styles.pageWrapper}>
+				<Header />
 				<Editor config={config.data} />
+				<Footer />
 			</div>
 		</>
 	)

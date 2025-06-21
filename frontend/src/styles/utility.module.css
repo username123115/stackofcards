@@ -12,3 +12,8 @@
 	justify-content: center;
 	flex: 1;
 }
+
+.centerHor {
+	display: flex;
+	justify-content: center;
+}

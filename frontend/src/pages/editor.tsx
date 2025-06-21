@@ -14,6 +14,8 @@ import { useRef } from 'react';
 
 import { workspaceToGameConfig } from '@Blockly/serialization/toGameConfig';
 
+import utilityStyles from '@styles/utility.module.css'
+
 type ConfigDisplay = "Block" | "Settings";
 
 function Editor({ config }: { config: GameConfig }) {
@@ -40,8 +42,10 @@ function Editor({ config }: { config: GameConfig }) {
 		<>
 			<div>
 				<SwitchMenu options={["Settings", "Block"]} setOption={handleSwitchDisplay} />
-				{(currentDisplay === "Settings") && <ConfigDisplay config={currentConfig} saveEdits={(e) => setCurrentConfig(e)} />}
-				{(currentDisplay === "Block") && <Blocks config={currentConfig} setWorkspace={handleSetWorkspace} />}
+				<div className={utilityStyles.centerDiv}>
+					{(currentDisplay === "Settings") && <ConfigDisplay config={currentConfig} saveEdits={(e) => setCurrentConfig(e)} />}
+					{(currentDisplay === "Block") && <Blocks config={currentConfig} setWorkspace={handleSetWorkspace} />}
+				</div>
 
 			</div>
 		</>
@@ -50,10 +54,10 @@ function Editor({ config }: { config: GameConfig }) {
 
 function SwitchMenu({ options, setOption }: { options: ConfigDisplay[], setOption: ((displayOption: ConfigDisplay) => void) }) {
 	const olist = options.map(
-		(opt) => <li key={opt}> <button onClick={() => setOption(opt)}> {opt} </button> </li>
+		(opt) => <li key={opt}> <button className={styles.menuButton} onClick={() => setOption(opt)}> {opt} </button> </li>
 
 	)
-	return (<div>
+	return (<div className={utilityStyles.centerHor}>
 		<ul className={styles.pageMenu} >
 			{olist}
 		</ul>

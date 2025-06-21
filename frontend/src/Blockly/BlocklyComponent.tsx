@@ -66,9 +66,11 @@ function BlocklyComponent(props: BlocklyComponentProps) {
 
 	return (
 		<React.Fragment>
-			<div ref={blocklyDiv} className={styles.blocklyDiv} />
-			<div style={{ display: 'none' }} ref={toolbox}>
-				{props.children}
+			<div className={styles.container}>
+				<div ref={blocklyDiv} className={styles.blocklyDiv} />
+				<div style={{ display: 'none' }} ref={toolbox}>
+					{props.children}
+				</div>
 			</div>
 		</React.Fragment>
 	);

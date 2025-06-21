@@ -15,6 +15,13 @@ export const TYPE_TO_HUE: { [key in InterpreterType]: number } = {
 	"socs_t_suit": 20,
 }
 
+export const F_VAR_DECL = "DECL";
+export const F_VAR_GET = "GET";
+export const F_DROPDOWN_TYPE = "CHOICE_TYPE";
+export const F_BLOCK_LIST_OFFERS = "OFFERS";
+export const F_SOURCE = "SOURCE";
+export const F_DEST = "DEST";
+
 export const B_IF_ELSE = "socs_remade_if_else"
 export const B_WHILE = "socs_remade_while"
 export const B_PHASE = "socs_phase"
@@ -46,7 +53,7 @@ export const V_CARD_SELECTOR = "socs_card_selector"
 
 export const V_RANK_FROM_CARD = "socs_rank_from_card"
 export const V_SUIT_FROM_CARD = "socs_suit_from_card"
-export const VN_CARDS_MATCHING_RANK = "socs_cards_matching_rank"
+export const V_CARDS_MATCHING_RANK = "socs_cards_matching_rank"
 export const V_CARDS_MATCHING_SUIT = "socs_cards_matching_suit"
 
 export const V_PLAYER_CURRENT = "socs_player_current"
@@ -102,7 +109,7 @@ export const WHILE = {
 	"colour": 210
 }
 
-export const PHASE_JSON = {
+export const PHASE = {
 	"type": B_PHASE,
 	"tooltip": "Game phase",
 	"message0": "phase %1",
@@ -529,7 +536,7 @@ export const SUIT_FROM_CARD = {
 }
 
 export const CARDS_MATCHING_RANK = {
-	"type": VN_CARDS_MATCHING_RANK,
+	"type": V_CARDS_MATCHING_RANK,
 	"tooltip": "",
 	"helpUrl": "",
 	"message0": "cards in %1 matching rank %2",
@@ -588,7 +595,7 @@ export const DECLARE_WINNER = {
 	"colour": 225
 }
 
-export const ALL_STATIC_DEFS = [IF_ELSE, PHASE_JSON, SHUFFLE_JSON, GEN_CARDS, OFFER_CASE,
+export const ALL_STATIC_DEFS = [IF_ELSE, PHASE, SHUFFLE_JSON, GEN_CARDS, OFFER_CASE,
 	OFFER, OFFER_DECLARELESS, OFFER_CASE_ANY, PLAYER_OF_TYPE, PLAYER_ADVANCE, PLAYER_ADVANCE_TYPE,
 	PLAYER_CURRENT, PLAYERS_ALL, DEAL_CARD, NUM_CARDS, WHILE, CARD_SELECTOR, CHOICE_MOVE, CARDS_MOVE,
 	RANK_FROM_CARD, SUIT_FROM_CARD, CARDS_MATCHING_RANK, CARDS_MATCHING_SUIT, DECLARE_WINNER]

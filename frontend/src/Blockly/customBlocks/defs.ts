@@ -512,7 +512,7 @@ export const RANK_FROM_CARD = {
 	"args0": [
 		{
 			"type": "input_value",
-			"name": "NAME",
+			"name": "CARD",
 			"check": "socs_t_card"
 		}
 	],
@@ -528,7 +528,7 @@ export const SUIT_FROM_CARD = {
 	"args0": [
 		{
 			"type": "input_value",
-			"name": "NAME",
+			"name": "CARD",
 			"check": "socs_t_card"
 		}
 	],

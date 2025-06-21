@@ -609,7 +609,7 @@ export function valueBlockToCardCollectionExpression(block: Blockly.Block | null
  * @param block The value block.
  * @returns A RankExpression or null.
  */
-export function valueBlockToRankExpression(block: Blockly.Block | null): RankExpression | null { // TASK 3
+export function valueBlockToRankExpression(block: Blockly.Block | null): RankExpression | null {
 	if (!block || block.isShadow()) return null;
 
 	switch (block.type) {
@@ -619,12 +619,6 @@ export function valueBlockToRankExpression(block: Blockly.Block | null): RankExp
 			if (!cardExpr) {
 				console.warn('socs_rank_from_card is missing a valid CardExpression for its CARD input.', block);
 				return null;
-			}
-			// Current CardExpression is only {Create: ...}, so this will likely fail if we need to get rank from an *existing* card.
-			if (!('Create' in cardExpr)) {
-				console.warn(`socs_rank_from_card: Input CardExpression is not 'Create'. Getting rank from existing card variables is not directly supported by current CardExpression binding. CardExpr: ${JSON.stringify(cardExpr)}`, block);
-				// This highlights a binding limitation. If CardExpression could be {GetVariable: ...}, this would be different.
-				// For now, this path will likely lead to null if the card isn't being created inline.
 			}
 			return { FromCard: cardExpr };
 		}
@@ -649,9 +643,6 @@ export function valueBlockToSuitExpression(block: Blockly.Block | null): SuitExp
 			if (!cardExpr) {
 				console.warn('socs_suit_from_card is missing a valid CardExpression for its CARD input.', block);
 				return null;
-			}
-			if (!('Create' in cardExpr)) {
-				console.warn(`socs_suit_from_card: Input CardExpression is not 'Create'. Getting suit from existing card variables is not directly supported by current CardExpression binding. CardExpr: ${JSON.stringify(cardExpr)}`, block);
 			}
 			return { FromCard: cardExpr };
 		}

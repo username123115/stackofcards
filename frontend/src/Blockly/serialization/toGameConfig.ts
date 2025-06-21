@@ -300,7 +300,7 @@ export function valueBlockToNumberExpression(block: Blockly.Block | null): Numbe
 				return { Literal: num };
 			} catch (e) {
 				console.warn(`Could not parse Number from math_number block: ${num}`, block);
-				return { Literal: 0 };
+				return null;
 			}
 		case Defs.V_GET_NUMBER:
 			const varName = block.getFieldValue('VAR_NAME');
@@ -315,12 +315,12 @@ export function valueBlockToNumberExpression(block: Blockly.Block | null): Numbe
 			if (!cardCollectionExpr) {
 				console.warn('socs_num_cards block missing card collection.', block);
 				//TODO
-				return { Literal: 0 };
+				return null;
 			}
 			return { CardsIn: cardCollectionExpr };
 		default:
 			console.warn(`NumberExpression conversion not implemented for block type: ${block.type}.`, block);
-			return { Literal: 0 };
+			return null;
 	}
 }
 
@@ -345,7 +345,7 @@ export function valueBlockToBooleanExpression(block: Blockly.Block | null): Bool
 
 			if (!leftExpr || !rightExpr || !op) {
 				console.warn('logic_compare block missing inputs or operator.', block);
-				return { Literal: false };
+				return null;
 			}
 			let backendOp: Comparison;
 			switch (op) {
@@ -357,7 +357,7 @@ export function valueBlockToBooleanExpression(block: Blockly.Block | null): Bool
 				case 'GTE': backendOp = 'GTE'; break;
 				default:
 					console.warn(`Unsupported comparison operator: ${op}`, block);
-					return { Literal: false };
+					return null;
 			}
 			return { Comparison: { a: leftExpr, compared_to: backendOp, b: rightExpr } };
 		}
@@ -378,7 +378,7 @@ export function valueBlockToBooleanExpression(block: Blockly.Block | null): Bool
 		}
 		default:
 			console.warn(`BooleanExpression conversion not implemented for block type: ${block.type}.`, block);
-			return { Literal: false };
+			return null;
 	}
 }
 
@@ -389,20 +389,20 @@ export function valueBlockToBooleanExpression(block: Blockly.Block | null): Bool
  */
 export function valueBlockToPlayerCollectionExpression(block: Blockly.Block | null): PlayerCollectionExpression | null {
 	if (!block || block.isShadow()) return null;
+	const attemptSingleExpression = valueBlockToPlayerExpression(block);
+	if (attemptSingleExpression) {
+		return { Single: attemptSingleExpression };
+	}
 
 	switch (block.type) {
 		case Defs.V_PLAYERS_ALL:
 			return 'AllPlayers';
-		case Defs.V_PLAYER_CURRENT:
-			return { Single: 'CurrentPlayer' };
 		case Defs.V_GET_UNIFIED:
-			const varName = block.getFieldValue('VAR_NAME');
+			const varName = block.getFieldValue('VARIABLE');
 			if (!varName) {
 				console.warn('socs_get_unified (for player collection) block missing VAR_NAME field.', block);
 				return null;
 			}
-			// TODO: Verify PlayerCollectionExpression supports GetVariable
-			console.warn(`PlayerCollectionExpression.GetVariable for "${varName}" not confirmed in bindings. Assuming it exists.`, block);
 			return { GetVariable: varName };
 		default:
 			console.warn(`PlayerCollectionExpression conversion not implemented for block type: ${block.type}.`, block);

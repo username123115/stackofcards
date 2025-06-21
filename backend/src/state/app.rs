@@ -13,9 +13,12 @@ use tracing::{error, info};
 pub type GameTx = mpsc::UnboundedSender<WebgameRequest>;
 pub type RoomMap = Arc<Mutex<HashMap<u64, GameTx>>>;
 
+use sqlx::PgPool;
+
 #[derive(Clone, Debug)]
 pub struct AppState {
     pub rooms: RoomMap,
+    pub db: PgPool,
 }
 
 impl AppState {

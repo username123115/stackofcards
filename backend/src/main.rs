@@ -21,8 +21,20 @@ use tracing_subscriber;
 async fn main() {
     tracing_subscriber::fmt::init();
 
+    let config = backend::config::Config::from_env();
+
+    info!("Creating new sql pool");
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&config.database_url)
+        .await
+        .unwrap();
+
+    sqlx::migrate!().run(&pool).await.unwrap();
+
     let state = AppState {
         rooms: Arc::new(Mutex::new(HashMap::new())),
+        db: pool,
     };
 
     let app = Router::new()
@@ -38,20 +50,12 @@ async fn main() {
         .route("/v1/rooms/{room}", get(wss::rooms::join_handler)) //wss upgrade
         .with_state(state);
 
-    let config = backend::config::Config::from_env();
-
-    /* info!("Creating new sql pool");
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect(&config.database_url)
-        .await
-        .unwrap(); */
-
     info!("Binding port");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:5050").await.unwrap();
     info!("Listening on {}", listener.local_addr().unwrap());
 
     info!("Starting SoCs");
+
     axum::serve(listener, app).await.unwrap();
 }
 

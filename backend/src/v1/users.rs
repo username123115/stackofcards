@@ -34,7 +34,21 @@ struct User {
 async fn create_user(
     State(state): State<state::app::AppState>,
     Json(req): Json<UserBody<NewUser>>,
-) -> impl IntoResponse {
+) -> anyhow::Result<Json<UserBody<User>>> {
+    let password_hash = hash_password(req.user.password).await?;
+    let user_id = sqlx::query_scalar!(
+        r#"insert into "user" (username, password_hash) values ($1, $2) returning user_id"#,
+        req.user.username,
+        password_hash,
+    )
+    .fetch_one(&state.db)
+    .await?;
+    Ok(Json(UserBody {
+        user: User {
+            token: "TODO".into(),
+            username: req.user.username,
+        },
+    }))
 }
 
 async fn hash_password(password: String) -> anyhow::Result<String> {

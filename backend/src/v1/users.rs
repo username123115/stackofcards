@@ -58,7 +58,9 @@ pub async fn create_user(
         ));
     }
 
-    let password_hash = hash_password(req.user.password).await?;
+    let password_hash = hash_password(req.user.password)
+        .await
+        .map_err(|e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "couldn't hash password"))?;
     let user_id = sqlx::query_scalar!(
         r#"insert into "user" (username, password_hash) values ($1, $2) returning user_id"#,
         req.user.username,
@@ -66,14 +68,14 @@ pub async fn create_user(
     )
     .fetch_one(&state.db)
     .await
-    .unwrap_or(Err(new_web_error(
-        StatusCode::INTERNAL_SERVER_ERROR,
-        "Unable to create user",
-    )));
+    .map_err(|e| new_web_error(StatusCode::CONFLICT, "Username already exists"))?;
 
-    let session = create_session(state, user_id)
-        .await
-        .context("User created, but failed to acquire session")?;
+    let session = create_session(state, user_id).await.map_err(|e| {
+        new_web_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "User created, but failed to acquire session",
+        )
+    })?;
     Ok(jar
         .add(
             Cookie::build(("socs_session_id", session.session_id.to_string()))

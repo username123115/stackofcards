@@ -12,7 +12,11 @@ function Header() {
 						</h1>
 					</a>
 				</li>
-				<li> <a href="/"> Play </a> </li>
+
+				<ul>
+					<li> <a href="/"> Play </a> </li>
+					<li> <a href="/login"> Login </a> </li>
+				</ul>
 			</ul>
 		</header>
 	)

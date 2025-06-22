@@ -11,6 +11,8 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SignupImport } from './routes/signup'
+import { Route as LoginImport } from './routes/login'
 import { Route as CreateGameImport } from './routes/create-game'
 import { Route as CardsImport } from './routes/cards'
 import { Route as AboutImport } from './routes/about'
@@ -19,6 +21,18 @@ import { Route as GamesGameIdImport } from './routes/games/$gameId'
 import { Route as RulesetsRulesetIdEditImport } from './routes/rulesets/$rulesetId/edit'
 
 // Create/Update Routes
+
+const SignupRoute = SignupImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const CreateGameRoute = CreateGameImport.update({
   id: '/create-game',
@@ -88,6 +102,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateGameImport
       parentRoute: typeof rootRoute
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupImport
+      parentRoute: typeof rootRoute
+    }
     '/games/$gameId': {
       id: '/games/$gameId'
       path: '/games/$gameId'
@@ -112,6 +140,8 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
 }
@@ -121,6 +151,8 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
 }
@@ -131,6 +163,8 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/cards': typeof CardsRoute
   '/create-game': typeof CreateGameRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/games/$gameId': typeof GamesGameIdRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
 }
@@ -142,6 +176,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/cards'
     | '/create-game'
+    | '/login'
+    | '/signup'
     | '/games/$gameId'
     | '/rulesets/$rulesetId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -150,6 +186,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/cards'
     | '/create-game'
+    | '/login'
+    | '/signup'
     | '/games/$gameId'
     | '/rulesets/$rulesetId/edit'
   id:
@@ -158,6 +196,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/cards'
     | '/create-game'
+    | '/login'
+    | '/signup'
     | '/games/$gameId'
     | '/rulesets/$rulesetId/edit'
   fileRoutesById: FileRoutesById
@@ -168,6 +208,8 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CardsRoute: typeof CardsRoute
   CreateGameRoute: typeof CreateGameRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
   RulesetsRulesetIdEditRoute: typeof RulesetsRulesetIdEditRoute
 }
@@ -177,6 +219,8 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CardsRoute: CardsRoute,
   CreateGameRoute: CreateGameRoute,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
   GamesGameIdRoute: GamesGameIdRoute,
   RulesetsRulesetIdEditRoute: RulesetsRulesetIdEditRoute,
 }
@@ -195,6 +239,8 @@ export const routeTree = rootRoute
         "/about",
         "/cards",
         "/create-game",
+        "/login",
+        "/signup",
         "/games/$gameId",
         "/rulesets/$rulesetId/edit"
       ]
@@ -210,6 +256,12 @@ export const routeTree = rootRoute
     },
     "/create-game": {
       "filePath": "create-game.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
+    },
+    "/signup": {
+      "filePath": "signup.tsx"
     },
     "/games/$gameId": {
       "filePath": "games/$gameId.tsx"

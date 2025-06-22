@@ -1,20 +1,17 @@
 use axum::{Json, http::StatusCode};
+use serde::{Deserialize, Serialize};
+#[derive(Serialize, Deserialize)]
 pub struct ErrorDetail {
     pub error: String,
 }
 
-pub struct Error {
-    pub status: StatusCode,
-    pub error: Json<ErrorDetail>,
-}
+pub type WebError = (StatusCode, Json<ErrorDetail>);
 
-impl Error {
-    pub fn new(status: StatusCode, details: &str) -> Self {
-        Self {
-            status,
-            error: Json(ErrorDetail {
-                error: details.to_string(),
-            }),
-        }
-    }
+pub fn new_web_error(status: StatusCode, message: &str) -> WebError {
+    (
+        status,
+        Json(ErrorDetail {
+            error: message.to_string(),
+        }),
+    )
 }

@@ -1,4 +1,4 @@
-use crate::errors::Error;
+use crate::errors::{WebError, new_web_error};
 use crate::state;
 
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
@@ -44,15 +44,18 @@ pub async fn create_user(
     jar: CookieJar,
     State(state): State<state::app::AppState>,
     Json(req): Json<UserBody<NewUser>>,
-) -> Result<CookieJar, Error> {
+) -> Result<CookieJar, WebError> {
     if !req.user.username.chars().all(char::is_alphanumeric) {
-        return Err(Error::new(
+        return Err(new_web_error(
             StatusCode::BAD_REQUEST,
             "Alphanumeric name field only",
         ));
     }
     if req.user.password.len() < 8 {
-        return Err(anyhow::anyhow!("Password should be > 8 characters"));
+        return Err(new_web_error(
+            StatusCode::BAD_REQUEST,
+            "Password should be > 8 characters",
+        ));
     }
 
     let password_hash = hash_password(req.user.password).await?;
@@ -62,7 +65,11 @@ pub async fn create_user(
         password_hash,
     )
     .fetch_one(&state.db)
-    .await?;
+    .await
+    .unwrap_or(Err(new_web_error(
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "Unable to create user",
+    )));
 
     let session = create_session(state, user_id)
         .await

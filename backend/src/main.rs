@@ -30,8 +30,6 @@ async fn main() {
         .await
         .unwrap();
 
-    sqlx::migrate!().run(&pool).await.unwrap();
-
     let state = AppState {
         rooms: Arc::new(Mutex::new(HashMap::new())),
         db: pool,

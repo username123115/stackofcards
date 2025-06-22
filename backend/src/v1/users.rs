@@ -1,12 +1,14 @@
 use crate::state;
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum_extra::extract::cookie::{Cookie, CookieJar};
 use rand;
 use serde;
 
 use anyhow::Context;
-
 use argon2::password_hash::{SaltString, rand_core::OsRng};
 use argon2::{Argon2, PasswordHash};
+
+use state::auth::{create_session, get_session};
 
 #[derive(serde::Deserialize, serde::Serialize)]
 struct UserBody<T> {
@@ -27,14 +29,22 @@ struct LoginUser {
 
 #[derive(serde::Deserialize)]
 struct User {
-    token: String,
     username: String,
 }
 
+//TODO: Check against whitespace
 async fn create_user(
     State(state): State<state::app::AppState>,
     Json(req): Json<UserBody<NewUser>>,
-) -> anyhow::Result<Json<UserBody<User>>> {
+    jar: CookieJar,
+) -> anyhow::Result<(CookieJar)> {
+    if (!req.user.username.chars().all(char::is_alphanumeric)) {
+        return Err(anyhow::anyhow!("Alphanumeric name field only"));
+    }
+    if (req.user.password.len() < 8) {
+        return Err(anyhow::anyhow!("Password should be > 8 characters"));
+    }
+
     let password_hash = hash_password(req.user.password).await?;
     let user_id = sqlx::query_scalar!(
         r#"insert into "user" (username, password_hash) values ($1, $2) returning user_id"#,
@@ -43,12 +53,16 @@ async fn create_user(
     )
     .fetch_one(&state.db)
     .await?;
-    Ok(Json(UserBody {
-        user: User {
-            token: "TODO".into(),
-            username: req.user.username,
-        },
-    }))
+
+    let session = create_session(state, user_id)
+        .await
+        .context("User created, but failed to acquire session")?;
+    Ok(jar.add(
+        Cookie::build(("socs_session_id", session.session_id.to_string()))
+            .path("/")
+            .secure(true)
+            .http_only(true),
+    ))
 }
 
 async fn hash_password(password: String) -> anyhow::Result<String> {

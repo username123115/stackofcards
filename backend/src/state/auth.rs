@@ -13,7 +13,7 @@ pub struct UserSession {
     pub player_id: uuid::Uuid,
 }
 
-async fn create_session(state: AppState, player_id: uuid::Uuid) -> anyhow::Result<UserSession> {
+pub async fn create_session(state: AppState, player_id: uuid::Uuid) -> anyhow::Result<UserSession> {
     let created_at: DateTime<Utc> = Utc::now();
     let expires: DateTime<Utc> = created_at + Duration::days(30);
     let session_id = sqlx::query_scalar!(
@@ -30,7 +30,8 @@ async fn create_session(state: AppState, player_id: uuid::Uuid) -> anyhow::Resul
     })
 }
 
-async fn get_session(state: AppState, session_id: uuid::Uuid) -> anyhow::Result<UserSession> {
+pub async fn get_session(state: AppState, session_id: uuid::Uuid) -> anyhow::Result<UserSession> {
+    let current_time: DateTime<Utc> = Utc::now();
     let session = sqlx::query_as!(
         UserSession,
         r#" 
@@ -46,5 +47,8 @@ async fn get_session(state: AppState, session_id: uuid::Uuid) -> anyhow::Result<
     )
     .fetch_one(&state.db)
     .await?;
+    if (current_time > session.expires) {
+        return Err(anyhow::anyhow!("Session expired"));
+    }
     Ok(session)
 }

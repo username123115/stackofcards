@@ -3,6 +3,7 @@ pub mod database;
 pub mod engine;
 pub mod state;
 
+pub mod errors;
 pub mod v1;
 pub mod wss;
 

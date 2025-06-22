@@ -1,8 +1,10 @@
+use crate::errors::Error;
 use crate::state;
+
 use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
 use axum_extra::extract::cookie::{Cookie, CookieJar};
-use rand;
-use serde;
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 use anyhow::Context;
 use argon2::password_hash::{SaltString, rand_core::OsRng};
@@ -10,38 +12,46 @@ use argon2::{Argon2, PasswordHash};
 
 use state::auth::{create_session, get_session};
 
-#[derive(serde::Deserialize, serde::Serialize)]
-struct UserBody<T> {
+#[derive(TS, Serialize, Deserialize)]
+#[ts(export)]
+pub struct UserBody<T> {
     user: T,
 }
 
-#[derive(serde::Deserialize)]
-struct NewUser {
-    username: String,
-    password: String,
+#[derive(TS, Serialize, Deserialize)]
+#[ts(export)]
+pub struct NewUser {
+    pub username: String,
+    pub password: String,
 }
 
-#[derive(serde::Deserialize)]
-struct LoginUser {
-    username: String,
-    password: String,
+#[derive(TS, Serialize, Deserialize)]
+#[ts(export)]
+pub struct LoginUser {
+    pub username: String,
+    pub password: String,
 }
 
-#[derive(serde::Deserialize)]
-struct User {
-    username: String,
+#[derive(TS, Serialize, Deserialize)]
+#[ts(export)]
+pub struct User {
+    pub username: String,
 }
 
 //TODO: Check against whitespace
-async fn create_user(
+#[axum::debug_handler]
+pub async fn create_user(
+    jar: CookieJar,
     State(state): State<state::app::AppState>,
     Json(req): Json<UserBody<NewUser>>,
-    jar: CookieJar,
-) -> anyhow::Result<(CookieJar)> {
-    if (!req.user.username.chars().all(char::is_alphanumeric)) {
-        return Err(anyhow::anyhow!("Alphanumeric name field only"));
+) -> Result<CookieJar, Error> {
+    if !req.user.username.chars().all(char::is_alphanumeric) {
+        return Err(Error::new(
+            StatusCode::BAD_REQUEST,
+            "Alphanumeric name field only",
+        ));
     }
-    if (req.user.password.len() < 8) {
+    if req.user.password.len() < 8 {
         return Err(anyhow::anyhow!("Password should be > 8 characters"));
     }
 
@@ -57,15 +67,20 @@ async fn create_user(
     let session = create_session(state, user_id)
         .await
         .context("User created, but failed to acquire session")?;
-    Ok(jar.add(
-        Cookie::build(("socs_session_id", session.session_id.to_string()))
-            .path("/")
-            .secure(true)
-            .http_only(true),
-    ))
+    Ok(jar
+        .add(
+            Cookie::build(("socs_session_id", session.session_id.to_string()))
+                .path("/")
+                .secure(true)
+                .http_only(true),
+        )
+        .add(Cookie::build((
+            "socs_player_id",
+            session.player_id.to_string(),
+        ))))
 }
 
-async fn hash_password(password: String) -> anyhow::Result<String> {
+pub async fn hash_password(password: String) -> anyhow::Result<String> {
     // Argon2 hashing is designed to be computationally intensive,
     // so we need to do this on a blocking thread.
     Ok(
@@ -80,7 +95,7 @@ async fn hash_password(password: String) -> anyhow::Result<String> {
     )
 }
 
-async fn verify_password(password: String, password_hash: String) -> anyhow::Result<()> {
+pub async fn verify_password(password: String, password_hash: String) -> anyhow::Result<()> {
     Ok(tokio::task::spawn_blocking(move || -> anyhow::Result<()> {
         let hash = PasswordHash::new(&password_hash)
             .map_err(|e| anyhow::anyhow!("invalid password hash: {}", e))?;

@@ -61,6 +61,7 @@ pub async fn create_user(
     let password_hash = hash_password(req.user.password)
         .await
         .map_err(|e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "couldn't hash password"))?;
+
     let user_id = sqlx::query_scalar!(
         r#"insert into "user" (username, password_hash) values ($1, $2) returning user_id"#,
         req.user.username,

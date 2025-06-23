@@ -30,6 +30,26 @@ pub async fn create_ruleset(
     Ok(ruleset_id)
 }
 
+pub async fn update_ruleset(
+    state: AppState,
+    ruleset_id: &Uuid,
+    new_config: &str,
+) -> anyhow::Result<()> {
+    sqlx::query!(
+        r#"
+        update "ruleset"
+        set config = $1
+        where ruleset_id = $2
+        "#,
+        new_config,
+        ruleset_id.clone(),
+    )
+    .execute(&state.db)
+    .await?;
+
+    Ok(())
+}
+
 pub async fn get_ruleset(state: AppState, ruleset_id: &Uuid) -> anyhow::Result<Ruleset> {
     let result = sqlx::query_as!(
         Ruleset,
@@ -39,6 +59,51 @@ pub async fn get_ruleset(state: AppState, ruleset_id: &Uuid) -> anyhow::Result<R
         ruleset_id.clone(),
     )
     .fetch_one(&state.db)
+    .await?;
+    Ok(result)
+}
+
+pub async fn get_rulesets_by_owner(
+    state: AppState,
+    owner: &Uuid,
+    limit: i64,
+    offset: i64,
+) -> anyhow::Result<Vec<Ruleset>> {
+    let result = sqlx::query_as!(
+        Ruleset,
+        r#"
+        select ruleset_id, created_at, updated_at, config, config_version, based_on, owner
+        from "ruleset"
+        where owner = $1
+        order by created_at desc
+        limit $2 offset $3
+        "#,
+        owner.clone(),
+        limit,
+        offset,
+    )
+    .fetch_all(&state.db)
+    .await?;
+    Ok(result)
+}
+
+pub async fn get_rulesets_by_time(
+    state: AppState,
+    limit: i64,
+    offset: i64,
+) -> anyhow::Result<Vec<Ruleset>> {
+    let result = sqlx::query_as!(
+        Ruleset,
+        r#"
+        select ruleset_id, created_at, updated_at, config, config_version, based_on, owner
+        from "ruleset"
+        order by coalesce(updated_at, created_at) desc
+        limit $1 offset $2
+        "#,
+        limit,
+        offset,
+    )
+    .fetch_all(&state.db)
     .await?;
     Ok(result)
 }

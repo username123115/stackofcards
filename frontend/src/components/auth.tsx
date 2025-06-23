@@ -27,7 +27,7 @@ export function SignIn({ login }: { login: ((user: LoginUser) => void) }) {
 				<a href="/signup"> Not a user yet? Sign up </a>
 			</div >
 			<div>
-				<button> Submit </button>
+				<button onClick={() => login({ username: username, password: password })}> Submit </button>
 			</div>
 		</div>
 	)

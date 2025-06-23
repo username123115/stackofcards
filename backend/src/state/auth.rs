@@ -4,6 +4,8 @@ use chrono::{DateTime, Duration, Utc};
 use sqlx;
 use uuid::Uuid;
 
+use axum_extra::extract::cookie::{Cookie, CookieJar};
+
 pub struct UserSession {
     pub created_at: DateTime<Utc>,
     pub expires: DateTime<Utc>,
@@ -73,4 +75,13 @@ pub async fn get_user_by_name(state: AppState, name: String) -> anyhow::Result<U
     .fetch_one(&state.db)
     .await?;
     Ok(user)
+}
+
+pub async fn user_auth(state: AppState, jar: CookieJar) -> anyhow::Result<UserSession> {
+    if let Some(token) = jar.get("socs_session_id") {
+        let uid = Uuid::parse_str(token.value())?;
+        let session = get_session(state, uid).await?;
+        return Ok(session);
+    }
+    Err(anyhow::anyhow!("No login token"))
 }

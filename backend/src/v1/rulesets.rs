@@ -5,6 +5,8 @@ use axum::{
     response::IntoResponse,
 };
 
+use axum_extra::extract::cookie::{Cookie, CookieJar};
+
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
@@ -25,7 +27,7 @@ pub struct RulesetDescriber {
 //TODO: Pending the DSL becoming complete, a Rust implementation of Go Fish will be used regardless
 //of game
 
-pub fn get_rulesets() -> Vec<RulesetDescriber> {
+pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
     let examples: [RulesetDescriber; 1] = [RulesetDescriber {
         name: String::from("Demonstration"),
         description: String::from(
@@ -55,8 +57,8 @@ curl -X POST localhost:5173/v1/rulesets \
 -i
 */
 
-pub async fn get() -> Json<Vec<RulesetDescriber>> {
-    Json(get_rulesets())
+pub async fn get_rulesets() -> Json<Vec<RulesetDescriber>> {
+    Json(hardcoded_rulesets())
 }
 
 pub async fn ruleset_id_get(Path(ruleset_id): Path<u64>) -> impl IntoResponse {
@@ -67,10 +69,20 @@ pub async fn ruleset_id_get(Path(ruleset_id): Path<u64>) -> impl IntoResponse {
     }
 }
 
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
+pub struct RulesetResult {}
+
+pub async fn create_ruleset(
+    State(state): State<state::app::AppState>,
+    jar: CookieJar,
+) -> impl IntoResponse {
+}
+
 #[instrument]
 #[axum::debug_handler]
 // Spawn a game task and associate it with a code
-pub async fn post(
+pub async fn create_game(
     State(state): State<state::app::AppState>,
     Json(game): Json<GameCreateRequest>,
 ) -> impl IntoResponse {

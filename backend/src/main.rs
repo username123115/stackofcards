@@ -38,8 +38,8 @@ async fn main() {
     let app = Router::new()
         .route("/v1/hello", get(hello))
         .route("/v1/test", get(v1::object_test::handler))
-        .route("/v1/rulesets", get(v1::rulesets::get))
-        .route("/v1/rulesets", post(v1::rulesets::post))
+        .route("/v1/rulesets", get(v1::rulesets::get_rulesets))
+        .route("/v1/rulesets", post(v1::rulesets::create_game))
         .route(
             "/v1/rulesets/{ruleset_id}",
             get(v1::rulesets::ruleset_id_get),

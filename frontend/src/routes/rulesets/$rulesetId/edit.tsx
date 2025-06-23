@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 
 import { handleAxiosError } from '@client/utility'
 
@@ -12,12 +12,13 @@ import Footer from '@components/footer.tsx'
 import styles from '@styles/utility.module.css'
 
 import type { RulesetInfo } from '@bindings/RulesetInfo'
+import type { RulesetResult } from '@bindings/RulesetResult'
 
 export const Route = createFileRoute('/rulesets/$rulesetId/edit')({
 	component: RouteComponent,
 })
 
-async function fetchConfig(rulesetId: String): Promise<RulesetInfo> {
+async function getConfig(rulesetId: String): Promise<RulesetInfo> {
 	try {
 		//TODO: Maybe sanatize rulesetId
 		const response = await axios.get<RulesetInfo>(`/v1/rulesets/${rulesetId}`);
@@ -27,14 +28,32 @@ async function fetchConfig(rulesetId: String): Promise<RulesetInfo> {
 	}
 }
 
+async function postConfig(rulesetId: String, rulesetInfo: RulesetInfo) {
+	try {
+		const response = await axios.post<RulesetResult>(`/v1/rulesets/${rulesetId}/edit`, rulesetInfo);
+		return response.data;
+	} catch (error) {
+		handleAxiosError(error, "Ruleset not found");
+	}
+}
+
 function RouteComponent() {
 	const { rulesetId } = Route.useParams();
 
-	async function getConfig() {
-		return fetchConfig(rulesetId);
+	async function fetchConfig() {
+		return getConfig(rulesetId);
 	}
 
-	const rulesetInfo = useQuery({ queryKey: [`GET /v1/rulesets/${rulesetId}`], queryFn: getConfig })
+	async function editConfig(ruleset: RulesetInfo) {
+		return postConfig(rulesetId, ruleset);
+	}
+
+	const rulesetInfo = useQuery({ queryKey: [`GET /v1/rulesets/${rulesetId}`], queryFn: fetchConfig })
+	const editMutation = useMutation<RulesetResult, Error, RulesetInfo>({ mutationFn: editConfig });
+
+	function handleEditRuleset(rules: RulesetInfo) {
+		editMutation.mutate(rules);
+	}
 
 	if (rulesetInfo.status === 'pending') {
 		return <span> Fetching ruleset data... </span>
@@ -43,11 +62,25 @@ function RouteComponent() {
 		return <span> Error: {rulesetInfo.error.message} </span>
 	}
 
+	let message: string | null = null;
+
+	if (editMutation.isPending) {
+		message = "Saving...";
+	}
+	if (editMutation.isError) {
+		message = `Error: ${editMutation.error.message}`
+	}
+	if (editMutation.isSuccess) {
+		if (editMutation.data.ruleset_id !== rulesetId) {
+			return <Navigate to="/rulesets/$rulesetId/edit" params={{ rulesetId: editMutation.data.ruleset_id }} />
+		}
+	}
+
 	return (
 		<>
 			<div className={styles.pageWrapper}>
 				<Header />
-				<Editor ruleset={rulesetInfo.data} />
+				<Editor ruleset={rulesetInfo.data} message={message} saveRuleset={handleEditRuleset} />
 				<Footer />
 			</div>
 		</>

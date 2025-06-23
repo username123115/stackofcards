@@ -57,8 +57,6 @@ pub struct UserInfo {
     pub user_id: String,
 }
 
-#[axum::debug_handler]
-#[tracing::instrument]
 pub async fn create_user(
     jar: CookieJar,
     State(state): State<state::app::AppState>,
@@ -120,7 +118,6 @@ pub async fn create_user(
     ))
 }
 
-#[tracing::instrument]
 pub async fn login_user(
     jar: CookieJar,
     State(state): State<state::app::AppState>,

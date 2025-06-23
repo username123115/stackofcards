@@ -36,6 +36,18 @@ pub async fn create_ruleset(
     Ok(ruleset_id)
 }
 
+pub async fn ruleset_get_owner(state: AppState, ruleset_id: &Uuid) -> anyhow::Result<Uuid> {
+    let owner_id = sqlx::query_scalar!(
+        r#"
+        select owner from "ruleset" where ruleset_id=$1
+        "#,
+        ruleset_id.clone()
+    )
+    .fetch_one(&state.db)
+    .await?;
+    Ok(owner_id)
+}
+
 pub async fn update_ruleset(
     state: AppState,
     ruleset_id: &Uuid,

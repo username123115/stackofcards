@@ -9,9 +9,19 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
-	const [currentUser, setCurrentUser] = useState<UserInfo | null>(null);
+	//TODO: this doesn't seem like a smart way to fetch users
+	const storedUserValue = sessionStorage.getItem("socs_user");
+	const currentUser = storedUserValue ? JSON.parse(storedUserValue) : null;
+
+	const [userState, setUserState] = useState(currentUser);
+
+	function setCurrentUser(user: UserInfo) {
+		sessionStorage.setItem("socs_user", JSON.stringify(user));
+		setUserState(user);
+	}
+
 	return (
-		<UserContext value={[currentUser, setCurrentUser]}>
+		<UserContext value={[userState, setCurrentUser]}>
 			<React.Fragment>
 				<Outlet />
 			</React.Fragment>

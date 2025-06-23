@@ -1,6 +1,9 @@
 import styles from './utility.module.css'
+import { useContext } from 'react'
+import { UserContext } from '@client/userContext'
 
 function Header() {
+	const [uinfo, _] = useContext(UserContext);
 	return (
 		<header className={styles.header}>
 			<ul>
@@ -15,7 +18,9 @@ function Header() {
 
 				<ul>
 					<li> <a href="/"> Play </a> </li>
-					<li> <a href="/login"> Login </a> </li>
+					<li>
+						{uinfo ? <a href="/profile"> Profile </a> : <a href="/login"> Login </a>}
+					</li>
 				</ul>
 			</ul>
 		</header>

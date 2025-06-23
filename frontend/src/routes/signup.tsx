@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
@@ -7,12 +7,13 @@ import styles from '@styles/utility.module.css'
 
 import { SignUp } from '@components/auth'
 
+import { useContext } from 'react'
+import { UserContext } from '@client/userContext'
 
 import { handleAxiosError } from '@client/utility'
 import { useMutation } from '@tanstack/react-query'
 
 import type { NewUser } from '@bindings/NewUser'
-import type { LoginUser } from '@bindings/LoginUser'
 import type { UserInfo } from '@bindings/UserInfo'
 import type { UserBody } from '@bindings/UserBody'
 
@@ -30,15 +31,6 @@ async function createNewPlayer(user: NewUser): Promise<UserInfo> {
 	}
 }
 
-async function loginAsPlayer(user: LoginUser): Promise<UserInfo> {
-	let req: UserBody<LoginUser> = { user: user };
-	try {
-		const response = await axios.post<UserBody<UserInfo>>('/v1/login', req);
-		return response.data.user;
-	} catch (error) {
-		handleAxiosError(error, "Failed to log in a user");
-	}
-}
 
 function RouteComponent() {
 	return (
@@ -52,6 +44,7 @@ function RouteComponent() {
 
 
 function InnerRouteComponent() {
+	const [_, setUser] = useContext(UserContext);
 	const signupMutation = useMutation<UserInfo, Error, NewUser>({ mutationFn: createNewPlayer });
 
 	function handleSignUp(user: NewUser) {
@@ -68,7 +61,10 @@ function InnerRouteComponent() {
 			return <span> Error signing up : {signupMutation.error.message} </span>
 		} if (signupMutation.isSuccess) {
 			console.log(signupMutation.data);
-			return <span> Success! logged in as {signupMutation.data.username} </span>
+			if (setUser) {
+				setUser(signupMutation.data);
+			}
+			return <Navigate to="/profile" />
 		}
 	}
 

@@ -1,0 +1,5 @@
+@import '@styles/colors.module.css';
+
+.games {
+	background-color: var(--primary-300);
+}

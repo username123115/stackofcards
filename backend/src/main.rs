@@ -47,6 +47,7 @@ async fn main() {
         .route("/v1/games/{game_code}", get(v1::games::game_code_get))
         .route("/v1/rooms/{room}", get(wss::rooms::join_handler)) //wss upgrade
         .route("/v1/signup", post(v1::users::create_user))
+        .route("/v1/login", post(v1::users::login_user))
         .with_state(state);
 
     info!("Binding port");

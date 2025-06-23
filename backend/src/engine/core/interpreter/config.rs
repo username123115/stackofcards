@@ -29,3 +29,27 @@ pub struct GameConfig {
 
     pub numbers: HashSet<VariableIdentifier>,
 }
+
+impl GameConfig {
+    pub fn blank() -> Self {
+        Self {
+            allowed_ranks: HashSet::new(),
+            allowed_suits: HashSet::new(),
+            orders: HashMap::new(),
+            patterns: HashMap::new(),
+
+            phases: HashMap::new(),
+            zone_classes: HashMap::new(),
+            player_classes: HashMap::new(),
+            player_assignment: Vec::new(),
+
+            player_zones: HashMap::new(),
+
+            initial_zones: HashMap::new(),
+            initial_phase: "".into(),
+
+            player_range: 2..6,
+            numbers: HashSet::new(),
+        }
+    }
+}

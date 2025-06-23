@@ -1,9 +1,8 @@
 use super::config;
-use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
+use crate::engine::core::types::players;
 use players::PlayerAssignmentRule;
 
 use std::collections::{HashMap, HashSet};
-use std::ops::Range;
 
 pub fn gen_example_config() -> config::GameConfig {
     let mut player_classes = HashMap::new();

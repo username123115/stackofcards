@@ -18,6 +18,7 @@ import { Route as CreateGameImport } from './routes/create-game'
 import { Route as CardsImport } from './routes/cards'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
+import { Route as RulesetsCreateImport } from './routes/rulesets/create'
 import { Route as GamesGameIdImport } from './routes/games/$gameId'
 import { Route as RulesetsRulesetIdEditImport } from './routes/rulesets/$rulesetId/edit'
 
@@ -62,6 +63,12 @@ const AboutRoute = AboutImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const RulesetsCreateRoute = RulesetsCreateImport.update({
+  id: '/rulesets/create',
+  path: '/rulesets/create',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -137,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GamesGameIdImport
       parentRoute: typeof rootRoute
     }
+    '/rulesets/create': {
+      id: '/rulesets/create'
+      path: '/rulesets/create'
+      fullPath: '/rulesets/create'
+      preLoaderRoute: typeof RulesetsCreateImport
+      parentRoute: typeof rootRoute
+    }
     '/rulesets/$rulesetId/edit': {
       id: '/rulesets/$rulesetId/edit'
       path: '/rulesets/$rulesetId/edit'
@@ -158,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/rulesets/create': typeof RulesetsCreateRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
 }
 
@@ -170,6 +185,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/rulesets/create': typeof RulesetsCreateRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
 }
 
@@ -183,6 +199,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/games/$gameId': typeof GamesGameIdRoute
+  '/rulesets/create': typeof RulesetsCreateRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
 }
 
@@ -197,6 +214,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/signup'
     | '/games/$gameId'
+    | '/rulesets/create'
     | '/rulesets/$rulesetId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -208,6 +226,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/signup'
     | '/games/$gameId'
+    | '/rulesets/create'
     | '/rulesets/$rulesetId/edit'
   id:
     | '__root__'
@@ -219,6 +238,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/signup'
     | '/games/$gameId'
+    | '/rulesets/create'
     | '/rulesets/$rulesetId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -232,6 +252,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
   GamesGameIdRoute: typeof GamesGameIdRoute
+  RulesetsCreateRoute: typeof RulesetsCreateRoute
   RulesetsRulesetIdEditRoute: typeof RulesetsRulesetIdEditRoute
 }
 
@@ -244,6 +265,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
   GamesGameIdRoute: GamesGameIdRoute,
+  RulesetsCreateRoute: RulesetsCreateRoute,
   RulesetsRulesetIdEditRoute: RulesetsRulesetIdEditRoute,
 }
 
@@ -265,6 +287,7 @@ export const routeTree = rootRoute
         "/profile",
         "/signup",
         "/games/$gameId",
+        "/rulesets/create",
         "/rulesets/$rulesetId/edit"
       ]
     },
@@ -291,6 +314,9 @@ export const routeTree = rootRoute
     },
     "/games/$gameId": {
       "filePath": "games/$gameId.tsx"
+    },
+    "/rulesets/create": {
+      "filePath": "rulesets/create.tsx"
     },
     "/rulesets/$rulesetId/edit": {
       "filePath": "rulesets/$rulesetId/edit.tsx"

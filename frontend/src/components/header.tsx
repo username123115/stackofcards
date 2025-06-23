@@ -18,7 +18,7 @@ function Header() {
 
 				<ul>
 					<li> <a href="/"> Play </a> </li>
-					{uinfo && <li> Create </li>}
+					{uinfo && <li> <a href="/rulesets/create"> Create </a> </li>}
 					<li>
 						{uinfo ? <a href="/profile"> Profile </a> : <a href="/login"> Login </a>}
 					</li>

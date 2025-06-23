@@ -10,9 +10,11 @@ use anyhow::Context;
 use argon2::password_hash::{SaltString, rand_core::OsRng};
 use argon2::{Argon2, PasswordHash};
 
+use std::fmt;
+
 use state::auth::{create_session, get_session};
 
-#[derive(TS, Serialize, Deserialize)]
+#[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export)]
 pub struct UserBody<T> {
     user: T,
@@ -25,6 +27,14 @@ pub struct NewUser {
     pub password: String,
 }
 
+impl fmt::Debug for NewUser {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("NewUser")
+            .field("username", &self.password)
+            .finish()
+    }
+}
+
 #[derive(TS, Serialize, Deserialize)]
 #[ts(export)]
 pub struct LoginUser {
@@ -32,20 +42,29 @@ pub struct LoginUser {
     pub password: String,
 }
 
-#[derive(TS, Serialize, Deserialize)]
+impl fmt::Debug for LoginUser {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("LoginUser")
+            .field("username", &self.password)
+            .finish()
+    }
+}
+
+#[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export)]
 pub struct UserInfo {
     pub username: String,
     pub user_id: String,
 }
 
-//TODO: Check against whitespace
 #[axum::debug_handler]
+#[tracing::instrument]
 pub async fn create_user(
     jar: CookieJar,
     State(state): State<state::app::AppState>,
     Json(req): Json<UserBody<NewUser>>,
 ) -> Result<(CookieJar, Json<UserBody<UserInfo>>), WebError> {
+    tracing::info!("New request to create user");
     if !req.user.username.chars().all(char::is_alphanumeric) {
         return Err(new_web_error(
             StatusCode::BAD_REQUEST,
@@ -84,6 +103,7 @@ pub async fn create_user(
             "User created, but failed to acquire session",
         )
     })?;
+    tracing::info!("New user created");
     Ok((
         jar.add(
             Cookie::build(("socs_session_id", session.session_id.to_string()))
@@ -100,6 +120,7 @@ pub async fn create_user(
     ))
 }
 
+#[tracing::instrument]
 pub async fn login_user(
     jar: CookieJar,
     State(state): State<state::app::AppState>,

@@ -21,24 +21,22 @@ pub type RulesetIdentifier = u64;
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
+pub struct RulesetInfo {
+    config: config::GameConfig,
+    title: String,
+    description: String,
+}
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
 pub struct RulesetDescriber {
     pub name: String,
     pub description: String,
     pub identifier: RulesetIdentifier,
 }
 
-//TODO: Pending the DSL becoming complete, a Rust implementation of Go Fish will be used regardless
-//of game
-
 pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
-    let examples: [RulesetDescriber; 1] = [RulesetDescriber {
-        name: String::from("Demonstration"),
-        description: String::from(
-            "The engine is WIP, this game is for prototyping and demonstrating engine capabilities",
-        ),
-        identifier: 101,
-    }];
-    Vec::from(examples)
+    Vec::new()
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -53,23 +51,25 @@ pub struct GameCreateRequest {
     pub id: RulesetIdentifier,
 }
 
-/*
-curl -X POST localhost:5173/v1/rulesets \
--H "Content-Type: application/json" \
--d '{"id": 100}' \
--i
-*/
-
 pub async fn get_rulesets() -> Json<Vec<RulesetDescriber>> {
     Json(hardcoded_rulesets())
 }
 
-pub async fn ruleset_id_get(Path(ruleset_id): Path<u64>) -> impl IntoResponse {
-    if ruleset_id != 101 {
-        return Err(StatusCode::NOT_FOUND);
-    } else {
-        return Ok(Json(example_config::gen_example_config()));
-    }
+pub async fn ruleset_id_get(
+    State(state): State<state::app::AppState>,
+    Path(ruleset_id): Path<uuid::Uuid>,
+) -> Result<Json<RulesetInfo>, WebError> {
+    let rs = ruleset::get_ruleset(state, &ruleset_id)
+        .await
+        .map_err(|_e| new_web_error(StatusCode::BAD_REQUEST, "Not found"))?;
+    let config: config::GameConfig = serde_json::from_str(&rs.config)
+        .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "Config is unreadable"))?;
+
+    Ok(Json(RulesetInfo {
+        title: rs.title.to_string(),
+        description: rs.description.to_string(),
+        config: config,
+    }))
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -102,14 +102,6 @@ pub async fn create_ruleset(
     Ok(Json(RulesetResult {
         ruleset_id: ruleset_id.to_string(),
     }))
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct RulesetInfo {
-    config: config::GameConfig,
-    title: String,
-    description: String,
 }
 
 pub async fn edit_ruleset(

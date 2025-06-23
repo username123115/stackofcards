@@ -51,6 +51,12 @@ pub async fn create_user(
             "Alphanumeric name field only",
         ));
     }
+    if req.user.username.len() < 3 {
+        return Err(new_web_error(
+            StatusCode::BAD_REQUEST,
+            "username not long enough",
+        ));
+    }
     if req.user.password.len() < 8 {
         return Err(new_web_error(
             StatusCode::BAD_REQUEST,

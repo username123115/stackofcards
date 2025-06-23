@@ -34,6 +34,14 @@ export function SignUp({ signup }: { signup: ((user: NewUser) => void) }) {
 	const [password1, setPassword1] = useState("");
 	const [password2, setPassword2] = useState("");
 
+	const usernameLongEnough = (username.length >= 3);
+	const passwordsMatch = (password1 === password2);
+	const passwordsLongEnough = (password1.length >= 8);
+
+	const errorMessage = !usernameLongEnough ? "username should be at least three characters" :
+		!passwordsMatch ? " passwords don't match" :
+			!passwordsLongEnough ? "Password should be at least 8 characters" : null
+
 	return (<div className={styles.inputContainer} >
 		<div>
 			<div> Username </div>
@@ -50,7 +58,7 @@ export function SignUp({ signup }: { signup: ((user: NewUser) => void) }) {
 			<input value={password2} type="password" onChange={(e) => setPassword2(e.target.value)}>
 			</input>
 		</div>
-		<button> Submit </button>
+		{errorMessage ? <div className={styles.error} > {errorMessage} </div> : <button> Submit </button>}
 
 		<a href="/login"> Already a user? Log in </a>
 	</div>

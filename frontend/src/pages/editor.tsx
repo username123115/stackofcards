@@ -14,11 +14,16 @@ import { workspaceToGameConfig } from '@Blockly/serialization/toGameConfig';
 import utilityStyles from '@styles/utility.module.css'
 import type { RulesetInfo } from '@bindings/RulesetInfo'
 
-type ConfigDisplay = "Block" | "Settings";
+type ConfigDisplay = "Block" | "Settings" | "Information";
 
 function Editor({ ruleset }: { ruleset: RulesetInfo }) {
 	const [currentDisplay, setCurrentDisplay] = useState<ConfigDisplay>("Block");
+
 	const [currentConfig, setCurrentConfig] = useState<GameConfig>(ruleset.config);
+	const [currentTitle, setCurrentTitle] = useState(ruleset.title);
+	const [currentDescription, setCurrentDiscription] = useState(ruleset.description);
+
+
 	const primaryWorkspace = useRef<Blockly.WorkspaceSvg | null>(null);
 
 	function handleSetWorkspace(workspace: Blockly.WorkspaceSvg | null) {
@@ -27,22 +32,45 @@ function Editor({ ruleset }: { ruleset: RulesetInfo }) {
 
 	function handleSwitchDisplay(option: ConfigDisplay) {
 		if (option !== currentDisplay) {
-			if (currentDisplay === "Block" && primaryWorkspace.current) {
-				const savedCode = workspaceToGameConfig(primaryWorkspace.current);
-				console.log(savedCode);
-				setCurrentConfig({ ...currentConfig, phases: savedCode });
-			}
 			setCurrentDisplay(option);
+			saveConfig();
+		}
+	}
+
+	function saveConfig() {
+		if (currentDisplay === "Block" && primaryWorkspace.current) {
+			const savedCode = workspaceToGameConfig(primaryWorkspace.current);
+			console.log(savedCode);
+			setCurrentConfig({ ...currentConfig, phases: savedCode });
 		}
 	}
 
 	return (
 		<>
 			<div>
-				<SwitchMenu options={["Settings", "Block"]} setOption={handleSwitchDisplay} />
+				<div className={utilityStyles.centerHor}>
+					<div className={styles.bar}>
+						<div className={styles.title} > {currentTitle} </div>
+						<SwitchMenu options={["Settings", "Block", "Information"]} setOption={handleSwitchDisplay} />
+						<button className={styles.save}> Save </button>
+					</div>
+				</div>
 				<div className={utilityStyles.centerDiv}>
 					{(currentDisplay === "Settings") && <ConfigDisplay config={currentConfig} saveEdits={(e) => setCurrentConfig(e)} />}
 					{(currentDisplay === "Block") && <Blocks config={currentConfig} setWorkspace={handleSetWorkspace} />}
+
+					{(currentDisplay === "Information") &&
+						<div className={styles.information}>
+							<div className={styles.hor}>
+								<div> Title: </div>
+								<input value={currentTitle} onChange={(e) => setCurrentTitle(e.target.value)} type="text" />
+							</div>
+							<div className={styles.hor}>
+								<div> Description: </div>
+								<input value={currentDescription} onChange={(e) => setCurrentDiscription(e.target.value)} type="text" />
+							</div>
+						</div>
+					}
 				</div>
 
 			</div>

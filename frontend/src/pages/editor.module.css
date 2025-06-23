@@ -4,6 +4,54 @@
 	list-style-type: none;
 	display: flex;
 	gap: 10px;
+	padding: 2px;
+}
+
+.bar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.title {
+	background-color: var(--primary-500);
+	padding: 8px;
+	color: var(--neutral-100);
+}
+
+.save {
+	padding: 8px;
+	border-style: none;
+	color: var(--neutral-300);
+	background-color: var(--primary-700);
+	font-size: 1.2rem;
+	border-radius: 8px;
+}
+
+.information {
+	padding: 8px;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	background-color: var(--primary-500);
+	gap: 8px;
+}
+
+.hor {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.information input {
+	background-color: var(--neutral-300);
+	color: var(--primary-900);
+	padding: 3px;
+}
+
+.save:hover {
+	background-color: var(--neutral-300);
+	color: var(--primary-700);
 }
 
 .menuButton {

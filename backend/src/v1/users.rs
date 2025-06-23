@@ -78,7 +78,7 @@ pub async fn create_user(
     .await
     .map_err(|_e| new_web_error(StatusCode::CONFLICT, "Username already exists"))?;
 
-    let session = create_session(state, user_id).await.map_err(|_e| {
+    let session = create_session(state.clone(), user_id).await.map_err(|_e| {
         new_web_error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "User created, but failed to acquire session",
@@ -90,14 +90,47 @@ pub async fn create_user(
                 .path("/")
                 .secure(true)
                 .http_only(true),
-        )
-        .add(Cookie::build((
-            "socs_player_id",
-            session.player_id.to_string(),
-        ))),
+        ),
         Json(UserBody {
             user: UserInfo {
                 username: req.user.username,
+                user_id: session.session_id.to_string(),
+            },
+        }),
+    ))
+}
+
+pub async fn login_user(
+    jar: CookieJar,
+    State(state): State<state::app::AppState>,
+    Json(req): Json<UserBody<LoginUser>>,
+) -> Result<(CookieJar, Json<UserBody<UserInfo>>), WebError> {
+    let user = state::auth::get_user_by_name(state.clone(), req.user.username.clone())
+        .await
+        .map_err(|_e| new_web_error(StatusCode::BAD_REQUEST, "user doesn't exist"))?;
+
+    verify_password(req.user.password.clone(), user.password_hash)
+        .await
+        .map_err(|_e| new_web_error(StatusCode::UNAUTHORIZED, "couldn't verify password"))?;
+
+    let session = create_session(state.clone(), user.user_id)
+        .await
+        .map_err(|_e| {
+            new_web_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to create session",
+            )
+        })?;
+    Ok((
+        jar.add(
+            Cookie::build(("socs_session_id", session.session_id.to_string()))
+                .path("/")
+                .secure(true)
+                .http_only(true),
+        ),
+        Json(UserBody {
+            user: UserInfo {
+                username: user.username,
                 user_id: session.session_id.to_string(),
             },
         }),

@@ -1,10 +1,13 @@
+use crate::errors::{WebError, new_web_error};
 use crate::state::app::AppState;
+
 use anyhow;
 use chrono::{DateTime, Duration, Utc};
 use sqlx;
 use uuid::Uuid;
 
-use axum_extra::extract::cookie::{Cookie, CookieJar};
+use axum::http::StatusCode;
+use axum_extra::extract::cookie::CookieJar;
 
 pub struct UserSession {
     pub created_at: DateTime<Utc>,
@@ -84,4 +87,11 @@ pub async fn user_auth(state: AppState, jar: CookieJar) -> anyhow::Result<UserSe
         return Ok(session);
     }
     Err(anyhow::anyhow!("No login token"))
+}
+
+pub async fn auth_or_error(state: AppState, jar: CookieJar) -> Result<UserSession, WebError> {
+    match user_auth(state, jar).await {
+        Ok(s) => Ok(s),
+        Err(_) => Err(new_web_error(StatusCode::FORBIDDEN, "not logged in")),
+    }
 }

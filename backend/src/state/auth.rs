@@ -56,7 +56,7 @@ pub async fn get_session(state: AppState, session_id: uuid::Uuid) -> anyhow::Res
     )
     .fetch_one(&state.db)
     .await?;
-    if (current_time > session.expires) {
+    if current_time > session.expires {
         return Err(anyhow::anyhow!("Session expired"));
     }
     Ok(session)

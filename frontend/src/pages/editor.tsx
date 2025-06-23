@@ -2,25 +2,23 @@ import type { GameConfig } from '@bindings/GameConfig'
 import ConfigDisplay from '@components/editor/config_display'
 
 import { useState } from 'react';
-
 import styles from './editor.module.css';
 
 import BlocklyComponent from '@Blockly/index';
 import { Block } from '@Blockly/index';
-
 import * as Blockly from 'blockly/core';
-
 import { useRef } from 'react';
 
 import { workspaceToGameConfig } from '@Blockly/serialization/toGameConfig';
 
 import utilityStyles from '@styles/utility.module.css'
+import type { RulesetInfo } from '@bindings/RulesetInfo'
 
 type ConfigDisplay = "Block" | "Settings";
 
-function Editor({ config }: { config: GameConfig }) {
+function Editor({ ruleset }: { ruleset: RulesetInfo }) {
 	const [currentDisplay, setCurrentDisplay] = useState<ConfigDisplay>("Block");
-	const [currentConfig, setCurrentConfig] = useState<GameConfig>(config);
+	const [currentConfig, setCurrentConfig] = useState<GameConfig>(ruleset.config);
 	const primaryWorkspace = useRef<Blockly.WorkspaceSvg | null>(null);
 
 	function handleSetWorkspace(workspace: Blockly.WorkspaceSvg | null) {

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { handleAxiosError } from '@client/utility'
 import type { RulesetResult } from '@bindings/RulesetResult'
-import { useRef } from 'react';
+import { useEffect } from 'react';
 
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
@@ -35,20 +35,25 @@ function RouteComponent() {
 }
 
 function InnerRouteComponent() {
-	const performedRequest = useRef(false);
-	const createMutation = useMutation<RulesetResult, Error, null>({ mutationFn: createRuleset });
-	if (!performedRequest.current) {
-		performedRequest.current = true;
-		createMutation.mutate(null);
+	const createMutation = useMutation<RulesetResult, Error, void>({
+		mutationFn: createRuleset,
+	});
+
+	useEffect(() => {
+		createMutation.mutate();
+	}, []);
+
+	console.log(createMutation.data);
+
+	if (createMutation.isSuccess && createMutation.data) {
+		const rulesetId = createMutation.data.ruleset_id;
+		return <Navigate to="/rulesets/$rulesetId/edit" params={{ rulesetId: rulesetId }} />
 	}
 	if (createMutation.isPending) {
 		return <span> Creating... </span>
 	}
 	if (createMutation.isError) {
-		return <span> Error creating ruleset : {createMutation.error.message} </span>
-	}
-	if (createMutation.isSuccess) {
-		return <span> TODO </span>
+		return <span> Error creating ruleset : {createMutation.error?.message || 'Unknown error'} </span>
 	}
 	return <span> Waiting </span>
 }

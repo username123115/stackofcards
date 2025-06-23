@@ -8,7 +8,7 @@ create table "ruleset"
 	config_version 	integer default 0 		not null,
 
 	based_on 		uuid references "ruleset" (ruleset_id),
-	owner 			uuid references "user" (user_id)
+	owner 			uuid references "user" (user_id) not null
 );
 
 SELECT trigger_updated_at('"ruleset"')

@@ -12,20 +12,24 @@ export function SignIn({ login }: { login: ((user: LoginUser) => void) }) {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	return (
-		<div className={styles.inputContainer} >
+		<div className={styles.authContainer}>
+			<div className={styles.inputContainer} >
+				<div>
+					<div> Username </div>
+					<input value={username} type="text" onChange={(e) => setUsername(removeNonAlphanumeric(e.target.value))}>
+					</input>
+				</div>
+				<div>
+					<div> Password </div>
+					<input value={password} type="password" onChange={(e) => setPassword(e.target.value)}>
+					</input>
+				</div>
+				<a href="/signup"> Not a user yet? Sign up </a>
+			</div >
 			<div>
-				<div> Username </div>
-				<input value={username} type="text" onChange={(e) => setUsername(removeNonAlphanumeric(e.target.value))}>
-				</input>
+				<button> Submit </button>
 			</div>
-			<div>
-				<div> Password </div>
-				<input value={password} type="password" onChange={(e) => setPassword(e.target.value)}>
-				</input>
-			</div>
-			<button> Submit </button>
-			<a href="/signup"> Not a user yet? Sign up </a>
-		</div >
+		</div>
 	)
 }
 
@@ -42,26 +46,32 @@ export function SignUp({ signup }: { signup: ((user: NewUser) => void) }) {
 		!passwordsMatch ? " passwords don't match" :
 			!passwordsLongEnough ? "Password should be at least 8 characters" : null
 
-	return (<div className={styles.inputContainer} >
-		<div>
-			<div> Username </div>
-			<input value={username} type="text" onChange={(e) => setUsername(removeNonAlphanumeric(e.target.value))}>
-			</input>
-		</div>
-		<div>
-			<div> Password </div>
-			<input value={password1} type="password" onChange={(e) => setPassword1(e.target.value)}>
-			</input>
-		</div>
-		<div>
-			<div> Confirm Password </div>
-			<input value={password2} type="password" onChange={(e) => setPassword2(e.target.value)}>
-			</input>
-		</div>
-		{errorMessage ? <div className={styles.error} > {errorMessage} </div> : <button> Submit </button>}
+	return (
+		<div className={styles.authContainer}>
+			<div className={styles.inputContainer} >
+				<div>
+					<div> Username </div>
+					<input value={username} type="text" onChange={(e) => setUsername(removeNonAlphanumeric(e.target.value))}>
+					</input>
+				</div>
+				<div>
+					<div> Password </div>
+					<input value={password1} type="password" onChange={(e) => setPassword1(e.target.value)}>
+					</input>
+				</div>
+				<div>
+					<div> Confirm Password </div>
+					<input value={password2} type="password" onChange={(e) => setPassword2(e.target.value)}>
+					</input>
+				</div>
 
-		<a href="/login"> Already a user? Log in </a>
-	</div>
+				<a href="/login"> Already a user? Log in </a>
+			</div>
+			<div>
+				{errorMessage ?? <button onClick={() => signup({ username: username, password: password1 })}> Sign up </button>}
+			</div>
+		</div>
+
 	)
 }
 

@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { createFileRoute } from '@tanstack/react-router'
 
 import Header from '@components/header.tsx'
@@ -6,27 +7,75 @@ import styles from '@styles/utility.module.css'
 
 import { SignUp } from '@components/auth'
 
-import { handleAxiosError } from '@client/utility'
-import { useQuery, useMutation } from '@tanstack/react-query'
 
-import type { NewUser } from '@bindings/NewUser';
+import { handleAxiosError } from '@client/utility'
+import { useMutation } from '@tanstack/react-query'
+
+import type { NewUser } from '@bindings/NewUser'
+import type { LoginUser } from '@bindings/LoginUser'
+import type { UserInfo } from '@bindings/UserInfo'
+import type { UserBody } from '@bindings/UserBody'
 
 export const Route = createFileRoute('/signup')({
 	component: RouteComponent,
 })
 
-function handleSignUp(user: NewUser) {
-	console.log(user);
+async function createNewPlayer(user: NewUser): Promise<UserInfo> {
+	let req: UserBody<NewUser> = { user: user };
+	try {
+		const response = await axios.post<UserBody<UserInfo>>('/v1/signup', req);
+		return response.data.user;
+	} catch (error) {
+		handleAxiosError(error, "Failed to sign up for a new user");
+	}
+}
+
+async function loginAsPlayer(user: LoginUser): Promise<UserInfo> {
+	let req: UserBody<LoginUser> = { user: user };
+	try {
+		const response = await axios.post<UserBody<UserInfo>>('/v1/login', req);
+		return response.data.user;
+	} catch (error) {
+		handleAxiosError(error, "Failed to log in a user");
+	}
 }
 
 function RouteComponent() {
 	return (
 		<div className={styles.pageWrapper}>
 			<Header />
-			<div className={styles.centerDiv}>
-				<SignUp signup={handleSignUp} />
-			</div>
+			<InnerRouteComponent />
 			<Footer />
 		</div>
 	)
 }
+
+
+function InnerRouteComponent() {
+	const signupMutation = useMutation<UserInfo, Error, NewUser>({ mutationFn: createNewPlayer });
+
+	function handleSignUp(user: NewUser) {
+		if (signupMutation.isIdle) {
+			signupMutation.mutate(user);
+			console.log(user);
+		}
+	}
+
+	if (!signupMutation.isIdle) {
+		if (signupMutation.isPending) {
+			return <span> Signing up... </span>
+		} if (signupMutation.isError) {
+			return <span> Error signing up : {signupMutation.error.message} </span>
+		} if (signupMutation.isSuccess) {
+			console.log(signupMutation.data);
+			return <span> Success! logged in as {signupMutation.data.username} </span>
+		}
+	}
+
+	return (
+		<div className={styles.centerDiv}>
+			<SignUp signup={handleSignUp} />
+		</div>
+	)
+}
+

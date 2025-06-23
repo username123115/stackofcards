@@ -6,6 +6,9 @@ import styles from '@styles/utility.module.css'
 
 import { SignUp } from '@components/auth'
 
+import { handleAxiosError } from '@client/utility'
+import { useQuery, useMutation } from '@tanstack/react-query'
+
 import type { NewUser } from '@bindings/NewUser';
 
 export const Route = createFileRoute('/signup')({

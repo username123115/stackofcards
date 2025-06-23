@@ -34,8 +34,9 @@ pub struct LoginUser {
 
 #[derive(TS, Serialize, Deserialize)]
 #[ts(export)]
-pub struct User {
+pub struct UserInfo {
     pub username: String,
+    pub user_id: String,
 }
 
 //TODO: Check against whitespace
@@ -44,7 +45,7 @@ pub async fn create_user(
     jar: CookieJar,
     State(state): State<state::app::AppState>,
     Json(req): Json<UserBody<NewUser>>,
-) -> Result<CookieJar, WebError> {
+) -> Result<(CookieJar, Json<UserBody<UserInfo>>), WebError> {
     if !req.user.username.chars().all(char::is_alphanumeric) {
         return Err(new_web_error(
             StatusCode::BAD_REQUEST,
@@ -66,7 +67,7 @@ pub async fn create_user(
 
     let password_hash = hash_password(req.user.password)
         .await
-        .map_err(|e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "couldn't hash password"))?;
+        .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "couldn't hash password"))?;
 
     let user_id = sqlx::query_scalar!(
         r#"insert into "user" (username, password_hash) values ($1, $2) returning user_id"#,
@@ -75,16 +76,16 @@ pub async fn create_user(
     )
     .fetch_one(&state.db)
     .await
-    .map_err(|e| new_web_error(StatusCode::CONFLICT, "Username already exists"))?;
+    .map_err(|_e| new_web_error(StatusCode::CONFLICT, "Username already exists"))?;
 
-    let session = create_session(state, user_id).await.map_err(|e| {
+    let session = create_session(state, user_id).await.map_err(|_e| {
         new_web_error(
             StatusCode::INTERNAL_SERVER_ERROR,
             "User created, but failed to acquire session",
         )
     })?;
-    Ok(jar
-        .add(
+    Ok((
+        jar.add(
             Cookie::build(("socs_session_id", session.session_id.to_string()))
                 .path("/")
                 .secure(true)
@@ -93,7 +94,14 @@ pub async fn create_user(
         .add(Cookie::build((
             "socs_player_id",
             session.player_id.to_string(),
-        ))))
+        ))),
+        Json(UserBody {
+            user: UserInfo {
+                username: req.user.username,
+                user_id: session.session_id.to_string(),
+            },
+        }),
+    ))
 }
 
 pub async fn hash_password(password: String) -> anyhow::Result<String> {

@@ -16,7 +16,7 @@ import type { RulesetInfo } from '@bindings/RulesetInfo'
 
 type ConfigDisplay = "Block" | "Settings" | "Information";
 
-function Editor({ ruleset }: { ruleset: RulesetInfo }) {
+function Editor({ ruleset, message = null, saveRuleset = null }: { ruleset: RulesetInfo, message: string | null, saveRuleset: ((rule: RulesetInfo) => void) | null }) {
 	const [currentDisplay, setCurrentDisplay] = useState<ConfigDisplay>("Block");
 
 	const [currentConfig, setCurrentConfig] = useState<GameConfig>(ruleset.config);
@@ -45,16 +45,31 @@ function Editor({ ruleset }: { ruleset: RulesetInfo }) {
 		}
 	}
 
+	function handleSaveRuleset() {
+		if (saveRuleset) {
+			let nconf = { ...currentConfig };
+			if (currentDisplay === "Block" && primaryWorkspace.current) {
+				const savedCode = workspaceToGameConfig(primaryWorkspace.current);
+				nconf.phases = savedCode;
+			}
+			saveRuleset({ title: currentTitle, description: currentDescription, config: nconf });
+		}
+
+	}
+
 	return (
 		<>
 			<div>
 				<div className={utilityStyles.centerHor}>
+					<div> {message} </div>
 					<div className={styles.bar}>
 						<div className={styles.title} > {currentTitle} </div>
 						<SwitchMenu options={["Settings", "Block", "Information"]} setOption={handleSwitchDisplay} />
-						<button className={styles.save}> Save </button>
+						<button onClick={handleSaveRuleset} className={styles.save}> Save </button>
 					</div>
 				</div>
+
+
 				<div className={utilityStyles.centerDiv}>
 					{(currentDisplay === "Settings") && <ConfigDisplay config={currentConfig} saveEdits={(e) => setCurrentConfig(e)} />}
 					{(currentDisplay === "Block") && <Blocks config={currentConfig} setWorkspace={handleSetWorkspace} />}

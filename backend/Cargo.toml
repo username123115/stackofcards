@@ -13,7 +13,7 @@ lalrpop = "0.22.1"
 [dependencies]
 
 uuid = { version = "1.16.0", features = ["v1", "v4", "serde"] }
-axum = { version = "0.8.4", features = ["macros", "ws"] }
+axum = { version = "0.8.4", features = ["macros", "ws", "query"] }
 axum-extra = { version = "0.10.1", features = ["cookie"] }
 
 serde = "1.0.219"

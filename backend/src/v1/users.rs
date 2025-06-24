@@ -30,7 +30,7 @@ pub struct NewUser {
 impl fmt::Debug for NewUser {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NewUser")
-            .field("username", &self.password)
+            .field("username", &self.username)
             .finish()
     }
 }
@@ -45,7 +45,7 @@ pub struct LoginUser {
 impl fmt::Debug for LoginUser {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("LoginUser")
-            .field("username", &self.password)
+            .field("username", &self.username)
             .finish()
     }
 }

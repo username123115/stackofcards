@@ -14,7 +14,7 @@ use state::{auth::auth_or_error, ruleset};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-use crate::engine::core::interpreter::{config, example_config};
+use crate::engine::core::interpreter::config;
 use tracing::{info, instrument};
 
 pub type RulesetIdentifier = u64;
@@ -35,6 +35,18 @@ pub struct RulesetDescriber {
     pub identifier: RulesetIdentifier,
 }
 
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
+pub struct GameCreateRequest {
+    pub id: RulesetIdentifier,
+}
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
+pub struct RulesetResult {
+    ruleset_id: String,
+}
+
 pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
     Vec::new()
 }
@@ -43,12 +55,6 @@ pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
 #[ts(export)]
 pub struct GameInfo {
     pub code: u64,
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct GameCreateRequest {
-    pub id: RulesetIdentifier,
 }
 
 pub async fn get_rulesets() -> Json<Vec<RulesetDescriber>> {
@@ -61,7 +67,7 @@ pub async fn ruleset_id_get(
 ) -> Result<Json<RulesetInfo>, WebError> {
     let rs = ruleset::get_ruleset(state, &ruleset_id)
         .await
-        .map_err(|_e| new_web_error(StatusCode::BAD_REQUEST, "Not found"))?;
+        .map_err(|e| new_web_error(StatusCode::BAD_REQUEST, "Not found"))?;
     let config: config::GameConfig = serde_json::from_str(&rs.config)
         .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "Config is unreadable"))?;
 
@@ -70,12 +76,6 @@ pub async fn ruleset_id_get(
         description: rs.description.to_string(),
         config: config,
     }))
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct RulesetResult {
-    ruleset_id: String,
 }
 
 pub async fn create_ruleset(

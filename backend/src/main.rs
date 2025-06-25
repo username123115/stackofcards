@@ -40,10 +40,7 @@ async fn main() {
         .route("/v1/test", get(v1::object_test::handler))
         .route("/v1/rulesets", get(v1::ruleset::get_rulesets))
         .route("/v1/rulesets", post(v1::ruleset::create_game))
-        .route(
-            "/v1/rulesets/{ruleset_id}",
-            get(v1::ruleset::ruleset_id_get),
-        )
+        .route("/v1/rulesets/{ruleset_id}", get(v1::ruleset::get_ruleset))
         .route("/v1/rulesets/new", post(v1::ruleset::create_ruleset))
         .route(
             "/v1/rulesets/{ruleset_id}/edit",

@@ -1,3 +1,4 @@
+use super::common;
 use crate::engine::core::interpreter::config;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -9,9 +10,10 @@ pub struct GameInfo {
 }
 pub type RulesetIdentifier = u64;
 
+//DEPRECATE ME
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub struct RulesetInfo {
+pub struct RulesetContents {
     pub config: config::GameConfig,
     pub title: String,
     pub description: String,
@@ -19,7 +21,25 @@ pub struct RulesetInfo {
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub struct RulesetContents {
+pub struct RulesetPreview {
+    pub title: String,
+    pub description: String,
+    pub author_id: String,
+    pub based_on: Option<String>,
+    pub ruleset_id: String,
+}
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
+pub struct RulesetListing {
+    pub total: u64,
+    pub pagination: common::Pagination,
+    pub contents: Vec<RulesetPreview>,
+}
+
+#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[ts(export)]
+pub struct RulesetDescriber {
     pub name: String,
     pub description: String,
     pub identifier: RulesetIdentifier,

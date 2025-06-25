@@ -7,7 +7,7 @@ use axum::{
 
 use axum_extra::extract::cookie::CookieJar;
 
-use super::schema::ruleset_schema::*;
+use super::schema::{common, ruleset_schema::*};
 use crate::errors::{WebError, new_web_error};
 use crate::state;
 use state::{auth::auth_or_error, ruleset};
@@ -15,25 +15,61 @@ use state::{auth::auth_or_error, ruleset};
 use crate::engine::core::interpreter::config;
 use tracing::{info, instrument};
 
-pub fn hardcoded_rulesets() -> Vec<RulesetContents> {
+pub fn rulesets_to_listing(rulesets: Vec<ruleset::Ruleset>) -> Vec<RulesetPreview> {
+    rulesets
+        .iter()
+        .map(|rs| RulesetPreview {
+            title: rs.title.clone(),
+            description: rs.description.clone(),
+            author_id: rs.owner.to_string(),
+            based_on: match rs.based_on {
+                Some(pid) => Some(pid.to_string()),
+                None => None,
+            },
+            ruleset_id: rs.ruleset_id.to_string(),
+        })
+        .collect()
+}
+
+pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
     Vec::new()
 }
 
-pub async fn get_rulesets() -> Json<Vec<RulesetContents>> {
-    Json(hardcoded_rulesets())
+pub async fn get_rulesets(
+    State(state): State<state::app::AppState>,
+    Json(pagination): Json<common::Pagination>,
+) -> Result<Json<RulesetListing>, WebError> {
+    let count = ruleset::count_rulesets(state.clone()).await.map_err(|_e| {
+        new_web_error(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "couldn't get ruleset count",
+        )
+    })?;
+    let rulesets = ruleset::get_rulesets(
+        state.clone(),
+        pagination.page * pagination.per_page,
+        pagination.per_page,
+    )
+    .await
+    .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "Error fetching page"))?;
+    Ok(Json(RulesetListing {
+        total: count,
+        pagination,
+        contents: rulesets_to_listing(rulesets),
+    }))
 }
 
-pub async fn ruleset_id_get(
+pub async fn get_ruleset(
     State(state): State<state::app::AppState>,
     Path(ruleset_id): Path<uuid::Uuid>,
-) -> Result<Json<RulesetInfo>, WebError> {
+) -> Result<Json<RulesetContents>, WebError> {
     let rs = ruleset::get_ruleset(state, &ruleset_id)
         .await
-        .map_err(|e| new_web_error(StatusCode::BAD_REQUEST, "Not found"))?;
+        .map_err(|_e| new_web_error(StatusCode::BAD_REQUEST, "Not found"))?;
     let config: config::GameConfig = serde_json::from_str(&rs.config)
         .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "Config is unreadable"))?;
 
-    Ok(Json(RulesetInfo {
+    Ok(Json(RulesetContents {
         title: rs.title.to_string(),
         description: rs.description.to_string(),
         config: config,
@@ -70,7 +106,7 @@ pub async fn edit_ruleset(
     Path(ruleset_id): Path<uuid::Uuid>,
     State(state): State<state::app::AppState>,
     jar: CookieJar,
-    Json(req): Json<RulesetInfo>,
+    Json(req): Json<RulesetContents>,
 ) -> Result<Json<RulesetResult>, WebError> {
     let session = auth_or_error(state.clone(), jar).await?;
     let owner_id = ruleset::ruleset_get_owner(state.clone(), &ruleset_id)

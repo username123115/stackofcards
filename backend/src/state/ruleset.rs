@@ -109,18 +109,20 @@ pub async fn get_rulesets_by_owner(
     Ok(result)
 }
 
-pub async fn count_rulesets_by_owner(state: AppState, owner: &Uuid) -> anyhow::Result<i64> {
+pub async fn count_rulesets_by_owner(state: AppState, owner: &Uuid) -> anyhow::Result<u64> {
     let result = sqlx::query_scalar!(r#"select count(*) from "ruleset" where owner = $1"#, owner)
         .fetch_one(&state.db)
         .await?;
-    Ok(result.unwrap_or(0))
+    Ok(result.unwrap_or(0).try_into()?)
 }
 
 pub async fn get_rulesets(
     state: AppState,
-    limit: i64,
-    offset: i64,
+    limit: u64,
+    offset: u64,
 ) -> anyhow::Result<Vec<Ruleset>> {
+    let limit: i64 = limit.try_into()?;
+    let offset: i64 = offset.try_into()?;
     let result = sqlx::query_as!(
         Ruleset,
         r#"
@@ -137,9 +139,9 @@ pub async fn get_rulesets(
     Ok(result)
 }
 
-pub async fn count_rulesets(state: AppState) -> anyhow::Result<i64> {
+pub async fn count_rulesets(state: AppState) -> anyhow::Result<u64> {
     let count = sqlx::query_scalar!(r#"select count(*) from "ruleset" "#)
         .fetch_one(&state.db)
         .await?;
-    Ok(count.unwrap_or(0))
+    Ok(count.unwrap_or(0).try_into()?)
 }

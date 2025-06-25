@@ -122,8 +122,8 @@ pub async fn count_rulesets_by_owner(state: AppState, owner: &Uuid) -> anyhow::R
 
 pub async fn get_rulesets(
     state: AppState,
-    limit: u64,
-    offset: u64,
+    limit: u32,
+    offset: u32,
 ) -> anyhow::Result<Vec<Ruleset>> {
     let limit: i64 = limit.try_into()?;
     let offset: i64 = offset.try_into()?;

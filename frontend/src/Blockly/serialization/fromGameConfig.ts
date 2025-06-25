@@ -1,30 +1,11 @@
 import * as Blockly from 'blockly/core';
 import * as Defs from '../customBlocks/defs';
 
-// Import all necessary types from the @bindings alias
-// Assuming GameConfig, Phase, Statement, Expression and its sub-types are exported from @bindings
-// Add specific types as they are needed during implementation
-//
-import type { GameConfig } from '@bindings/GameConfig';
-import type { Statement } from '@bindings/Statement';
-import type { NumberExpression } from '@bindings/NumberExpression';
-import type { BooleanExpression } from '@bindings/BooleanExpression';
-import type { PlayerExpression } from '@bindings/PlayerExpression';
-import type { PlayerCollectionExpression } from '@bindings/PlayerCollectionExpression';
-import type { ZoneExpression } from '@bindings/ZoneExpression';
-import type { ZoneCollectionExpression } from '@bindings/ZoneCollectionExpression';
-import type { CardCollectionExpression } from '@bindings/CardCollectionExpression';
-import type { RankExpression } from '@bindings/RankExpression';
-import type { SuitExpression } from '@bindings/SuitExpression';
-import type { CardExpression } from '@bindings/CardExpression';
+import type { GameConfig } from '@client/types/engine/config';
 
-import type { ConditionalStatement } from '@bindings/ConditionalStatement';
-import type { Offer } from '@bindings/Offer';
-import type { ChoiceSelection } from '@bindings/ChoiceSelection';
-import type { ChoiceAction } from '@bindings/ChoiceAction';
+import type { NumberExpression, BooleanExpression, PlayerExpression, PlayerCollectionExpression, ZoneExpression, ZoneCollectionExpression, CardCollectionExpression, RankExpression, SuitExpression, CardExpression, CardSetExpression } from '@client/types/engine/expressions';
 
-import type { CardSetExpression } from '@bindings/CardSetExpression';
-
+import type { Statement, ConditionalStatement, Offer, ChoiceSelection, ChoiceAction } from '@client/types/engine/statements'
 
 /**
  * Converts a game configuration JSON object into Blockly blocks on the given workspace.

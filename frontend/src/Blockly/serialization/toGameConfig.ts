@@ -2,26 +2,12 @@ import * as Blockly from 'blockly/core';
 
 import * as Defs from '@Blockly/customBlocks/defs';
 
-import type { GameConfig } from '@bindings/GameConfig';
-import type { Phase } from '@bindings/Phase';
-import type { Statement } from '@bindings/Statement';
-import type { NumberExpression } from '@bindings/NumberExpression';
-import type { BooleanExpression } from '@bindings/BooleanExpression';
-import type { PlayerExpression } from '@bindings/PlayerExpression';
-import type { PlayerCollectionExpression } from '@bindings/PlayerCollectionExpression';
-import type { ZoneExpression } from '@bindings/ZoneExpression';
-import type { ZoneCollectionExpression } from '@bindings/ZoneCollectionExpression';
-import type { CardCollectionExpression } from '@bindings/CardCollectionExpression';
-import type { OfferCase } from '@bindings/OfferCase';
-import type { OfferChoice } from '@bindings/OfferChoice';
-import type { RankExpression } from '@bindings/RankExpression';
-import type { SuitExpression } from '@bindings/SuitExpression';
-import type { CardExpression } from '@bindings/CardExpression';
 
-import type { ChoiceSelectionEnum } from '@bindings/ChoiceSelectionEnum';
+import type { GameConfig, Phase } from '@client/types/engine/config'
 
-import type { Comparison } from '@bindings/Comparison';
+import type { Statement, OfferCase, OfferChoice, ChoiceSelectionEnum, Comparison } from '@client/types/engine/statements'
 
+import type { NumberExpression, BooleanExpression, PlayerExpression, PlayerCollectionExpression, ZoneExpression, ZoneCollectionExpression, CardCollectionExpression, RankExpression, SuitExpression, CardExpression } from '@client/types/engine/expressions';
 
 /**
  * Converts a Blockly workspace to a GameConfig object.

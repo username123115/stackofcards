@@ -19,7 +19,7 @@ pub struct RulesetInfo {
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub struct RulesetDescriber {
+pub struct RulesetContents {
     pub name: String,
     pub description: String,
     pub identifier: RulesetIdentifier,

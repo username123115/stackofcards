@@ -15,11 +15,11 @@ use state::{auth::auth_or_error, ruleset};
 use crate::engine::core::interpreter::config;
 use tracing::{info, instrument};
 
-pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
+pub fn hardcoded_rulesets() -> Vec<RulesetContents> {
     Vec::new()
 }
 
-pub async fn get_rulesets() -> Json<Vec<RulesetDescriber>> {
+pub async fn get_rulesets() -> Json<Vec<RulesetContents>> {
     Json(hardcoded_rulesets())
 }
 

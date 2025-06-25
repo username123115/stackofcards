@@ -109,7 +109,14 @@ pub async fn get_rulesets_by_owner(
     Ok(result)
 }
 
-pub async fn get_rulesets_by_time(
+pub async fn count_rulesets_by_owner(state: AppState, owner: &Uuid) -> anyhow::Result<i64> {
+    let result = sqlx::query_scalar!(r#"select count(*) from "ruleset" where owner = $1"#, owner)
+        .fetch_one(&state.db)
+        .await?;
+    Ok(result.unwrap_or(0))
+}
+
+pub async fn get_rulesets(
     state: AppState,
     limit: i64,
     offset: i64,
@@ -128,4 +135,11 @@ pub async fn get_rulesets_by_time(
     .fetch_all(&state.db)
     .await?;
     Ok(result)
+}
+
+pub async fn count_rulesets(state: AppState) -> anyhow::Result<i64> {
+    let count = sqlx::query_scalar!(r#"select count(*) from "ruleset" "#)
+        .fetch_one(&state.db)
+        .await?;
+    Ok(count.unwrap_or(0))
 }

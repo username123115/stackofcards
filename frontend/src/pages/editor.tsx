@@ -1,5 +1,5 @@
 import type { GameConfig } from '@client/types/engine/config'
-import type { RulesetInfo } from '@client/types/schema/ruleset'
+import type { RulesetContents } from '@client/types/schema/ruleset'
 
 import ConfigDisplay from '@components/editor/config_display'
 
@@ -17,7 +17,7 @@ import utilityStyles from '@styles/utility.module.css'
 
 type ConfigDisplay = "Block" | "Settings" | "Information";
 
-function Editor({ ruleset, message = null, saveRuleset = null }: { ruleset: RulesetInfo, message: string | null, saveRuleset: ((rule: RulesetInfo) => void) | null }) {
+function Editor({ ruleset, message = null, saveRuleset = null }: { ruleset: RulesetContents, message: string | null, saveRuleset: ((rule: RulesetContents) => void) | null }) {
 	const [currentDisplay, setCurrentDisplay] = useState<ConfigDisplay>("Block");
 
 	const [currentConfig, setCurrentConfig] = useState<GameConfig>(ruleset.config);

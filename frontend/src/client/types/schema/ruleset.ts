@@ -1,3 +1,3 @@
 export type { RulesetDescriber as RulesetDescriberDepr } from '@bindings/RulesetDescriber'
-export type { RulesetInfo } from '@bindings/RulesetInfo'
+export type { RulesetContents } from '@bindings/RulesetContents'
 export type { RulesetResult } from '@bindings/RulesetResult'

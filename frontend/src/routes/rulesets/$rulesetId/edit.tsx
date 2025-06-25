@@ -10,23 +10,23 @@ import Editor from '@pages/editor'
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
 import styles from '@styles/utility.module.css'
-import type { RulesetInfo, RulesetResult } from '@client/types/schema/ruleset'
+import type { RulesetContents, RulesetResult } from '@client/types/schema/ruleset'
 
 export const Route = createFileRoute('/rulesets/$rulesetId/edit')({
 	component: RouteComponent,
 })
 
-async function getConfig(rulesetId: String): Promise<RulesetInfo> {
+async function getConfig(rulesetId: String): Promise<RulesetContents> {
 	try {
 		//TODO: Maybe sanatize rulesetId
-		const response = await axios.get<RulesetInfo>(`/v1/rulesets/${rulesetId}`);
+		const response = await axios.get<RulesetContents>(`/v1/rulesets/${rulesetId}`);
 		return response.data;
 	} catch (error) {
 		handleAxiosError(error, "Ruleset not found");
 	}
 }
 
-async function postConfig(rulesetId: String, rulesetInfo: RulesetInfo) {
+async function postConfig(rulesetId: String, rulesetInfo: RulesetContents) {
 	try {
 		const response = await axios.post<RulesetResult>(`/v1/rulesets/${rulesetId}/edit`, rulesetInfo);
 		return response.data;
@@ -42,14 +42,14 @@ function RouteComponent() {
 		return getConfig(rulesetId);
 	}
 
-	async function editConfig(ruleset: RulesetInfo) {
+	async function editConfig(ruleset: RulesetContents) {
 		return postConfig(rulesetId, ruleset);
 	}
 
 	const rulesetInfo = useQuery({ queryKey: [`GET /v1/rulesets/${rulesetId}`], queryFn: fetchConfig })
-	const editMutation = useMutation<RulesetResult, Error, RulesetInfo>({ mutationFn: editConfig });
+	const editMutation = useMutation<RulesetResult, Error, RulesetContents>({ mutationFn: editConfig });
 
-	function handleEditRuleset(rules: RulesetInfo) {
+	function handleEditRuleset(rules: RulesetContents) {
 		editMutation.mutate(rules);
 	}
 

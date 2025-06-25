@@ -22,6 +22,7 @@ pub fn rulesets_to_listing(rulesets: Vec<ruleset::Ruleset>) -> Vec<RulesetPrevie
             title: rs.title.clone(),
             description: rs.description.clone(),
             author_id: rs.owner.to_string(),
+            author_name: rs.owner_name.clone(),
             based_on: match rs.based_on {
                 Some(pid) => Some(pid.to_string()),
                 None => None,

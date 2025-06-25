@@ -25,6 +25,7 @@ pub struct RulesetPreview {
     pub title: String,
     pub description: String,
     pub author_id: String,
+    pub author_name: String,
     pub based_on: Option<String>,
     pub ruleset_id: String,
 }

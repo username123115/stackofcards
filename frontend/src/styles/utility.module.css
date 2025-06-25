@@ -27,12 +27,12 @@
 	gap: 10px;
 	color: var(--accent-300);
 	margin-top: auto;
+	cursor: pointer;
 }
 
 .paginationActive {
 	background-color: var(--primary-700);
 	border-radius: 50%;
-	padding: 10px;
 }
 
 .paginationPrev {
@@ -44,10 +44,12 @@
 }
 
 .paginationPage {
-	animation: ease-out 2s opacity;
+	transition: opacity 0.25s;
+	padding: 5px 10px 5px 10px;
 }
 
 .paginationPage:hover {
+	background-color: var(--primary--300);
 	opacity: 0.8;
 	color: var(--neutral-100);
 }

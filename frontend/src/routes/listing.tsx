@@ -99,10 +99,10 @@ function InnerRouteComponent() {
 	}
 
 	// Ask user to choose a ruleset
-	if (rulesets.status === 'pending') {
+	if (rulesets.isPending) {
 		return <span> Fetching lists... </span>
 	}
-	if (rulesets.status === 'error') {
+	if (rulesets.isError) {
 		return <span> Error: {rulesets.error.message} </span>
 	}
 
@@ -125,6 +125,7 @@ function InnerRouteComponent() {
 						nextClassName={styles.paginationNext}
 						activeClassName={styles.paginationActive}
 						pageClassName={styles.paginationPage}
+						forcePage={pagination.page}
 						breakLabel="..."
 						nextLabel="next >"
 						onPageChange={handlePageChange}

@@ -1,6 +1,7 @@
 import axios from 'axios'
-import type { PlayerCommand } from '@bindings/PlayerCommand'
-import type { GameConfig } from '@bindings/GameConfig'
+
+import type { GameConfig } from './types/engine/config'
+import type { PlayerCommand } from './types/wss'
 
 
 export function handleAxiosError(error: unknown, message: String): never {

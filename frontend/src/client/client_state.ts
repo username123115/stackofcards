@@ -1,8 +1,4 @@
-import type { GameAction } from "@bindings/GameAction";
-import type { GameStatus } from "@bindings/GameStatus";
-import type { PlayerSnapshot } from "@bindings/PlayerSnapshot";
-import type { GameChat } from "@bindings/GameChat";
-import type { GameSnapshot } from "@bindings/GameSnapshot";
+import type { GameAction, GameStatus, PlayerSnapshot, GameChat, GameSnapshot } from './types/wss'
 
 function ActionIsChat(action: GameAction): action is { ChatMsg: GameChat } {
 	return typeof action === 'object' && action !== null && 'ChatMsg' in action;

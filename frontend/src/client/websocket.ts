@@ -1,4 +1,4 @@
-import type { GameSnapshot } from '@bindings/GameSnapshot'
+import type { GameSnapshot } from './types/wss'
 
 export function connectToGame(
 	roomId: number,

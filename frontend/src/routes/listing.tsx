@@ -10,6 +10,8 @@ import type { RulesetListing } from '@client/types/schema/ruleset'
 import type { Pagination } from '@client/types/schema/common'
 import type { GameCreateRequest, GameInfo } from '@client/types/schema/game'
 
+import PaginatedListing from '@components/paginatedListing'
+
 import type { rulesetSelection } from '@client/utility'
 import RulesetListingComponent from '@components/rulesetListing'
 

@@ -12,6 +12,11 @@
 	white-space: nowrap;
 }
 
+.plink {
+	text-decoration: none;
+	color: var(--primary-300);
+}
+
 .rulesetElement {
 	background-color: var(--accent-700);
 	border-radius: 10px;
@@ -19,6 +24,11 @@
 	text-align: center;
 	color: var(--accent-100);
 	border-style: none;
+}
+
+.rulesetElementOwned {
+	composes: rulesetElement;
+	background-color: var(--accent-900);
 }
 
 .buttonContainers {

@@ -1,7 +1,9 @@
 import type { RulesetListing, RulesetPreview } from '@client/types/schema/ruleset'
 import styles from './rulesetListing.module.css'
-
 import type { rulesetAction, rulesetSelection } from '@client/utility'
+
+import { useContext } from 'react'
+import { UserContext } from '@client/userContext'
 
 export default function RulesetListingComponent({ listing, selectRuleset }:
 	{ listing: RulesetListing, selectRuleset: ((action: rulesetSelection) => void) }) {
@@ -23,17 +25,20 @@ export default function RulesetListingComponent({ listing, selectRuleset }:
 
 export function RulesetPreview({ preview, setAction }:
 	{ preview: RulesetPreview, setAction: ((action: rulesetAction) => void) }) {
+	const [uinfo, _] = useContext(UserContext);
+	const ownedByUser = uinfo?.username === preview.author_name;
+
 	return (<div>
-		<div className={styles.rulesetElement}>
+		<div className={ownedByUser ? styles.rulesetElementOwned : styles.rulesetElement}>
 			<h1 className={styles.title}> {preview.title} </h1>
 			<p> {preview.description} </p>
-			<p> by {preview.author_name} </p>
+			<p> by <a className={styles.plink} href={`/user/${preview.author_name}`}> {preview.author_name} </a> </p>
 			<div className={styles.buttonContainers}>
 				<button className={styles.rulesetButton} onClick={() => setAction("startGame")}>
 					Start
 				</button>
 				<button className={styles.rulesetButton} onClick={() => setAction("edit")}>
-					Edit
+					{ownedByUser ? "Edit" : "View"}
 				</button>
 			</div>
 

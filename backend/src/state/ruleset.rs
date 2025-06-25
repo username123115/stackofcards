@@ -4,6 +4,8 @@ use chrono::{DateTime, Utc};
 use sqlx;
 use uuid::Uuid;
 
+use super::user;
+
 pub struct Ruleset {
     pub ruleset_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -14,6 +16,7 @@ pub struct Ruleset {
 
     pub based_on: Option<Uuid>,
     pub owner: Uuid,
+    pub owner_name: String,
 
     pub description: String,
     pub published: bool,
@@ -29,9 +32,10 @@ pub async fn create_ruleset(
     description: &str,
     owner: &Uuid,
 ) -> anyhow::Result<Uuid> {
+    let owner_name = user::get_user(state.clone(), owner).await?.username;
     let ruleset_id = sqlx::query_scalar!(
-        r#"insert into "ruleset" (config, config_version, based_on, owner, title, description) values ($1, $2, $3, $4, $5, $6) returning ruleset_id"#,
-        config.to_string(), version, based_on.cloned(), owner.clone(), title.to_string(), description.to_string()
+        r#"insert into "ruleset" (config, config_version, based_on, owner, owner_name, title, description) values ($1, $2, $3, $4, $5, $6, $7) returning ruleset_id"#,
+        config.to_string(), version, based_on.cloned(), owner.clone(), owner_name, title.to_string(), description.to_string()
     ).fetch_one(&state.db).await?;
     Ok(ruleset_id)
 }
@@ -94,7 +98,7 @@ pub async fn get_rulesets_by_owner(
     let result = sqlx::query_as!(
         Ruleset,
         r#"
-        select ruleset_id, created_at, updated_at, config, config_version, based_on, owner, description, published, title
+        select ruleset_id, created_at, updated_at, config, config_version, based_on, owner, owner_name, description, published, title
         from "ruleset"
         where owner = $1
         order by created_at desc
@@ -126,7 +130,7 @@ pub async fn get_rulesets(
     let result = sqlx::query_as!(
         Ruleset,
         r#"
-        select ruleset_id, created_at, updated_at, config, config_version, based_on, owner, description, published, title
+        select ruleset_id, created_at, updated_at, config, config_version, based_on, owner, owner_name, description, published, title
         from "ruleset"
         order by coalesce(updated_at, created_at) desc
         limit $1 offset $2

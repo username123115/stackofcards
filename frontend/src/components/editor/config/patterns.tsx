@@ -1,4 +1,4 @@
-import type { GameConfig } from '@bindings/GameConfig'
+import type { GameConfig } from '@client/types/engine/config'
 import type { Rank, Suit, PatternPiece, Relation, Pattern } from '@client/types/engine/core';
 
 import { renameProperty, NameFieldComponent, NumField } from './utility'

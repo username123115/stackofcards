@@ -3,7 +3,7 @@ import React from 'react';
 
 import * as Blockly from 'blockly/core';
 
-import type { GameConfig } from '@bindings/GameConfig';
+import type { GameConfig } from '@client/types/engine/config';
 
 import 'blockly/blocks'
 import type { ReactNode } from 'react';

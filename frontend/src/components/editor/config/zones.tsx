@@ -1,8 +1,6 @@
-import type { GameConfig } from '@bindings/GameConfig'
-import type { ZoneClass } from "@bindings/ZoneClass";
-import type { ZoneCleanupBehavior } from "@bindings/ZoneCleanupBehavior";
-import type { ZoneVisibility } from "@bindings/ZoneVisibility";
-import type { ZoneVisibilityRule } from "@bindings/ZoneVisibilityRule";
+import type { GameConfig } from '@client/types/engine/config'
+
+import type { ZoneClass, ZoneCleanupBehavior, ZoneVisibility, ZoneVisibilityRule } from '@client/types/engine/core'
 
 import { renameProperty, NameFieldComponent } from './utility'
 

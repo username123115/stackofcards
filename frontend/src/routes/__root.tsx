@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { UserContext } from '@client/userContext'
 import { useState } from 'react';
-import type { UserInfo } from '@bindings/UserInfo'
+import type { UserInfo } from '@client/types/schema/user'
 
 export const Route = createRootRoute({
 	component: RootComponent,

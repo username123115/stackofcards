@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { connectToGame } from '@client/websocket'
 import { ClientState } from "@client/client_state";
 
-import type { GameSnapshot } from '@bindings/GameSnapshot'
-import type { PlayerCommand } from '@bindings/PlayerCommand'
+import type { GameSnapshot, PlayerCommand } from '@client/types/wss'
 
 import Client from '@pages/client'
 

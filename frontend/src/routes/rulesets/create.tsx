@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { handleAxiosError } from '@client/utility'
-import type { RulesetResult } from '@bindings/RulesetResult'
+import type { RulesetResult } from '@client/types/schema/ruleset'
 import { useEffect } from 'react';
 
 import { createFileRoute, Navigate } from '@tanstack/react-router'

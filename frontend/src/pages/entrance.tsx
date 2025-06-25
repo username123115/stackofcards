@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import styles from './entrance.module.css'
 
-import type { RoomExistance } from '@bindings/RoomExistance'
+import type { RoomExistance } from '@client/types/schema/game'
 
 // Determines if a string can be parsed into a 6 digit numerical code
 function ValidateCodeInput(n: string): string | null {

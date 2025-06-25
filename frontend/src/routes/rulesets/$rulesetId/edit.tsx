@@ -10,9 +10,7 @@ import Editor from '@pages/editor'
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
 import styles from '@styles/utility.module.css'
-
-import type { RulesetInfo } from '@bindings/RulesetInfo'
-import type { RulesetResult } from '@bindings/RulesetResult'
+import type { RulesetInfo, RulesetResult } from '@client/types/schema/ruleset'
 
 export const Route = createFileRoute('/rulesets/$rulesetId/edit')({
 	component: RouteComponent,

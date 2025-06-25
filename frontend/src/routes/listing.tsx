@@ -61,17 +61,9 @@ function RouteComponent() {
 }
 
 function InnerRouteComponent() {
-
-	const [pagination, setPagination] = useState<Pagination>({ page: 0, per_page: 10 });
-	const rulesets = useQuery({ queryKey: ['GET /v1/rulesets', pagination.page, pagination.per_page], queryFn: () => getListing(pagination) })
-
-	const gameMutation = useMutation<GameInfo, Error, string>({ mutationFn: startNewGame })
 	const [rulesetToEdit, setRulesetToEdit] = useState<string | null>(null);
+	const gameMutation = useMutation<GameInfo, Error, string>({ mutationFn: startNewGame })
 
-	function handlePageChange(item: { selected: number }) {
-		console.log(item.selected);
-		setPagination({ ...pagination, page: item.selected })
-	}
 
 	function handleSelection(ruleset: rulesetSelection) {
 		if (ruleset.action === "startGame") {
@@ -100,43 +92,5 @@ function InnerRouteComponent() {
 
 	}
 
-	// Ask user to choose a ruleset
-	if (rulesets.isPending) {
-		return <span> Fetching lists... </span>
-	}
-	if (rulesets.isError) {
-		return <span> Error: {rulesets.error.message} </span>
-	}
-
-	let pageCount = (rulesets.data.total / pagination.per_page);
-	pageCount = Math.floor(pageCount);
-	if (rulesets.data.total / pagination.per_page) {
-		pageCount += 1;
-	}
-
-	return (
-		<>
-			<div className={styles.centerHor}>
-				<div>
-					<RulesetListingComponent listing={rulesets.data} selectRuleset={handleSelection} />
-				</div>
-				<div>
-					<ReactPaginate
-						containerClassName={styles.pagination}
-						previousClassName={styles.paginationPrev}
-						nextClassName={styles.paginationNext}
-						activeClassName={styles.paginationActive}
-						pageClassName={styles.paginationPage}
-						forcePage={pagination.page}
-						breakLabel="..."
-						nextLabel="next >"
-						onPageChange={handlePageChange}
-						pageRangeDisplayed={2}
-						pageCount={pageCount}
-						previousLabel="< previous"
-						renderOnZeroPageCount={undefined} />
-				</div>
-			</div>
-		</>
-	)
+	return <PaginatedListing initialPagination={{ page: 0, per_page: 10 }} fetcher={getListing} selector={handleSelection} queryKey={["GET /v1/rulesets"]} />
 }

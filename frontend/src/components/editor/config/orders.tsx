@@ -1,7 +1,8 @@
-import type { GameConfig } from '@bindings/GameConfig';
-import type { RankOrder } from "@bindings/RankOrder";
-import type { Rank } from "@bindings/Rank";
-import styles from "./config.module.css";
+import type { GameConfig } from '@client/types/engine/config'
+import type { RankOrder } from '@client/types/engine/core'
+import type { Rank } from '@client/types/engine/core'
+
+import styles from "./config.module.css"
 
 import { NameFieldComponent, renameProperty } from './utility'
 

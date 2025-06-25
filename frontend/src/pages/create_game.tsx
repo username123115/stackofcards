@@ -1,4 +1,4 @@
-import type { RulesetDescriber } from '@bindings/RulesetDescriber'
+import type { RulesetDescriber } from '@client/types/schema/ruleset'
 import type { RulesetSelection, RulesetAction } from '@client/utility'
 
 import styles from './create_game.module.css'

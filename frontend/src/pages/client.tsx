@@ -1,7 +1,7 @@
 import styles from './client.module.css'
 // import type { PlayerCommand } from '@bindings/PlayerCommand'
 import type { PlayerCommandCallback } from '@client/utility'
-import type { GameChat } from '@bindings/GameChat'
+import type { GameChat } from '@client/types/wss'
 
 import { ClientState } from "@client/client_state";
 import { useState, useRef } from 'react';

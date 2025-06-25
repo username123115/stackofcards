@@ -1,4 +1,6 @@
-import type { GameConfig } from '@bindings/GameConfig'
+import type { GameConfig } from '@client/types/engine/config'
+import type { RulesetInfo } from '@client/types/schema/ruleset'
+
 import ConfigDisplay from '@components/editor/config_display'
 
 import { useState } from 'react';
@@ -12,7 +14,6 @@ import { useRef } from 'react';
 import { workspaceToGameConfig } from '@Blockly/serialization/toGameConfig';
 
 import utilityStyles from '@styles/utility.module.css'
-import type { RulesetInfo } from '@bindings/RulesetInfo'
 
 type ConfigDisplay = "Block" | "Settings" | "Information";
 

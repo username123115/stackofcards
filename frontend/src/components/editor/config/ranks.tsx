@@ -1,4 +1,4 @@
-import type { Rank } from "@bindings/Rank";
+import type { Rank } from "@client/types/engine/core";
 import styles from "./config.module.css";
 
 const ALL_RANKS: Rank[] = [

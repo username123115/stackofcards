@@ -1,4 +1,4 @@
-import type { GameConfig } from '@bindings/GameConfig'
+import type { GameConfig } from '@client/types/engine/config'
 
 import { renameProperty, NameFieldComponent } from './utility'
 

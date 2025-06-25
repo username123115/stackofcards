@@ -1,4 +1,4 @@
-import type { Suit } from "@bindings/Suit";
+import type { Suit } from "@client/types/engine/core";
 import styles from "./config.module.css";
 
 const ALL_SUITS: Suit[] = ["Hearts", "Diamonds", "Clubs", "Spades"];

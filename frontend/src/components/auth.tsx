@@ -1,5 +1,4 @@
-import type { NewUser } from '@bindings/NewUser';
-import type { LoginUser } from '@bindings/LoginUser';
+import type { NewUser, LoginUser } from '@client/types/schema/user';
 
 import { useState } from 'react';
 import styles from './auth.module.css';

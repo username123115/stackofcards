@@ -1,13 +1,7 @@
 import type { GameConfig } from '@bindings/GameConfig'
-
-import type { Suit } from '@bindings/Suit'
-import type { Rank } from '@bindings/Rank'
+import type { Rank, Suit, PatternPiece, Relation, Pattern } from '@client/types/engine/core';
 
 import { renameProperty, NameFieldComponent, NumField } from './utility'
-
-import type { PatternPiece } from "@bindings/PatternPiece";
-import type { Relation } from "@bindings/Relation";
-import type { Pattern } from "@bindings/Pattern";
 
 import { useState, } from "react"
 

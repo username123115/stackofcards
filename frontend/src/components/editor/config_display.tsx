@@ -3,7 +3,7 @@ import { useState } from 'react'
 import styles from './editor.module.css'
 import cStyles from './config/config.module.css'
 
-import type { GameConfig } from '@bindings/GameConfig'
+import type { GameConfig } from '@client/types/engine/config'
 
 import OrderList from './config/orders'
 import AllowedRanksList from './config/ranks'

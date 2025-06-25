@@ -1,9 +1,7 @@
-import type { GameConfig } from '@bindings/GameConfig'
-import type { PlayerClass } from "@bindings/PlayerClass";
-import type { PlayerAssignmentRule } from "@bindings/PlayerAssignmentRule";
+import type { GameConfig } from '@client/types/engine/config'
+import type { PlayerClass, PlayerAssignmentRule } from '@client/types/engine/core';
 
 import { NumField } from "./utility"
-
 import styles from './config.module.css'
 
 export default function PlayerList({ config, handleEditPlayers = null }:

@@ -9,7 +9,7 @@ import styles from '@styles/utility.module.css'
 
 export type FetcherFunction = ((pagination: Pagination) => Promise<RulesetListing>)
 
-export default function paginatedListing({ initialPagination, fetcher, selector, queryKey }:
+export default function PaginatedListing({ initialPagination, fetcher, selector, queryKey }:
 	{ initialPagination: Pagination, fetcher: FetcherFunction, selector: ((selection: rulesetSelection) => void), queryKey: string[] }) {
 
 	const [pagination, setPagination] = useState<Pagination>(initialPagination);

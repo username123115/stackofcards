@@ -32,6 +32,38 @@ pub fn rulesets_to_listing(rulesets: Vec<ruleset::Ruleset>) -> Vec<RulesetPrevie
         .collect()
 }
 
+pub async fn get_ruleset_by_user(
+    State(state): State<state::app::AppState>,
+    Path(user): Path<uuid::Uuid>,
+    pagination: Query<common::Pagination>,
+) -> Result<Json<RulesetListing>, WebError> {
+    let count = ruleset::count_rulesets_by_owner(state.clone(), &user)
+        .await
+        .map_err(|_e| {
+            new_web_error(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "couldn't get ruleset count",
+            )
+        })?;
+    let rulesets = ruleset::get_rulesets_by_owner(
+        state.clone(),
+        &user,
+        pagination.per_page,
+        pagination.page * pagination.per_page,
+    )
+    .await
+    .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "Error fetching page"))?;
+    //TODO: idk how to extract the query pagination thing
+    Ok(Json(RulesetListing {
+        total: count,
+        pagination: common::Pagination {
+            page: pagination.page,
+            per_page: pagination.per_page,
+        },
+        contents: rulesets_to_listing(rulesets),
+    }))
+}
+
 pub async fn get_rulesets(
     State(state): State<state::app::AppState>,
     pagination: Query<common::Pagination>,

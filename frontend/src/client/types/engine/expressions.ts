@@ -1,4 +1,3 @@
-export type { Statement } from '@bindings/Statement';
 export type { NumberExpression } from '@bindings/NumberExpression';
 export type { BooleanExpression } from '@bindings/BooleanExpression';
 export type { PlayerExpression } from '@bindings/PlayerExpression';
@@ -9,3 +8,7 @@ export type { CardCollectionExpression } from '@bindings/CardCollectionExpressio
 export type { RankExpression } from '@bindings/RankExpression';
 export type { SuitExpression } from '@bindings/SuitExpression';
 export type { CardExpression } from '@bindings/CardExpression';
+
+export type { CardSetExpression } from '@bindings/CardSetExpression';
+
+

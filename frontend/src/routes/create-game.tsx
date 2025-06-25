@@ -6,7 +6,7 @@ import { handleAxiosError } from '@client/utility'
 
 import { useState } from 'react'
 
-import type { RulesetDescriber } from '@client/types/schema/ruleset'
+import type { RulesetShittyThingRemove } from '@client/types/schema/ruleset'
 import type { GameCreateRequest, GameInfo } from '@client/types/schema/game'
 
 import type { RulesetSelection } from '@client/utility'
@@ -22,9 +22,9 @@ export const Route = createFileRoute('/create-game')({
 })
 
 
-async function fetchGameList(): Promise<Array<RulesetDescriber>> {
+async function fetchGameList(): Promise<Array<RulesetShittyThingRemove>> {
 	try {
-		const response = await axios.get<Array<RulesetDescriber>>('v1/rulesets');
+		const response = await axios.get<Array<RulesetShittyThingRemove>>('v1/rulesets');
 		return response.data;
 	} catch (error) {
 		handleAxiosError(error, "Failed to acquire rulesets");

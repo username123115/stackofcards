@@ -1,4 +1,9 @@
+export type { Statement } from '@bindings/Statement';
 export type { ConditionalStatement } from '@bindings/ConditionalStatement';
 export type { Offer } from '@bindings/Offer';
+export type { OfferCase } from '@bindings/OfferCase';
+export type { OfferChoice } from '@bindings/OfferChoice';
 export type { ChoiceSelection } from '@bindings/ChoiceSelection';
+export type { ChoiceSelectionEnum } from '@bindings/ChoiceSelectionEnum';
 export type { ChoiceAction } from '@bindings/ChoiceAction';
+export type { Comparison } from '@bindings/Comparison';

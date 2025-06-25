@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { handleAxiosError } from '@client/utility'
 
@@ -13,13 +13,11 @@ import type { GameCreateRequest, GameInfo } from '@client/types/schema/game'
 import PaginatedListing from '@components/paginatedListing'
 
 import type { rulesetSelection } from '@client/utility'
-import RulesetListingComponent from '@components/rulesetListing'
 
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
 import styles from '@styles/utility.module.css'
 
-import ReactPaginate from 'react-paginate';
 
 
 export const Route = createFileRoute('/listing')({
@@ -27,6 +25,7 @@ export const Route = createFileRoute('/listing')({
 })
 
 async function startNewGame(ruleset: string): Promise<GameInfo> {
+	console.log(ruleset);
 	let req: GameCreateRequest = { id: BigInt(101) }
 	try {
 		const response = await axios.post<GameInfo>('/v1/rulesets', req);

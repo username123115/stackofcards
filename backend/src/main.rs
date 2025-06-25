@@ -46,6 +46,10 @@ async fn main() {
             "/v1/rulesets/{ruleset_id}/edit",
             post(v1::ruleset::edit_ruleset),
         )
+        .route(
+            "/v1/users/by-name/{username}",
+            get(v1::users::get_user_by_name),
+        )
         .route("/v1/games/{game_code}", get(v1::game::game_code_get))
         .route("/v1/rooms/{room}", get(wss::rooms::join_handler)) //wss upgrade
         .route("/v1/signup", post(v1::users::create_user))

@@ -8,9 +8,7 @@ use ts_rs::TS;
 pub struct GameInfo {
     pub code: u64,
 }
-pub type RulesetIdentifier = u64;
 
-//DEPRECATE ME
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub struct RulesetContents {
@@ -40,16 +38,8 @@ pub struct RulesetListing {
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
-pub struct RulesetDescriber {
-    pub name: String,
-    pub description: String,
-    pub identifier: RulesetIdentifier,
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
 pub struct GameCreateRequest {
-    pub id: RulesetIdentifier,
+    pub id: u64,
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]

@@ -32,10 +32,6 @@ pub fn rulesets_to_listing(rulesets: Vec<ruleset::Ruleset>) -> Vec<RulesetPrevie
         .collect()
 }
 
-pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
-    Vec::new()
-}
-
 pub async fn get_rulesets(
     State(state): State<state::app::AppState>,
     pagination: Query<common::Pagination>,

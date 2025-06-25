@@ -71,7 +71,7 @@ pub async fn get_user_by_name(state: AppState, name: String) -> anyhow::Result<U
             username,
             password_hash
         from "user"
-        where username = $1
+        where username=$1
         "#,
         name
     )

@@ -1,7 +1,12 @@
 use crate::errors::{WebError, new_web_error};
 use crate::state;
 
-use axum::{Json, extract::State, http::StatusCode, response::IntoResponse};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+};
 use axum_extra::extract::cookie::{Cookie, CookieJar};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -10,45 +15,9 @@ use anyhow::Context;
 use argon2::password_hash::{SaltString, rand_core::OsRng};
 use argon2::{Argon2, PasswordHash};
 
-use std::fmt;
-
 use state::auth::{create_session, get_session};
 
-#[derive(TS, Serialize, Deserialize, Debug)]
-#[ts(export)]
-pub struct UserBody<T> {
-    user: T,
-}
-
-#[derive(TS, Serialize, Deserialize)]
-#[ts(export)]
-pub struct NewUser {
-    pub username: String,
-    pub password: String,
-}
-
-impl fmt::Debug for NewUser {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("NewUser")
-            .field("username", &self.username)
-            .finish()
-    }
-}
-
-#[derive(TS, Serialize, Deserialize)]
-#[ts(export)]
-pub struct LoginUser {
-    pub username: String,
-    pub password: String,
-}
-
-impl fmt::Debug for LoginUser {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("LoginUser")
-            .field("username", &self.username)
-            .finish()
-    }
-}
+use super::schema::user_schema::*;
 
 #[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export)]
@@ -153,6 +122,19 @@ pub async fn login_user(
             },
         }),
     ))
+}
+
+pub async fn get_user_by_name(
+    State(state): State<state::app::AppState>,
+    Path(username): Path<String>,
+) -> Result<Json<UserInfo>, WebError> {
+    let r = state::auth::get_user_by_name(state.clone(), username)
+        .await
+        .map_err(|_e| new_web_error(StatusCode::NOT_FOUND, "player not found"))?;
+    Ok(Json(UserInfo {
+        username: r.username,
+        user_id: r.user_id.to_string(),
+    }))
 }
 
 pub async fn hash_password(password: String) -> anyhow::Result<String> {

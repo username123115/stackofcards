@@ -6,9 +6,9 @@ import { handleAxiosError } from '@client/utility'
 
 import { useState } from 'react'
 
-import type { RulesetDescriber } from '@bindings/RulesetDescriber'
-import type { GameCreateRequest } from '@bindings/GameCreateRequest'
-import type { GameInfo } from '@bindings/GameInfo'
+import type { RulesetDescriber } from '@client/types/schema/ruleset'
+import type { GameCreateRequest, GameInfo } from '@client/types/schema/game'
+
 import type { RulesetSelection } from '@client/utility'
 
 import CreateGame from '@pages/create_game'

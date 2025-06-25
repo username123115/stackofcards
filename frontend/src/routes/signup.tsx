@@ -13,9 +13,8 @@ import { UserContext } from '@client/userContext'
 import { handleAxiosError } from '@client/utility'
 import { useMutation } from '@tanstack/react-query'
 
-import type { NewUser } from '@bindings/NewUser'
-import type { UserInfo } from '@bindings/UserInfo'
-import type { UserBody } from '@bindings/UserBody'
+
+import type { NewUser, UserInfo, UserBody } from '@client/types/schema/user'
 
 export const Route = createFileRoute('/signup')({
 	component: RouteComponent,

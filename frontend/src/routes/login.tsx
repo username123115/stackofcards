@@ -8,10 +8,7 @@ import Footer from '@components/footer.tsx'
 import styles from '@styles/utility.module.css'
 
 import { SignIn } from '@components/auth'
-
-import type { LoginUser } from '@bindings/LoginUser';
-import type { UserInfo } from '@bindings/UserInfo'
-import type { UserBody } from '@bindings/UserBody'
+import type { LoginUser, UserInfo, UserBody } from '@client/types/schema/user'
 
 import { useContext } from 'react'
 import { UserContext } from '@client/userContext'

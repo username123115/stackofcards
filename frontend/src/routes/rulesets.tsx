@@ -6,31 +6,19 @@ import { handleAxiosError } from '@client/utility'
 
 import { useState } from 'react'
 
-import type { RulesetDescriberDepr } from '@client/types/schema/ruleset'
+import type { RulesetListing } from '@client/types/schema/ruleset'
+import type { Pagination } from '@client/types/schema/common'
 import type { GameCreateRequest, GameInfo } from '@client/types/schema/game'
 
 import type { RulesetSelection } from '@client/utility'
-
-import CreateGame from '@pages/create_game'
 
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
 import styles from '@styles/utility.module.css'
 
-export const Route = createFileRoute('/create-game')({
+export const Route = createFileRoute('/rulesets')({
 	component: RouteComponent,
 })
-
-
-async function fetchGameList(): Promise<Array<RulesetDescriberDepr>> {
-	try {
-		const response = await axios.get<Array<RulesetDescriberDepr>>('v1/rulesets');
-		return response.data;
-	} catch (error) {
-		handleAxiosError(error, "Failed to acquire rulesets");
-	}
-
-}
 
 async function startNewGame(ruleset: bigint): Promise<GameInfo> {
 	let req: GameCreateRequest = { id: ruleset }
@@ -39,6 +27,15 @@ async function startNewGame(ruleset: bigint): Promise<GameInfo> {
 		return response.data;
 	} catch (error) {
 		handleAxiosError(error, "Failed to start a new game");
+	}
+}
+
+async function getListing(pagination: Pagination): Promise<RulesetListing> {
+	try {
+		const response = await axios.get<RulesetListing>('/v1/rulesets', { params: pagination });
+		return response.data;
+	} catch (error) {
+		handleAxiosError(error, "Couldn't list games");
 	}
 }
 
@@ -58,8 +55,11 @@ function RouteComponent() {
 }
 
 function InnerRouteComponent() {
-	const rulesets = useQuery({ queryKey: ['GET /v1/rulesets'], queryFn: fetchGameList })
+
+	const [pagination, setPagination] = useState<Pagination>({ page: 0, per_page: 10 });
+	const rulesets = useQuery({ queryKey: ['GET /v1/rulesets', pagination.page, pagination.per_page], queryFn: () => getListing(pagination) })
 	const gameMutation = useMutation<GameInfo, Error, bigint>({ mutationFn: startNewGame })
+
 	const [rulesetToEdit, setRulesetToEdit] = useState<bigint | null>(null);
 
 
@@ -101,7 +101,6 @@ function InnerRouteComponent() {
 	return (
 		<>
 			<div>
-				<CreateGame rulesets={rulesets.data} selectRuleset={handleSelection} />
 			</div>
 		</>
 	)

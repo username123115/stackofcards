@@ -1,6 +1,6 @@
 use axum::{
     Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
 };
@@ -37,7 +37,7 @@ pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
 
 pub async fn get_rulesets(
     State(state): State<state::app::AppState>,
-    Json(pagination): Json<common::Pagination>,
+    pagination: Query<common::Pagination>,
 ) -> Result<Json<RulesetListing>, WebError> {
     let count = ruleset::count_rulesets(state.clone()).await.map_err(|_e| {
         new_web_error(
@@ -47,14 +47,18 @@ pub async fn get_rulesets(
     })?;
     let rulesets = ruleset::get_rulesets(
         state.clone(),
-        pagination.page * pagination.per_page,
         pagination.per_page,
+        pagination.page * pagination.per_page,
     )
     .await
     .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "Error fetching page"))?;
+    //TODO: idk how to extract the query pagination thing
     Ok(Json(RulesetListing {
         total: count,
-        pagination,
+        pagination: common::Pagination {
+            page: pagination.page,
+            per_page: pagination.per_page,
+        },
         contents: rulesets_to_listing(rulesets),
     }))
 }

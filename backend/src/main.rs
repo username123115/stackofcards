@@ -38,18 +38,18 @@ async fn main() {
     let app = Router::new()
         .route("/v1/hello", get(hello))
         .route("/v1/test", get(v1::object_test::handler))
-        .route("/v1/rulesets", get(v1::rulesets::get_rulesets))
-        .route("/v1/rulesets", post(v1::rulesets::create_game))
+        .route("/v1/rulesets", get(v1::ruleset::get_rulesets))
+        .route("/v1/rulesets", post(v1::ruleset::create_game))
         .route(
             "/v1/rulesets/{ruleset_id}",
-            get(v1::rulesets::ruleset_id_get),
+            get(v1::ruleset::ruleset_id_get),
         )
-        .route("/v1/rulesets/new", post(v1::rulesets::create_ruleset))
+        .route("/v1/rulesets/new", post(v1::ruleset::create_ruleset))
         .route(
             "/v1/rulesets/{ruleset_id}/edit",
-            post(v1::rulesets::edit_ruleset),
+            post(v1::ruleset::edit_ruleset),
         )
-        .route("/v1/games/{game_code}", get(v1::games::game_code_get))
+        .route("/v1/games/{game_code}", get(v1::game::game_code_get))
         .route("/v1/rooms/{room}", get(wss::rooms::join_handler)) //wss upgrade
         .route("/v1/signup", post(v1::users::create_user))
         .route("/v1/login", post(v1::users::login_user))

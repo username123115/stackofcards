@@ -7,54 +7,16 @@ use axum::{
 
 use axum_extra::extract::cookie::CookieJar;
 
+use super::schema::ruleset_schema::*;
 use crate::errors::{WebError, new_web_error};
 use crate::state;
 use state::{auth::auth_or_error, ruleset};
 
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
 use crate::engine::core::interpreter::config;
 use tracing::{info, instrument};
 
-pub type RulesetIdentifier = u64;
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct RulesetInfo {
-    config: config::GameConfig,
-    title: String,
-    description: String,
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct RulesetDescriber {
-    pub name: String,
-    pub description: String,
-    pub identifier: RulesetIdentifier,
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct GameCreateRequest {
-    pub id: RulesetIdentifier,
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct RulesetResult {
-    ruleset_id: String,
-}
-
 pub fn hardcoded_rulesets() -> Vec<RulesetDescriber> {
     Vec::new()
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct GameInfo {
-    pub code: u64,
 }
 
 pub async fn get_rulesets() -> Json<Vec<RulesetDescriber>> {

@@ -143,7 +143,7 @@ pub async fn get_rulesets(
     Ok(result)
 }
 
-pub async fn count_rulesets(state: AppState) -> anyhow::Result<u64> {
+pub async fn count_rulesets(state: AppState) -> anyhow::Result<u32> {
     let count = sqlx::query_scalar!(r#"select count(*) from "ruleset" "#)
         .fetch_one(&state.db)
         .await?;

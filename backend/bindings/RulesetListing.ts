@@ -2,4 +2,4 @@
 import type { Pagination } from "./Pagination";
 import type { RulesetPreview } from "./RulesetPreview";
 
-export type RulesetListing = { total: bigint, pagination: Pagination, contents: Array<RulesetPreview>, };
+export type RulesetListing = { total: number, pagination: Pagination, contents: Array<RulesetPreview>, };

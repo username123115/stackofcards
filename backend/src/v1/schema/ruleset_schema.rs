@@ -33,7 +33,7 @@ pub struct RulesetPreview {
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub struct RulesetListing {
-    pub total: u64,
+    pub total: u32,
     pub pagination: common::Pagination,
     pub contents: Vec<RulesetPreview>,
 }

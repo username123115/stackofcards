@@ -10,7 +10,8 @@ import type { RulesetListing } from '@client/types/schema/ruleset'
 import type { Pagination } from '@client/types/schema/common'
 import type { GameCreateRequest, GameInfo } from '@client/types/schema/game'
 
-import type { RulesetSelection } from '@client/utility'
+import type { rulesetSelection } from '@client/utility'
+import RulesetListingComponent from '@components/rulesetListing'
 
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
@@ -20,8 +21,8 @@ export const Route = createFileRoute('/rulesets')({
 	component: RouteComponent,
 })
 
-async function startNewGame(ruleset: bigint): Promise<GameInfo> {
-	let req: GameCreateRequest = { id: ruleset }
+async function startNewGame(ruleset: string): Promise<GameInfo> {
+	let req: GameCreateRequest = { id: BigInt(101) }
 	try {
 		const response = await axios.post<GameInfo>('/v1/rulesets', req);
 		return response.data;
@@ -58,22 +59,22 @@ function InnerRouteComponent() {
 
 	const [pagination, setPagination] = useState<Pagination>({ page: 0, per_page: 10 });
 	const rulesets = useQuery({ queryKey: ['GET /v1/rulesets', pagination.page, pagination.per_page], queryFn: () => getListing(pagination) })
-	const gameMutation = useMutation<GameInfo, Error, bigint>({ mutationFn: startNewGame })
 
-	const [rulesetToEdit, setRulesetToEdit] = useState<bigint | null>(null);
+	const gameMutation = useMutation<GameInfo, Error, string>({ mutationFn: startNewGame })
+	const [rulesetToEdit, setRulesetToEdit] = useState<string | null>(null);
 
 
-	function handleSelection(ruleset: RulesetSelection) {
-		if (ruleset.action === "CreateGame") {
-			gameMutation.mutate(ruleset.selection);
+	function handleSelection(ruleset: rulesetSelection) {
+		if (ruleset.action === "startGame") {
+			gameMutation.mutate(ruleset.target);
 		}
-		if (ruleset.action === "Edit") {
-			setRulesetToEdit(ruleset.selection);
+		if (ruleset.action === "edit") {
+			setRulesetToEdit(ruleset.target);
 		}
 	}
 
 	if (rulesetToEdit) {
-		return <Navigate to="/rulesets/$rulesetId/edit" params={{ rulesetId: String(rulesetToEdit) }} />
+		return <Navigate to="/rulesets/$rulesetId/edit" params={{ rulesetId: rulesetToEdit }} />
 	}
 
 	// User has choosen a ruleset, now we're waiting for a response from the server
@@ -101,6 +102,10 @@ function InnerRouteComponent() {
 	return (
 		<>
 			<div>
+				<RulesetListingComponent listing={rulesets.data} selectRuleset={handleSelection} />
+			</div>
+			<div>
+				paginate me
 			</div>
 		</>
 	)

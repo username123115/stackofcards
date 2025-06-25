@@ -1,18 +1,14 @@
 import type { RulesetListing, RulesetPreview } from '@client/types/schema/ruleset'
 import styles from './rulesetListing.module.css'
 
-export type rulesetAction = "startGame" | "edit"
-export interface rulesetActionObject {
-	target: String,
-	action: rulesetAction,
-}
+import type { rulesetAction, rulesetSelection } from '@client/utility'
 
-export default function RulesetListing({ listing, takeAction }:
-	{ listing: RulesetListing, takeAction: ((action: rulesetActionObject) => void) }) {
+export default function RulesetListingComponent({ listing, selectRuleset }:
+	{ listing: RulesetListing, selectRuleset: ((action: rulesetSelection) => void) }) {
 	const items = listing.contents.map(
 		(preview) => (
 			<li key={preview.ruleset_id}>
-				<RulesetPreview preview={preview} setAction={(a) => takeAction({ target: preview.ruleset_id, action: a })} />
+				<RulesetPreview preview={preview} setAction={(a) => selectRuleset({ target: preview.ruleset_id, action: a })} />
 			</li>
 		)
 	)

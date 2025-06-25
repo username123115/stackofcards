@@ -14,11 +14,12 @@ export function handleAxiosError(error: unknown, message: String): never {
 
 export type PlayerCommandCallback = (command: PlayerCommand) => void
 
-export interface RulesetSelection {
-	selection: bigint,
-	action: RulesetAction,
+export type rulesetAction = "startGame" | "edit"
+
+export interface rulesetSelection {
+	target: string,
+	action: rulesetAction,
 }
-export type RulesetAction = "Edit" | "CreateGame"
 
 
 export function phasesFromConfig(config: GameConfig): string[] {

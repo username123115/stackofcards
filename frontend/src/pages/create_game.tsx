@@ -1,4 +1,4 @@
-import type { RulesetShittyThingRemove } from '@client/types/schema/ruleset'
+import type { RulesetDescriberDepr } from '@client/types/schema/ruleset'
 import type { RulesetSelection, RulesetAction } from '@client/utility'
 
 import styles from './create_game.module.css'
@@ -6,7 +6,7 @@ import styles from './create_game.module.css'
 function CreateGame({ selectRuleset = null, rulesets = [] }:
 	{
 		selectRuleset: ((ruleset: RulesetSelection) => void) | null,
-		rulesets: Array<RulesetShittyThingRemove>
+		rulesets: Array<RulesetDescriberDepr>
 	}) {
 
 	function select(ruleset: bigint, action: RulesetAction) {

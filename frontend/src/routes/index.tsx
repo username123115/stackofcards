@@ -25,7 +25,7 @@ function RouteComponent() {
 	}
 
 	if (pendingCreation) {
-		return <Navigate to="/rulesets" />
+		return <Navigate to="/listing" />
 	}
 	return (
 		<>

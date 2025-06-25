@@ -1,0 +1,54 @@
+@import '../styles/colors.module.css';
+
+.rulesetContainer {
+	display: flex;
+	flex-wrap: wrap;
+	list-style-type: none;
+	gap: 10px;
+}
+
+.title {
+	text-align: center;
+	white-space: nowrap;
+}
+
+.rulesetElement {
+	background-color: var(--accent-700);
+	border-radius: 10px;
+	padding: 10px;
+	text-align: center;
+	color: var(--accent-100);
+	border-style: none;
+}
+
+.buttonContainers {
+	display: flex;
+	gap: 10px;
+}
+
+.rulesetButton {
+	flex: 1;
+	background-color: var(--primary-500);
+	border-radius: 10px;
+	padding: 10px;
+	text-align: center;
+	color: var(--accent-100);
+	transition: color 0.1s, background-color 0.1s;
+	border-style: none;
+}
+
+.rulesetButton:hover {
+	background-color: var(--accent-100);
+	color: var(--neutral-700);
+}
+
+.rulesetButton:active {
+	background-color: var(--accent-100);
+	color: var(--neutral-700);
+}
+
+.rulesetButton:active {
+	background-color: var(--primary-100);
+	color: var(--accent-100);
+	opacity: 0.8;
+}

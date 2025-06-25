@@ -17,7 +17,10 @@ import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
 import styles from '@styles/utility.module.css'
 
-export const Route = createFileRoute('/rulesets')({
+import ReactPaginate from 'react-paginate';
+
+
+export const Route = createFileRoute('/listing')({
 	component: RouteComponent,
 })
 
@@ -63,6 +66,10 @@ function InnerRouteComponent() {
 	const gameMutation = useMutation<GameInfo, Error, string>({ mutationFn: startNewGame })
 	const [rulesetToEdit, setRulesetToEdit] = useState<string | null>(null);
 
+	function handlePageChange(item: { selected: number }) {
+		console.log(item.selected);
+		setPagination({ ...pagination, page: item.selected })
+	}
 
 	function handleSelection(ruleset: rulesetSelection) {
 		if (ruleset.action === "startGame") {
@@ -99,13 +106,33 @@ function InnerRouteComponent() {
 		return <span> Error: {rulesets.error.message} </span>
 	}
 
+	let pageCount = (rulesets.data.total / pagination.per_page);
+	pageCount = Math.floor(pageCount);
+	if (rulesets.data.total / pagination.per_page) {
+		pageCount += 1;
+	}
+
 	return (
 		<>
-			<div>
-				<RulesetListingComponent listing={rulesets.data} selectRuleset={handleSelection} />
-			</div>
-			<div>
-				paginate me
+			<div className={styles.centerHor}>
+				<div>
+					<RulesetListingComponent listing={rulesets.data} selectRuleset={handleSelection} />
+				</div>
+				<div>
+					<ReactPaginate
+						containerClassName={styles.pagination}
+						previousClassName={styles.paginationPrev}
+						nextClassName={styles.paginationNext}
+						activeClassName={styles.paginationActive}
+						pageClassName={styles.paginationPage}
+						breakLabel="..."
+						nextLabel="next >"
+						onPageChange={handlePageChange}
+						pageRangeDisplayed={2}
+						pageCount={pageCount}
+						previousLabel="< previous"
+						renderOnZeroPageCount={undefined} />
+				</div>
 			</div>
 		</>
 	)

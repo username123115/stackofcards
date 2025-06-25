@@ -25,7 +25,7 @@ export function RulesetPreview({ preview, setAction }:
 	{ preview: RulesetPreview, setAction: ((action: rulesetAction) => void) }) {
 	return (<div>
 		<div className={styles.rulesetElement}>
-			<h1> {preview.title} </h1>
+			<h1 className={styles.title}> {preview.title} </h1>
 			<p> {preview.description} </p>
 			<p> by {preview.author_name} </p>
 			<div className={styles.buttonContainers}>

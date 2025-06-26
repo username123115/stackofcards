@@ -1,3 +1,4 @@
+use crate::engine::core::types::cards;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use ts_rs::TS;
@@ -38,6 +39,17 @@ pub struct GameSnapshot {
     pub private_actions: Vec<GameAction>,
     pub players: Option<PlayerSnapshot>,
     pub status: state::GameStatus,
+    pub public_cards: HashMap<u32, cards::Card>,
+    pub zones: Vec<ZoneSnapshot>,
+}
+
+#[derive(TS, Debug, Clone, Deserialize, Serialize)]
+#[ts(export)]
+pub struct ZoneSnapshot {
+    pub cards: Vec<u32>,
+    pub owner: Option<u32>,
+    pub display_name: Option<String>,
+    pub zone_id: u32,
 }
 
 impl GameSnapshot {
@@ -47,6 +59,8 @@ impl GameSnapshot {
             private_actions: Vec::new(),
             players: None,
             status: state::GameStatus::Invalid,
+            public_cards: HashMap::new(),
+            zones: Vec::new(),
         }
     }
     pub fn add_action(&mut self, action: GameAction) {

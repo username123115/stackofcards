@@ -50,6 +50,8 @@ impl WebGameState {
             private_actions: Vec::new(),
             status: self.game.get_status(),
             players: Some(self.get_player_snapshot()),
+            public_cards: HashMap::new(), //TODO
+            zones: Vec::new(),            //TODO
         }
     }
 

@@ -131,7 +131,7 @@ function Entrance({ triggerCreate = null, submitCode = null, }: { triggerCreate:
 				<div className={styles.create}>
 					<button
 						className={styles.gameButton}
-						onClick={handleCreateGameClicked}> Create Game
+						onClick={handleCreateGameClicked}> Browse Games
 					</button>
 
 				</div>

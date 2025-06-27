@@ -18,11 +18,14 @@ import VariableMappingList from './config/playerTemplate'
 function ConfigDisplay({ config, saveEdits = null }:
 	{ config: GameConfig, saveEdits: ((config: GameConfig) => void) | null }) {
 
-	const [currentConfig, setCurrentConfig] = useState<GameConfig>(config);
-
-	if (saveEdits && (currentConfig != config)) {
-		saveEdits(currentConfig);
+	// const [currentConfig, setCurrentConfig] = useState<GameConfig>(config);
+	function handleSaveEdits(c: GameConfig) {
+		if (saveEdits) {
+			saveEdits(c);
+		}
 	}
+	const currentConfig = config;
+	const setCurrentConfig = handleSaveEdits;
 
 	function PhaseComponent() {
 		return (

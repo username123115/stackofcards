@@ -15,10 +15,10 @@ import { workspaceToGameConfig } from '@Blockly/serialization/toGameConfig';
 
 import utilityStyles from '@styles/utility.module.css'
 
-type ConfigDisplay = "Block" | "Settings" | "Information";
+type DisplaySetting = "Block" | "Settings" | "Information";
 
 function Editor({ ruleset, message = null, saveRuleset = null }: { ruleset: RulesetContents, message: string | null, saveRuleset: ((rule: RulesetContents) => void) | null }) {
-	const [currentDisplay, setCurrentDisplay] = useState<ConfigDisplay>("Block");
+	const [currentDisplay, setCurrentDisplay] = useState<DisplaySetting>("Block");
 
 	const [currentConfig, setCurrentConfig] = useState<GameConfig>(ruleset.config);
 	const [currentTitle, setCurrentTitle] = useState(ruleset.title);
@@ -31,7 +31,7 @@ function Editor({ ruleset, message = null, saveRuleset = null }: { ruleset: Rule
 		primaryWorkspace.current = workspace;
 	}
 
-	function handleSwitchDisplay(option: ConfigDisplay) {
+	function handleSwitchDisplay(option: DisplaySetting) {
 		if (option !== currentDisplay) {
 			setCurrentDisplay(option);
 			saveConfig();
@@ -94,7 +94,7 @@ function Editor({ ruleset, message = null, saveRuleset = null }: { ruleset: Rule
 	)
 }
 
-function SwitchMenu({ options, setOption }: { options: ConfigDisplay[], setOption: ((displayOption: ConfigDisplay) => void) }) {
+function SwitchMenu({ options, setOption }: { options: DisplaySetting[], setOption: ((displayOption: DisplaySetting) => void) }) {
 	const olist = options.map(
 		(opt) => <li key={opt}> <button className={styles.menuButton} onClick={() => setOption(opt)}> {opt} </button> </li>
 

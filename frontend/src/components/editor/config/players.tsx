@@ -1,6 +1,8 @@
 import type { GameConfig } from '@client/types/engine/config'
 import type { PlayerClass, PlayerAssignmentRule } from '@client/types/engine/core';
 
+import { renameProperty, NameFieldComponent } from './utility'
+
 import { NumField } from "./utility"
 import styles from './config.module.css'
 
@@ -14,7 +16,9 @@ export default function PlayerList({ config, handleEditPlayers = null }:
 			return (
 				<li key={playerName}>
 					<div>
-						<div> {playerName} </div>
+						<div>
+							<NameFieldComponent name={playerName} editName={handleEditPlayers ? (newName) => renamePlayer(newName, playerName) : null} />
+						</div>
 						<PlayerDisplay player={player!} allowedClasses={validClasses} editPlayer={
 							handleEditPlayers ? (p) => handleEditPlayers({ ...config.player_classes, [playerName]: p }) : null
 						} />
@@ -23,11 +27,34 @@ export default function PlayerList({ config, handleEditPlayers = null }:
 			)
 		}
 	)
+	function newPlayer() {
+		console.log("hi");
+		if (handleEditPlayers) {
+			let playersTried = 0;
+			let pname = `player_class_${playersTried}`;
+			while (config['player_classes'][pname]) {
+				playersTried += 1;
+				pname = `player_class_${playersTried}`;
+			}
+			const newPlayer: PlayerClass = { active_zones: [], assignment_rule: "All" };
+			handleEditPlayers({ ...config['player_classes'], [pname]: newPlayer });
+		}
+	}
+
+	function renamePlayer(newName: string, oldName: string) {
+		if (handleEditPlayers) {
+			const result = renameProperty(config.player_classes, newName, oldName);
+			if (result) {
+				handleEditPlayers(result);
+			}
+		}
+	}
+
 	return (
 		<div>
 			<ul className={styles.elementListing}>
 				{playerList}
-				{handleEditPlayers && <button className={styles.menuButton}> Add player </button>}
+				{handleEditPlayers && <button onClick={() => newPlayer()} className={styles.menuButton}> Add player </button>}
 			</ul>
 		</div>)
 }

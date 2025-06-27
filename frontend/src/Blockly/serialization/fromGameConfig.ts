@@ -13,8 +13,7 @@ import type { Statement, ConditionalStatement, Offer, ChoiceSelection, ChoiceAct
  * @param workspace The Blockly workspace to populate.
  */
 export function gameConfigToWorkspace(jsonConfig: GameConfig['phases'], workspace: Blockly.WorkspaceSvg): void {
-	workspace.clear();
-	let yPos = 10; // Initial Y position for the first phase block
+	let yPos = 10;
 
 	Object.entries(jsonConfig).map(
 		([phaseName, phaseData]) => {
@@ -24,20 +23,16 @@ export function gameConfigToWorkspace(jsonConfig: GameConfig['phases'], workspac
 				phaseBlock.setFieldValue(phaseName, 'PHASE');
 				phaseBlock.initSvg();
 				phaseBlock.render();
-				phaseBlock.moveBy(10, yPos); // Position the block
+				phaseBlock.moveBy(10, yPos);
 
 				if (phaseData.evaluate) {
-					// The first statement will connect to the phaseBlock's nextConnection
 					jsonToStatementBlock(phaseData.evaluate, workspace, phaseBlock.nextConnection);
 				}
 
-				yPos += phaseBlock.getHeightWidth().height + 50; // Increment Y for the next phase block, with some padding
+				yPos += phaseBlock.getHeightWidth().height + 50;
 			}
 		}
 	)
-	// Consider workspace.render() or Blockly.svgResize(workspace) if needed after all blocks are added
-	// For now, individual block.render() should suffice.
-	// workspace.cleanUp(); // Optionally, clean up the workspace layout
 }
 
 function jsonToStatementBlock(
@@ -48,9 +43,8 @@ function jsonToStatementBlock(
 	let currentBlock: Blockly.BlockSvg | null = null;
 
 	if (typeof jsonStatement === 'string' && jsonStatement === 'Empty') {
-		return null; // No block for "Empty"
+		return null;
 	} else if (typeof jsonStatement === 'object' && 'Block' in jsonStatement) {
-		// Handle a block of statements
 		const statements = jsonStatement.Block;
 		let lastStatementBlockInSequence: Blockly.Block | null = null;
 		let nextConnectionForSequence = previousBlockConnection;
@@ -61,8 +55,6 @@ function jsonToStatementBlock(
 				lastStatementBlockInSequence = newBlockInSequence;
 				nextConnectionForSequence = newBlockInSequence.nextConnection;
 			} else {
-				// If a statement in the block is Empty or fails, the sequence might be broken
-				// or we might just skip it. For now, let's assume valid nextConnection can be null.
 				nextConnectionForSequence = null;
 			}
 		}
@@ -89,14 +81,13 @@ function jsonToStatementBlock(
 			}
 			case 'GenerateCards': {
 				currentBlock = workspace.newBlock(Defs.B_GEN_CARDS);
-				// Assuming statementValue.cards is CardSetExpression
+				//TODO: More gets later
 				if (statementValue.cards && typeof statementValue.cards === 'object' && 'AllAllowed' in statementValue.cards) {
 					currentBlock.setFieldValue('ALL', 'CARDS'); // 'ALL' is the value for "all allowed" in defs.ts
 				} else {
-					// Handle other CardSetExpression types if they exist and map to dropdown
 					console.warn('Unhandled CardSetExpression for GenerateCards:', statementValue.cards);
 				}
-				const destInput = jsonToExpressionBlock(statementValue.dest, workspace);
+				const destInput = jsonToExpressionBlock({ Zone: statementValue.dest }, workspace);
 				if (destInput && currentBlock.getInput('DEST')?.connection) {
 					currentBlock.getInput('DEST')!.connection!.connect(destInput.outputConnection!);
 				}
@@ -343,7 +334,7 @@ type DeserializableExpression =
 
 function jsonToExpressionBlock(
 	jsonExpression: DeserializableExpression | any, // Using 'any' temporarily for broader compatibility during dev
-	workspace: Blockly.WorkspaceSvg
+	workspace: Blockly.WorkspaceSvg,
 ): Blockly.Block | null {
 	if (!jsonExpression || typeof jsonExpression !== 'object') {
 		console.warn("Invalid or null expression received", jsonExpression);
@@ -448,6 +439,7 @@ function jsonToExpressionBlock(
 			break;
 		}
 		case 'Zone': {
+			console.log(`getting zone expression from ${JSON.stringify(expressionDetails)}`);
 			const zoneExpr = expressionDetails as ZoneExpression;
 			if (typeof zoneExpr === 'object' && 'OwnedByPlayer' in zoneExpr) {
 				block = workspace.newBlock(Defs.B_ZONE_FOR_PLAYER);
@@ -459,6 +451,10 @@ function jsonToExpressionBlock(
 			} else if (typeof zoneExpr === 'object' && 'GetVariable' in zoneExpr) {
 				block = workspace.newBlock(Defs.V_GET_UNIFIED);
 				block.setFieldValue('socs_t_zone', 'TYPE');
+				const varBlock = block.getField('VARIABLE')! as Blockly.FieldDropdown;
+				// options aren't generated first so generate options
+				varBlock.getOptions();
+
 				block.setFieldValue(zoneExpr.GetVariable, 'VARIABLE');
 			} else {
 				console.warn(`Unhandled ZoneExpression subtype:`, zoneExpr);

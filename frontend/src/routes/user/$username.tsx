@@ -76,7 +76,8 @@ function InnerRouteComponent() {
 
 	return (
 		<div className={styles.centerHor}>
-			<h1> {username}'s Rulesets </h1>
+			<h1> {username}'s Profile </h1>
+			<h2> Rulesets </h2>
 			<PaginatedListing initialPagination={{ page: 0, per_page: 10 }} fetcher={(p) => getPlayerRulesets(user_id, p)} selector={handleSelection} queryKey={[`GET /v1/users/${user_id}rulesets`]} />
 		</div>)
 }

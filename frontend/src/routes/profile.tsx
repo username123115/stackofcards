@@ -1,4 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
+
+import { UserContext } from '@client/userContext'
+import { useContext } from 'react';
 
 import Profile from '@pages/profile'
 
@@ -11,15 +14,16 @@ export const Route = createFileRoute('/profile')({
 })
 
 function RouteComponent() {
+	const [currentUser, _] = useContext(UserContext);
+	if (currentUser) {
+		return <Navigate to="/user/$username" params={{ username: currentUser.username }} />
+	}
 	return (
 		<div className={styles.pageWrapper}>
 			<Header />
-			<InnerRouteComponent />
+			<div> Not logged in </div>
 			<Footer />
 		</div>
 	)
 }
 
-function InnerRouteComponent() {
-	return <Profile />
-}

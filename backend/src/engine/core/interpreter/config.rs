@@ -26,7 +26,6 @@ pub struct GameConfig {
 
     pub initial_phase: PhaseIdentifier,
     pub player_range: Range<u64>,
-
     pub numbers: HashSet<VariableIdentifier>,
 }
 

@@ -54,7 +54,17 @@ impl AppState {
         room_map.insert(room_id, tx);
         drop(room_map);
 
-        tokio::spawn(game.run());
+        let cleanup_reserved_room_mutex = self.rooms.clone();
+        tokio::spawn(async move {
+            game.run().await;
+            info!("Room {room_id} has finished, cleaning up");
+            let mut rooms = cleanup_reserved_room_mutex.lock().unwrap();
+            if rooms.remove(&room_id).is_some() {
+                info!("Removed room {room_id} from room map");
+            } else {
+                tracing::warn!("Room {room_id} did not exist on cleanup");
+            }
+        });
         info!("Room ready, spawned with id {room_id}");
         Result::Ok(room_id)
     }

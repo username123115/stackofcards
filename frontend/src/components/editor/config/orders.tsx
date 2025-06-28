@@ -1,66 +1,19 @@
 import type { GameConfig } from '@client/types/engine/config'
-import type { RankOrder } from '@client/types/engine/core'
-import type { Rank } from '@client/types/engine/core'
+import type { RankOrder, Rank } from '@client/types/engine/core'
 
 import styles from "./config.module.css"
 
-import { NameFieldComponent, renameProperty } from './utility'
+import { ConfigItemList, } from './utility'
+import type { ModifiableConfigProps } from './utility'
 
+export default function OrderList({ config, handleEditOrders }: { config: GameConfig, handleEditOrders: ((n: GameConfig['orders']) => void) | null }) {
+	let defaultOrder: RankOrder = { order: [], rank_to_index: {}, };
+	return <ConfigItemList Component={OrderDisplayWrapper} config={config} contents={config['orders']} defaultItem={() => defaultOrder} updateContents={handleEditOrders} prefix={"new_order"} />
 
-interface OrderListProps {
-	config: GameConfig;
-	handleEditOrders: ((updatedOrders: GameConfig['orders']) => void) | null;
 }
 
-
-export default function OrderList({ config, handleEditOrders = null }: OrderListProps) {
-
-	function RenameOrder(newName: string, oldName: string) {
-		if (handleEditOrders) {
-			const result = renameProperty(config.orders, newName, oldName);
-			if (result) {
-				handleEditOrders(result);
-			}
-		}
-	}
-
-	const orders = Object.entries(config.orders).map(
-		([orderName, order]) => {
-			return (
-				<li key={orderName}>
-					<div>
-						<NameFieldComponent name={orderName} editName={handleEditOrders ? (newName) => (RenameOrder(newName, orderName)) : null} />
-						<OrderDisplay config={config} order={order!} editOrder={
-							handleEditOrders ? (o) => handleEditOrders({ ...config.orders, [orderName]: o }) : null
-						} />
-					</div>
-				</li>
-			)
-		}
-	)
-	function AddNewOrder() {
-		if (handleEditOrders) {
-			let untitledOrders = 0;
-			while (config.orders[`new_order_${untitledOrders}`]) {
-				untitledOrders += 1;
-			}
-			const newOrderName = `new_order_${untitledOrders}`;
-			let newOrder: RankOrder = { order: [], rank_to_index: {}, };
-			const updated = {
-				...config.orders,
-				[newOrderName]: newOrder,
-			}
-			handleEditOrders(updated);
-		}
-	}
-	return (
-		<div>
-			<ul className={styles.elementListing}>
-				{orders}
-				{handleEditOrders && <button className={styles.menuButton} onClick={AddNewOrder}> Add Order </button>}
-			</ul>
-		</div>
-	)
+function OrderDisplayWrapper(props: ModifiableConfigProps<RankOrder>) {
+	return <OrderDisplay config={props.config} order={props.configItem} editOrder={props.setConfigItem} />
 }
 
 function OrderDisplay({ config, order, editOrder }:

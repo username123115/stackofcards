@@ -8,7 +8,7 @@ import type { ModifiableConfigProps } from './utility'
 import zoneStyles from './zones.module.css'
 import styles from './config.module.css'
 
-export default function NZL({ config, handleEditZones = null }:
+export default function ZoneListing({ config, handleEditZones = null }:
 	{ config: GameConfig, handleEditZones: ((zones: GameConfig['zone_classes']) => void) | null }) {
 
 	function defaultZone() {

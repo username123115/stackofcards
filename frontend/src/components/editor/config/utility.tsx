@@ -99,6 +99,13 @@ export function ConfigItemList<T>(props: ConfigItemListProps<T>) {
 		}
 	}
 
+	function DeleteItem(name: string) {
+		if (updateContents && contents[name]) {
+			let { [name]: _, ...rest } = contents;
+			updateContents(rest);
+		}
+	}
+
 	function CreateItem() {
 		if (updateContents) {
 			let untitledCount = 0;
@@ -120,7 +127,10 @@ export function ConfigItemList<T>(props: ConfigItemListProps<T>) {
 			return (
 				<li key={itemName} >
 					<div className={displayInline ? styles.horizontalList : undefined}>
-						{nameComponent}
+						<div className={styles.horizontalList}>
+							{updateContents && <button onClick={() => DeleteItem(itemName)} className={styles.invisibleButton}> X </button>}
+							{nameComponent}
+						</div>
 						{displayComponent}
 					</div>
 				</li>

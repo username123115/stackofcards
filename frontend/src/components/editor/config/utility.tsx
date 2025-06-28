@@ -78,8 +78,18 @@ export interface ModifiableConfigProps<T> {
 };
 export type ModifiableConfigComponent<T> = ((props: ModifiableConfigProps<T>) => React.ReactElement);
 
-export function ConfigItemList<T>({ Component, config, contents, defaultItem, updateContents = null, prefix = "new_" }
-	: { Component: ModifiableConfigComponent<T>, config: GameConfig, contents: ConfigMapping<T>, defaultItem: (() => T), updateContents: ((contents: ConfigMapping<T>) => void) | null, prefix: string }) {
+export interface ConfigItemListProps<T> {
+	Component: ModifiableConfigComponent<T>,
+	config: GameConfig,
+	contents: ConfigMapping<T>,
+	defaultItem: (() => T),
+	updateContents: ((contents: ConfigMapping<T>) => void) | null,
+	prefix: string,
+	displayInline?: boolean
+}
+
+export function ConfigItemList<T>(props: ConfigItemListProps<T>) {
+	const { Component, config, contents, defaultItem, updateContents, prefix, displayInline, } = props;
 	function RenameItem(newName: string, oldName: string) {
 		if (updateContents) {
 			const result = renameProperty(contents, newName, oldName);
@@ -102,15 +112,16 @@ export function ConfigItemList<T>({ Component, config, contents, defaultItem, up
 		}
 	}
 
+
 	const itemMap = Object.entries(contents).map(
 		([itemName, item]) => {
+			const displayComponent = <Component config={config} configItem={item!} setConfigItem={updateContents ? (n) => updateContents({ ...contents, [itemName]: n }) : null} />
+			const nameComponent = <NameFieldComponent name={itemName} editName={updateContents ? (newName) => RenameItem(newName, itemName) : null} />
 			return (
-				<li key={itemName}>
+				<li key={itemName} className={displayInline ? styles.horizontalList : undefined}>
 					<div>
-						<NameFieldComponent name={itemName} editName={updateContents ? (newName) => RenameItem(newName, itemName) : null} />
-					</div>
-					<div>
-						<Component config={config} configItem={item!} setConfigItem={updateContents ? (n) => updateContents({ ...contents, [itemName]: n }) : null} />
+						{nameComponent}
+						{displayComponent}
 					</div>
 				</li>
 			)

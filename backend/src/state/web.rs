@@ -1,4 +1,5 @@
 use crate::engine::core::interpreter;
+use interpreter::config;
 use std::collections::{HashMap, VecDeque};
 
 use super::engine_wrapper::{
@@ -15,14 +16,14 @@ pub struct WebGame {
 }
 
 impl WebGame {
-    pub fn new() -> (Self, mpsc::UnboundedSender<WebgameRequest>) {
+    pub fn new(config: &config::GameConfig) -> (Self, mpsc::UnboundedSender<WebgameRequest>) {
         let (tx, rx) = mpsc::unbounded_channel::<WebgameRequest>();
 
         let state = WebGameState {
             connections: HashMap::new(),
             player_order: Vec::new(),
             public_action_queue: VecDeque::new(),
-            game: interpreter::game::Game::new(interpreter::example_config::gen_example_config()),
+            game: interpreter::game::Game::new(config.clone()),
             status: InterpreterStatus::Setup,
         };
 

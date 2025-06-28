@@ -180,27 +180,3 @@ pub async fn edit_ruleset(
         }));
     }
 }
-
-#[instrument]
-#[axum::debug_handler]
-// Spawn a game task and associate it with a code
-pub async fn create_game(
-    State(state): State<state::app::AppState>,
-    Json(game): Json<GameCreateRequest>,
-) -> impl IntoResponse {
-    info!("Game requested");
-
-    //TODO: Custom games
-    if game.id != 101 {
-        return Err(StatusCode::NOT_FOUND);
-    }
-
-    let code = state.start_room();
-    match code {
-        Ok(room_id) => {
-            let new_game = GameInfo { code: room_id };
-            return Ok(Json(new_game));
-        }
-        Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
-    }
-}

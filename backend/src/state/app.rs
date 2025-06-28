@@ -7,6 +7,7 @@ use rand::Rng;
 
 use super::engine_wrapper::interface::WebgameRequest;
 use super::web::WebGame;
+use crate::engine::core::interpreter::config;
 use tokio::sync::mpsc;
 use tracing::{error, info};
 
@@ -24,7 +25,7 @@ pub struct AppState {
 impl AppState {
     // Generates a random room, starting it and returning it's associated code
     #[tracing::instrument]
-    pub fn start_room(&self) -> Result<u64, String> {
+    pub fn start_room(&self, config: &config::GameConfig) -> Result<u64, String> {
         info!("Attempting to lock rooms mutex");
 
         let room_id = random_code();
@@ -38,7 +39,7 @@ impl AppState {
             return Result::Err(String::from("Failed to get available room"));
         }
 
-        let (game, tx) = WebGame::new();
+        let (game, tx) = WebGame::new(config);
         room_map.insert(room_id, tx);
         drop(room_map);
 

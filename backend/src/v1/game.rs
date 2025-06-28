@@ -5,32 +5,12 @@ use axum::{
     response::IntoResponse,
 };
 
+use super::schema::game_schema::*;
 use crate::engine::core::interpreter::config;
 use crate::errors::{WebError, new_web_error};
 
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
 use crate::state;
 use state::app::AppState;
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct RoomExistance {
-    exists: bool,
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct NewGame {
-    pub ruleset_id: String,
-}
-
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
-#[ts(export)]
-pub struct GameInfo {
-    pub code: u32,
-}
 
 pub async fn game_code_get(
     State(state): State<AppState>,

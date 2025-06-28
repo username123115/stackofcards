@@ -35,7 +35,7 @@ export function RulesetPreview({ preview, setAction }:
 			<p> by <a className={styles.plink} href={`/user/${preview.author_name}`}> {preview.author_name} </a> </p>
 			<div className={styles.buttonContainers}>
 				<button className={styles.rulesetButton} onClick={() => setAction("startGame")}>
-					Start
+					Play
 				</button>
 				<button className={styles.rulesetButton} onClick={() => setAction("edit")}>
 					{ownedByUser ? "Edit" : "View"}

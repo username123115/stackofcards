@@ -14,10 +14,8 @@ import PaginatedListing from '@components/paginatedListing'
 
 import type { rulesetSelection } from '@client/utility'
 
-import Header from '@components/header.tsx'
-import Footer from '@components/footer.tsx'
+import Centered from '@components/centeredSocs'
 import styles from '@styles/utility.module.css'
-
 
 
 export const Route = createFileRoute('/listing')({
@@ -46,13 +44,9 @@ async function getListing(pagination: Pagination): Promise<RulesetListing> {
 function RouteComponent() {
 	return (
 		<>
-			<div className={styles.pageWrapper}>
-				<Header />
-				<div className={styles.centerDiv}>
-					<InnerRouteComponent />
-				</div>
-				<Footer />
-			</div>
+			<Centered innerClassname={styles.centerDiv}>
+				<InnerRouteComponent />
+			</Centered>
 
 		</>
 	)

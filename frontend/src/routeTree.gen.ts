@@ -21,6 +21,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as UserUsernameImport } from './routes/user/$username'
 import { Route as RulesetsCreateImport } from './routes/rulesets/create'
 import { Route as GamesGameIdImport } from './routes/games/$gameId'
+import { Route as RulesetsRulesetIdStartImport } from './routes/rulesets/$rulesetId/start'
 import { Route as RulesetsRulesetIdEditImport } from './routes/rulesets/$rulesetId/edit'
 
 // Create/Update Routes
@@ -82,6 +83,12 @@ const RulesetsCreateRoute = RulesetsCreateImport.update({
 const GamesGameIdRoute = GamesGameIdImport.update({
   id: '/games/$gameId',
   path: '/games/$gameId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const RulesetsRulesetIdStartRoute = RulesetsRulesetIdStartImport.update({
+  id: '/rulesets/$rulesetId/start',
+  path: '/rulesets/$rulesetId/start',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -172,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RulesetsRulesetIdEditImport
       parentRoute: typeof rootRoute
     }
+    '/rulesets/$rulesetId/start': {
+      id: '/rulesets/$rulesetId/start'
+      path: '/rulesets/$rulesetId/start'
+      fullPath: '/rulesets/$rulesetId/start'
+      preLoaderRoute: typeof RulesetsRulesetIdStartImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -189,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/rulesets/create': typeof RulesetsCreateRoute
   '/user/$username': typeof UserUsernameRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
+  '/rulesets/$rulesetId/start': typeof RulesetsRulesetIdStartRoute
 }
 
 export interface FileRoutesByTo {
@@ -203,6 +218,7 @@ export interface FileRoutesByTo {
   '/rulesets/create': typeof RulesetsCreateRoute
   '/user/$username': typeof UserUsernameRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
+  '/rulesets/$rulesetId/start': typeof RulesetsRulesetIdStartRoute
 }
 
 export interface FileRoutesById {
@@ -218,6 +234,7 @@ export interface FileRoutesById {
   '/rulesets/create': typeof RulesetsCreateRoute
   '/user/$username': typeof UserUsernameRoute
   '/rulesets/$rulesetId/edit': typeof RulesetsRulesetIdEditRoute
+  '/rulesets/$rulesetId/start': typeof RulesetsRulesetIdStartRoute
 }
 
 export interface FileRouteTypes {
@@ -234,6 +251,7 @@ export interface FileRouteTypes {
     | '/rulesets/create'
     | '/user/$username'
     | '/rulesets/$rulesetId/edit'
+    | '/rulesets/$rulesetId/start'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -247,6 +265,7 @@ export interface FileRouteTypes {
     | '/rulesets/create'
     | '/user/$username'
     | '/rulesets/$rulesetId/edit'
+    | '/rulesets/$rulesetId/start'
   id:
     | '__root__'
     | '/'
@@ -260,6 +279,7 @@ export interface FileRouteTypes {
     | '/rulesets/create'
     | '/user/$username'
     | '/rulesets/$rulesetId/edit'
+    | '/rulesets/$rulesetId/start'
   fileRoutesById: FileRoutesById
 }
 
@@ -275,6 +295,7 @@ export interface RootRouteChildren {
   RulesetsCreateRoute: typeof RulesetsCreateRoute
   UserUsernameRoute: typeof UserUsernameRoute
   RulesetsRulesetIdEditRoute: typeof RulesetsRulesetIdEditRoute
+  RulesetsRulesetIdStartRoute: typeof RulesetsRulesetIdStartRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -289,6 +310,7 @@ const rootRouteChildren: RootRouteChildren = {
   RulesetsCreateRoute: RulesetsCreateRoute,
   UserUsernameRoute: UserUsernameRoute,
   RulesetsRulesetIdEditRoute: RulesetsRulesetIdEditRoute,
+  RulesetsRulesetIdStartRoute: RulesetsRulesetIdStartRoute,
 }
 
 export const routeTree = rootRoute
@@ -311,7 +333,8 @@ export const routeTree = rootRoute
         "/games/$gameId",
         "/rulesets/create",
         "/user/$username",
-        "/rulesets/$rulesetId/edit"
+        "/rulesets/$rulesetId/edit",
+        "/rulesets/$rulesetId/start"
       ]
     },
     "/": {
@@ -346,6 +369,9 @@ export const routeTree = rootRoute
     },
     "/rulesets/$rulesetId/edit": {
       "filePath": "rulesets/$rulesetId/edit.tsx"
+    },
+    "/rulesets/$rulesetId/start": {
+      "filePath": "rulesets/$rulesetId/start.tsx"
     }
   }
 }

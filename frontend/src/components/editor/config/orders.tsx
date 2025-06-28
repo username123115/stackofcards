@@ -7,7 +7,7 @@ import { ConfigItemList, } from './utility'
 import type { ModifiableConfigProps } from './utility'
 
 export default function OrderList({ config, handleEditOrders }: { config: GameConfig, handleEditOrders: ((n: GameConfig['orders']) => void) | null }) {
-	let defaultOrder: RankOrder = { order: [], rank_to_index: {}, };
+	const defaultOrder: RankOrder = { order: [], rank_to_index: {}, };
 	return <ConfigItemList Component={OrderDisplayWrapper} config={config} contents={config['orders']} defaultItem={() => defaultOrder} updateContents={handleEditOrders} prefix={"new_order"} />
 
 }

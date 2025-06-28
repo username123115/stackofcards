@@ -53,13 +53,19 @@ function InnerRouteComponent() {
 	const { username } = Route.useParams();
 	const userQuery = useQuery({ queryKey: [username], queryFn: () => getPlayer(username) })
 	const [rulesetToEdit, setRulesetToEdit] = useState<string | null>(null);
+	const [rulesetToStart, setRulesetToStart] = useState<string | null>(null);
 
 	function handleSelection(ruleset: rulesetSelection) {
 		if (ruleset.action === "startGame") {
+			setRulesetToStart(ruleset.target);
 		}
 		if (ruleset.action === "edit") {
 			setRulesetToEdit(ruleset.target);
 		}
+	}
+
+	if (rulesetToStart) {
+		return <Navigate to="/rulesets/$rulesetId/start" params={{ rulesetId: rulesetToStart }} />
 	}
 
 	if (rulesetToEdit) {

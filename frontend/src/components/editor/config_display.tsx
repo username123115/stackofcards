@@ -12,6 +12,7 @@ import PatternList from './config/patterns'
 import ZoneList from './config/zones'
 import PlayerList from './config/players'
 import NumberList from './config/numbers'
+import AssignmentList from './config/assignments'
 
 import VariableMappingList from './config/playerTemplate'
 
@@ -24,6 +25,8 @@ function ConfigDisplay({ config, saveEdits = null }:
 			saveEdits(c);
 		}
 	}
+
+
 	const currentConfig = config;
 	const setCurrentConfig = handleSaveEdits;
 
@@ -85,7 +88,17 @@ function ConfigDisplay({ config, saveEdits = null }:
 				</div>
 				<div>
 					<h1> Players </h1>
-					<PlayerList config={currentConfig} handleEditPlayers={saveEdits ? (p) => { setCurrentConfig({ ...currentConfig, player_classes: p }) } : null} />
+					<PlayerList config={currentConfig} handleEditPlayers={saveEdits ? (p) => {
+						setCurrentConfig({
+							...currentConfig,
+							player_classes: p,
+							player_assignment: Object.keys(p)
+						});
+					} : null} />
+				</div>
+				<div>
+					<h1> Player Assignment </h1>
+					<AssignmentList assignments={config.player_assignment} />
 				</div>
 				<div>
 					<h1> Initial Zones </h1>

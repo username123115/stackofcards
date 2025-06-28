@@ -194,6 +194,10 @@ impl GameState {
     pub fn create_players(&mut self, player_count: u32) -> Result<(), String> {
         if let GameStatus::Waiting(_) = self.status {
             let to_create = min(player_count, self.config.player_range.end);
+            let possible_assignments = &self.config.player_assignment;
+
+            tracing::info!("Assigning among roles {:?}", possible_assignments);
+
             let mut players: Vec<PlayerClassIdentifier> = Vec::with_capacity(to_create as usize);
             for i in 0..to_create {
                 let mut player_assignment: Option<String> = None;

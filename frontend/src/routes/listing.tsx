@@ -8,7 +8,7 @@ import { useState } from 'react'
 
 import type { RulesetListing } from '@client/types/schema/ruleset'
 import type { Pagination } from '@client/types/schema/common'
-import type { GameCreateRequest, GameInfo } from '@client/types/schema/game'
+import type { NewGame, GameInfo } from '@client/types/schema/game'
 
 import PaginatedListing from '@components/paginatedListing'
 
@@ -25,10 +25,9 @@ export const Route = createFileRoute('/listing')({
 })
 
 async function startNewGame(ruleset: string): Promise<GameInfo> {
-	console.log(ruleset);
-	let req: GameCreateRequest = { id: BigInt(101) }
+	let req: NewGame = { ruleset_id: ruleset }
 	try {
-		const response = await axios.post<GameInfo>('/v1/rulesets', req);
+		const response = await axios.post<GameInfo>('/v1/games/new', req);
 		return response.data;
 	} catch (error) {
 		handleAxiosError(error, "Failed to start a new game");

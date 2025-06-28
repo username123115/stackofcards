@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 
 import { useMutation } from '@tanstack/react-query'
 import { handleAxiosError } from '@client/utility'
@@ -46,7 +46,8 @@ function InnerRouteComponent() {
 			return <span> {gameMutation.error.message} </span>
 		}
 		if (gameMutation.isSuccess) {
-			return <span> Success! Code {gameMutation.data.code} </span>
+			return <Navigate to="/games/$gameId" params={{ gameId: String(gameMutation.data.code) }} />
+
 		}
 	}
 

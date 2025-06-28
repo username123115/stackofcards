@@ -3,12 +3,13 @@ use crate::engine::core::types::*;
 use identifiers::*;
 
 use std::collections::{HashMap, HashSet};
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::ops::Range;
 
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
-#[derive(TS, Debug, Serialize, Deserialize, Clone)]
+#[derive(TS, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub struct GameConfig {
     pub allowed_ranks: HashSet<ranks::Rank>,
@@ -27,6 +28,23 @@ pub struct GameConfig {
     pub initial_phase: PhaseIdentifier,
     pub player_range: Range<u32>,
     pub numbers: HashSet<VariableIdentifier>,
+}
+
+impl std::fmt::Debug for GameConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match serde_json::to_string(&self) {
+            Ok(ser) => {
+                let mut hasher = DefaultHasher::new();
+                ser.hash(&mut hasher);
+                let hash_value = hasher.finish();
+
+                write!(f, "GameConfig {{ hash: {:x} }}", hash_value)
+            }
+            Err(e) => {
+                write!(f, "GameConfig {{ unserialized: {:?} }}", e)
+            }
+        }
+    }
 }
 
 impl GameConfig {

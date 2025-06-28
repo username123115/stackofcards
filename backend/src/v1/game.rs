@@ -35,7 +35,7 @@ pub async fn start_game(
         .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "Corrupted config"))?;
 
     let code = state
-        .start_room(&config)
+        .start_room(&config, &rs.title, &rs.ruleset_id)
         .map_err(|_e| new_web_error(StatusCode::INTERNAL_SERVER_ERROR, "Unable to start game"))?;
 
     let ginfo = GameInfo { code: code as u32 };

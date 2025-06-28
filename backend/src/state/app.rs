@@ -8,6 +8,7 @@ use rand::Rng;
 use super::engine_wrapper::interface::WebgameRequest;
 use super::web::WebGame;
 use crate::engine::core::interpreter::config;
+use std::fmt;
 use tokio::sync::mpsc;
 use tracing::{error, info};
 
@@ -16,16 +17,26 @@ pub type RoomMap = Arc<Mutex<HashMap<u64, GameTx>>>;
 
 use sqlx::PgPool;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct AppState {
     pub rooms: RoomMap,
     pub db: PgPool,
 }
 
+impl fmt::Debug for AppState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AppState").finish()
+    }
+}
 impl AppState {
     // Generates a random room, starting it and returning it's associated code
     #[tracing::instrument]
-    pub fn start_room(&self, config: &config::GameConfig) -> Result<u64, String> {
+    pub fn start_room(
+        &self,
+        config: &config::GameConfig,
+        name: &str,
+        ruleset_id: &uuid::Uuid,
+    ) -> Result<u64, String> {
         info!("Attempting to lock rooms mutex");
 
         let room_id = random_code();
@@ -39,7 +50,7 @@ impl AppState {
             return Result::Err(String::from("Failed to get available room"));
         }
 
-        let (game, tx) = WebGame::new(config);
+        let (game, tx) = WebGame::new(config, name, ruleset_id);
         room_map.insert(room_id, tx);
         drop(room_map);
 

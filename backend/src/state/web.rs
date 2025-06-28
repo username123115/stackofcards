@@ -6,17 +6,31 @@ use super::engine_wrapper::{
     handler::WebGameState, interface::WebgameRequest, status::InterpreterStatus,
 };
 
+use std::fmt;
 use tokio::sync::mpsc;
 use tracing::info;
 
-#[derive(Debug)]
 pub struct WebGame {
-    state: WebGameState,
-    rx: mpsc::UnboundedReceiver<WebgameRequest>,
+    pub state: WebGameState,
+    pub rx: mpsc::UnboundedReceiver<WebgameRequest>,
+    pub name: String,
+    pub ruleset_id: uuid::Uuid,
+}
+impl fmt::Debug for WebGame {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("WebGame")
+            .field("name", &self.name)
+            .field("ruleset_id", &self.ruleset_id)
+            .finish()
+    }
 }
 
 impl WebGame {
-    pub fn new(config: &config::GameConfig) -> (Self, mpsc::UnboundedSender<WebgameRequest>) {
+    pub fn new(
+        config: &config::GameConfig,
+        name: &str,
+        ruleset_id: &uuid::Uuid,
+    ) -> (Self, mpsc::UnboundedSender<WebgameRequest>) {
         let (tx, rx) = mpsc::unbounded_channel::<WebgameRequest>();
 
         let state = WebGameState {
@@ -31,6 +45,8 @@ impl WebGame {
             Self {
                 state: state,
                 rx: rx,
+                name: name.to_string(),
+                ruleset_id: ruleset_id.clone(),
             },
             tx,
         )
@@ -46,7 +62,7 @@ impl WebGame {
                 InterpreterStatus::InstructionDelay(_) => (),
                 _ => (),
             }
-            // This is super stupid but it gets rid of a warning so who's the stupid one here
+
             if self.state.is_crashed() {
                 game_valid = false;
             }
@@ -59,8 +75,6 @@ impl WebGame {
                     info!("Processing a player request");
 
                     self.state.process_request(&msg);
-                    // let mut state = self.state.lock().unwrap();
-                    // state.process_request(&msg);
                 }
             }
         }

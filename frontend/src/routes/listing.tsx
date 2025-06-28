@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { handleAxiosError } from '@client/utility'
 
@@ -8,7 +7,6 @@ import { useState } from 'react'
 
 import type { RulesetListing } from '@client/types/schema/ruleset'
 import type { Pagination } from '@client/types/schema/common'
-import type { NewGame, GameInfo } from '@client/types/schema/game'
 
 import PaginatedListing from '@components/paginatedListing'
 
@@ -21,16 +19,6 @@ import styles from '@styles/utility.module.css'
 export const Route = createFileRoute('/listing')({
 	component: RouteComponent,
 })
-
-async function startNewGame(ruleset: string): Promise<GameInfo> {
-	let req: NewGame = { ruleset_id: ruleset }
-	try {
-		const response = await axios.post<GameInfo>('/v1/games/new', req);
-		return response.data;
-	} catch (error) {
-		handleAxiosError(error, "Failed to start a new game");
-	}
-}
 
 async function getListing(pagination: Pagination): Promise<RulesetListing> {
 	try {
@@ -54,12 +42,16 @@ function RouteComponent() {
 
 function InnerRouteComponent() {
 	const [rulesetToEdit, setRulesetToEdit] = useState<string | null>(null);
-	const gameMutation = useMutation<GameInfo, Error, string>({ mutationFn: startNewGame })
+	const [rulesetToStart, setRulesetToStart] = useState<string | null>(null);
 
+
+	if (rulesetToStart) {
+		return <Navigate to="/rulesets/$rulesetId/start" params={{ rulesetId: rulesetToStart }} />
+	}
 
 	function handleSelection(ruleset: rulesetSelection) {
 		if (ruleset.action === "startGame") {
-			gameMutation.mutate(ruleset.target);
+			setRulesetToStart(ruleset.target);
 		}
 		if (ruleset.action === "edit") {
 			setRulesetToEdit(ruleset.target);
@@ -70,19 +62,6 @@ function InnerRouteComponent() {
 		return <Navigate to="/rulesets/$rulesetId/edit" params={{ rulesetId: rulesetToEdit }} />
 	}
 
-	// User has choosen a ruleset, now we're waiting for a response from the server
-	if (!gameMutation.isIdle) {
-		if (gameMutation.isPending) {
-			return <span> Sending selection to server... </span>
-		}
-		if (gameMutation.isError) {
-			return <span> {gameMutation.error.message} </span>
-		}
-		if (gameMutation.isSuccess) {
-			return <span> Success! Code {gameMutation.data.code} </span>
-		}
-
-	}
 
 	return <PaginatedListing initialPagination={{ page: 0, per_page: 10 }} fetcher={getListing} selector={handleSelection} queryKey={["GET /v1/rulesets"]} />
 }

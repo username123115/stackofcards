@@ -27,7 +27,12 @@ export default function NumberList({ numbers, handleEditNumbers = null }:
 	const nlist = numbers.map(
 		(n) => {
 			return (
-				<li key={n}> <NameFieldComponent name={n} editName={handleEditNumbers ? (newName) => { EditName(newName, n) } : null} /> </li>
+				<li key={n}>
+					<div className={styles.horizontalList} >
+						{handleEditNumbers && <button className={styles.invisibleButton} onClick={() => handleEditNumbers(numbers.filter((numberName) => numberName !== n))}> X </button>}
+						<NameFieldComponent name={n} editName={handleEditNumbers ? (newName) => { EditName(newName, n) } : null} />
+					</div>
+				</li>
 			)
 		}
 	)

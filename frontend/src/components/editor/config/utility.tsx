@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import styles from './config.module.css'
-import type { ReactNode } from 'react';
 import type { GameConfig } from '@client/types/engine/config'
 
 export function renameProperty(container: { [key in string]?: any }, newName: string, oldName: string) {
@@ -111,7 +110,7 @@ export function ConfigItemList<T>({ Component, config, contents, defaultItem, up
 						<NameFieldComponent name={itemName} editName={updateContents ? (newName) => RenameItem(newName, itemName) : null} />
 					</div>
 					<div>
-						<Component config={config} configItem={item} setConfigItem={updateContents ? (n) => updateContents({ ...contents, [itemName]: n }) : null} />
+						<Component config={config} configItem={item!} setConfigItem={updateContents ? (n) => updateContents({ ...contents, [itemName]: n }) : null} />
 					</div>
 				</li>
 			)

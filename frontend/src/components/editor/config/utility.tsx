@@ -118,8 +118,8 @@ export function ConfigItemList<T>(props: ConfigItemListProps<T>) {
 			const displayComponent = <Component config={config} configItem={item!} setConfigItem={updateContents ? (n) => updateContents({ ...contents, [itemName]: n }) : null} />
 			const nameComponent = <NameFieldComponent name={itemName} editName={updateContents ? (newName) => RenameItem(newName, itemName) : null} />
 			return (
-				<li key={itemName} className={displayInline ? styles.horizontalList : undefined}>
-					<div>
+				<li key={itemName} >
+					<div className={displayInline ? styles.horizontalList : undefined}>
 						{nameComponent}
 						{displayComponent}
 					</div>

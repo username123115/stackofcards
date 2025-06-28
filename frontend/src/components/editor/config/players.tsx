@@ -1,63 +1,34 @@
 import type { GameConfig } from '@client/types/engine/config'
 import type { PlayerClass, PlayerAssignmentRule } from '@client/types/engine/core';
 
-import { renameProperty, NameFieldComponent } from './utility'
+import { ConfigItemList, } from './utility'
+import type { ModifiableConfigProps } from './utility'
 
 import { NumField } from "./utility"
 import styles from './config.module.css'
 
 export default function PlayerList({ config, handleEditPlayers = null }:
 	{ config: GameConfig, handleEditPlayers: ((players: GameConfig['player_classes']) => void) | null }) {
-
 	const validClasses = Object.keys(config.player_zones);
-
-	const playerList = Object.entries(config.player_classes).map(
-		([playerName, player]) => {
-			return (
-				<li key={playerName}>
-					<div>
-						<div>
-							<NameFieldComponent name={playerName} editName={handleEditPlayers ? (newName) => renamePlayer(newName, playerName) : null} />
-						</div>
-						<PlayerDisplay player={player!} allowedClasses={validClasses} editPlayer={
-							handleEditPlayers ? (p) => handleEditPlayers({ ...config.player_classes, [playerName]: p }) : null
-						} />
-					</div>
-				</li>
-			)
-		}
-	)
-	function newPlayer() {
-		console.log("hi");
-		if (handleEditPlayers) {
-			let playersTried = 0;
-			let pname = `player_class_${playersTried}`;
-			while (config['player_classes'][pname]) {
-				playersTried += 1;
-				pname = `player_class_${playersTried}`;
-			}
-			const newPlayer: PlayerClass = { active_zones: [], assignment_rule: "All" };
-			handleEditPlayers({ ...config['player_classes'], [pname]: newPlayer });
-		}
+	const defaultPlayer: PlayerClass = { active_zones: [], assignment_rule: "All" };
+	function PlayerDisplayWrapper(props: ModifiableConfigProps<PlayerClass>) {
+		return <PlayerDisplay
+			player={props.configItem}
+			allowedClasses={validClasses}
+			editPlayer={props.setConfigItem}
+		/>
 	}
+	return <ConfigItemList
+		Component={PlayerDisplayWrapper}
+		config={config}
+		contents={config.player_classes}
+		defaultItem={() => defaultPlayer}
+		updateContents={handleEditPlayers}
+		prefix="player_class"
+	/>
 
-	function renamePlayer(newName: string, oldName: string) {
-		if (handleEditPlayers) {
-			const result = renameProperty(config.player_classes, newName, oldName);
-			if (result) {
-				handleEditPlayers(result);
-			}
-		}
-	}
-
-	return (
-		<div>
-			<ul className={styles.elementListing}>
-				{playerList}
-				{handleEditPlayers && <button onClick={() => newPlayer()} className={styles.menuButton}> Add player </button>}
-			</ul>
-		</div>)
 }
+
 
 function PlayerDisplay({ player, allowedClasses, editPlayer = null }:
 	{ player: PlayerClass, allowedClasses: string[], editPlayer: ((player: PlayerClass) => void) | null }) {

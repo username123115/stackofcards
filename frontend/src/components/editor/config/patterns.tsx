@@ -1,68 +1,27 @@
 import type { GameConfig } from '@client/types/engine/config'
 import type { Rank, Suit, PatternPiece, Relation, Pattern } from '@client/types/engine/core';
 
-import { renameProperty, NameFieldComponent, NumField } from './utility'
-
 import { useState, } from "react"
 
 import styles from './config.module.css';
 
+import { ConfigItemList, NumField } from './utility'
+import type { ModifiableConfigProps } from './utility'
+
 export default function PatternList({ config, handleEditPatterns = null }:
 	{ config: GameConfig, handleEditPatterns: ((patterns: GameConfig['patterns']) => void) | null }) {
+	const defaultPattern: Array<Pattern> = [];
+	return <ConfigItemList
+		Component={PatternVecDisplayWrapper}
+		config={config} contents={config['patterns']}
+		defaultItem={() => defaultPattern}
+		updateContents={handleEditPatterns}
+		prefix="new_pattern" />
+}
 
-	function RenamePattern(newName: string, oldName: string) {
-		if (handleEditPatterns) {
-			const result = renameProperty(config.patterns, newName, oldName);
-			if (result) {
-				handleEditPatterns(result);
-			}
-		}
-	}
 
-	function AddNewPattern() {
-		if (handleEditPatterns) {
-			let untitledPatterns = 0;
-			while (config.patterns[`new_pattern_${untitledPatterns}`]) {
-				untitledPatterns += 1;
-			}
-			const newPatternName = `new_pattern_${untitledPatterns}`;
-			const updated = {
-				...config.patterns,
-				[newPatternName]: [],
-			}
-			handleEditPatterns(updated);
-
-		}
-	}
-
-	const patternList = Object.entries(config.patterns).map(
-		([patternName, pattern]) => {
-			return (
-				<li key={patternName}>
-					<div>
-						<NameFieldComponent name={patternName} editName={handleEditPatterns ? (newName) => { RenamePattern(newName, patternName) } : null} />
-						<PatternVecDisplay config={config} patterns={pattern!} editPatterns={handleEditPatterns ? (p) => {
-							handleEditPatterns(
-								{
-									...config.patterns,
-									[patternName]: p,
-								}
-							)
-						} : null} />
-					</div>
-				</li>
-			)
-		}
-	)
-
-	return (
-		<div>
-			<ul className={styles.elementListing}>
-				{patternList}
-				{handleEditPatterns && <button className={styles.menuButton} onClick={() => AddNewPattern()}> Add pattern </button>}
-			</ul>
-
-		</div>)
+function PatternVecDisplayWrapper(props: ModifiableConfigProps<Array<Pattern>>) {
+	return <PatternVecDisplay config={props.config} patterns={props.configItem} editPatterns={props.setConfigItem} />
 }
 
 function PatternVecDisplay({ config, patterns, editPatterns = null }:

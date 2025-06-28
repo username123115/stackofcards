@@ -3,8 +3,6 @@ import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { UserContext } from '@client/userContext'
 import { useContext } from 'react';
 
-import Profile from '@pages/profile'
-
 import Header from '@components/header.tsx'
 import Footer from '@components/footer.tsx'
 import styles from '@styles/utility.module.css'

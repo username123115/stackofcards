@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import styles from './editor.module.css'
 import cStyles from './config/config.module.css'
 

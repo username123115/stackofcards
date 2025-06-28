@@ -70,7 +70,8 @@ export function NumField({ num, setNum = null }: { num: number, setNum: ((num: n
 	}
 
 }
-export type ConfigMapping<T> = { [key in string]: T }
+export type ConfigMapping<T> = { [key in string]: T | undefined }
+
 export interface ModifiableConfigProps<T> {
 	config: GameConfig,
 	configItem: T,
@@ -78,7 +79,7 @@ export interface ModifiableConfigProps<T> {
 };
 export type ModifiableConfigComponent<T> = ((props: ModifiableConfigProps<T>) => React.ReactElement);
 
-export function RenameableComponentItemList<T>({ Component, config, contents, defaultItem, updateContents = null, prefix = "new_" }
+export function ConfigItemList<T>({ Component, config, contents, defaultItem, updateContents = null, prefix = "new_" }
 	: { Component: ModifiableConfigComponent<T>, config: GameConfig, contents: ConfigMapping<T>, defaultItem: (() => T), updateContents: ((contents: ConfigMapping<T>) => void) | null, prefix: string }) {
 	function RenameItem(newName: string, oldName: string) {
 		if (updateContents) {

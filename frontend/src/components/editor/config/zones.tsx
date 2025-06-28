@@ -2,67 +2,32 @@ import type { GameConfig } from '@client/types/engine/config'
 
 import type { ZoneClass, ZoneCleanupBehavior, ZoneVisibility, ZoneVisibilityRule } from '@client/types/engine/core'
 
-import { renameProperty, NameFieldComponent } from './utility'
+import { ConfigItemList, } from './utility'
+import type { ModifiableConfigProps } from './utility'
 
 import zoneStyles from './zones.module.css'
 import styles from './config.module.css'
 
-export default function ZoneList({ config, handleEditZones = null }:
+export default function NZL({ config, handleEditZones = null }:
 	{ config: GameConfig, handleEditZones: ((zones: GameConfig['zone_classes']) => void) | null }) {
 
-	function RenameZone(newName: string, oldName: string) {
-		if (handleEditZones) {
-			const result = renameProperty(config.zone_classes, newName, oldName);
-			if (result) {
-				handleEditZones(result);
-			}
+	function defaultZone() {
+		let newZone: ZoneClass = {
+			visibility: {
+				owner: "Visible",
+				others: "Visible",
+			},
+			cleanup: "Never",
+			rules: [],
 		}
+		return newZone;
+
 	}
-	function AddNewZone() {
-		if (handleEditZones) {
-			let untitledZones = 0;
-			while (config.zone_classes[`new_zone_${untitledZones}`]) {
-				untitledZones += 1;
-			}
-			const newZoneName = `new_zone_${untitledZones}`;
+	return <ConfigItemList Component={ZoneDisplayWrapper} config={config} contents={config['zone_classes']} defaultItem={defaultZone} updateContents={handleEditZones} prefix={"new_zone"} />
+}
 
-			let newZone: ZoneClass = {
-				visibility: {
-					owner: "Visible",
-					others: "Visible",
-				},
-				cleanup: "Never",
-				rules: [],
-			}
-			const updated = {
-				...config.zone_classes,
-				[newZoneName]: newZone,
-			}
-			handleEditZones(updated);
-		}
-	}
-
-	const zoneList = Object.entries(config.zone_classes).map(
-		([zoneName, zone]) => {
-			return (
-				<li key={zoneName}>
-					<div>
-						<NameFieldComponent name={zoneName} editName={handleEditZones ? (newName) => { RenameZone(newName, zoneName) } : null} />
-						<ZoneDisplay config={config} zone={zone!} editZone={handleEditZones ? (z) => handleEditZones({ ...config.zone_classes, [zoneName]: z }) : null} />
-					</div>
-				</li>
-			)
-		}
-	)
-
-	return (
-		<div>
-			<ul className={styles.elementListing}>
-				{zoneList}
-				{handleEditZones && <button className={styles.menuButton} onClick={AddNewZone}> Add Zone </button>}
-			</ul>
-		</div>)
-
+function ZoneDisplayWrapper(props: ModifiableConfigProps<ZoneClass>) {
+	return <ZoneDisplay config={props.config} zone={props.configItem!} editZone={props.setConfigItem} />
 }
 
 function ZoneDisplay({ config, zone, editZone = null }: { config: GameConfig, zone: ZoneClass, editZone: ((zone: ZoneClass) => void) | null }) {

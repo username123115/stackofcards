@@ -43,10 +43,10 @@ pub enum NonFatalGameError {}
 
 #[derive(Debug, Clone)]
 pub struct ExecutionContext {
-    pub statements_evaluated: u64,
-    pub statement_limit: u64,
-    pub block_stack: Vec<u64>,
-    pub block_instruction_pointer: u64,
+    pub statements_evaluated: u32,
+    pub statement_limit: u32,
+    pub block_stack: Vec<u32>,
+    pub block_instruction_pointer: u32,
     pub current_phase: PhaseIdentifier,
 }
 
@@ -100,7 +100,7 @@ impl Game {
         self.state.game_ready()
     }
 
-    pub fn update_players(&mut self, player_count: u64) -> Result<(), String> {
+    pub fn update_players(&mut self, player_count: u32) -> Result<(), String> {
         self.state.create_players(player_count)
     }
 

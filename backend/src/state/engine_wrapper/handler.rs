@@ -148,7 +148,7 @@ impl WebGameState {
     fn update_player_roles(&mut self) {
         if self.game.is_waiting() {
             tracing::info!("Assigning player roles");
-            match self.game.update_players(self.player_order.len() as u64) {
+            match self.game.update_players(self.player_order.len() as u32) {
                 Ok(_) => (),
                 Err(msg) => {
                     //TODO: error broadcast to clients

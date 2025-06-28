@@ -25,7 +25,7 @@ pub struct GameConfig {
     pub initial_zones: HashMap<VariableIdentifier, ZoneClassIdentifier>, //Engine sets these up first and
 
     pub initial_phase: PhaseIdentifier,
-    pub player_range: Range<u64>,
+    pub player_range: Range<u32>,
     pub numbers: HashSet<VariableIdentifier>,
 }
 

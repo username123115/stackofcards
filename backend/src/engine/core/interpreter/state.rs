@@ -6,7 +6,7 @@ use crate::engine::core::types::identifiers::*;
 use crate::engine::core::types::*;
 
 use std::cmp::min;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 pub type GameZoneID = u64;
@@ -191,7 +191,7 @@ impl GameState {
     }
 
     // Assign players roles depending on class order
-    pub fn create_players(&mut self, player_count: u64) -> Result<(), String> {
+    pub fn create_players(&mut self, player_count: u32) -> Result<(), String> {
         if let GameStatus::Waiting(_) = self.status {
             let to_create = min(player_count, self.config.player_range.end);
             let mut players: Vec<PlayerClassIdentifier> = Vec::with_capacity(to_create as usize);

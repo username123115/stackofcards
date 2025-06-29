@@ -37,18 +37,9 @@ impl WebGame {
         ruleset_id: &uuid::Uuid,
     ) -> (Self, mpsc::UnboundedSender<WebgameRequest>) {
         let (tx, rx) = mpsc::unbounded_channel::<WebgameRequest>();
-
-        let state = WebGameState {
-            connections: HashMap::new(),
-            player_order: Vec::new(),
-            public_action_queue: VecDeque::new(),
-            game: interpreter::game::Game::new(config.clone()),
-            status: InterpreterStatus::Setup,
-        };
-
         (
             Self {
-                state: state,
+                state: WebGameState::new(config),
                 rx: rx,
                 name: name.to_string(),
                 ruleset_id: ruleset_id.clone(),

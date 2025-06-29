@@ -51,6 +51,24 @@ function InnerRouteComponent() {
 
 	}, [code]);
 
+	useEffect(() => {
+		let interval: NodeJS.Timeout | null = null;
+		if (socket.current) {
+			interval = setInterval(() => {
+				const heartbeat: PlayerCommand = "Heartbeat";
+				if (socket.current) {
+					socket.current.send(JSON.stringify(heartbeat));
+				}
+			}, 30000)
+		}
+
+		return () => {
+			if (interval) {
+				clearInterval(interval);
+			}
+		}
+	}, [socket.current]);
+
 	function onSnapshot(newSnapshot: GameSnapshot) {
 		console.info(newSnapshot);
 		if (clientState.current) {

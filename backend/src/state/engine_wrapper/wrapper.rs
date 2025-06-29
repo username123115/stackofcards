@@ -25,10 +25,10 @@ pub struct GameChat {
 
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]
 #[ts(export)]
-// Player tells game that it has done something
-// TODO: Engine impl
+
 pub enum PlayerCommand {
     StartGame,
+    Heartbeat,
     SendMsg(String),
 }
 

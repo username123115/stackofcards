@@ -177,6 +177,8 @@ impl WebGameState {
                             self.queue_chat(Some(&msg.player_id), chat_string);
                             self.broadcast(None);
                         }
+                        // Process this for timeout
+                        PlayerCommand::Heartbeat => {}
                         PlayerCommand::StartGame => {
                             if self.game.is_ready()
                                 && self.player_order.len() > 0

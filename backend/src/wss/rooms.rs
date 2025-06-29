@@ -11,7 +11,10 @@ use axum::{
 
 use crate::state;
 use state::engine_wrapper::{interface, wrapper};
-use tokio::sync::mpsc;
+use tokio::{
+    sync::mpsc,
+    time::{Duration, sleep},
+};
 use tracing::{info, instrument};
 
 use serde_json;
@@ -31,29 +34,6 @@ pub async fn join_handler(
         info!("Room {room} found, upgrading connection");
 
         return ws.on_upgrade(|websocket| async move {
-            /* // React strict mode makes two websockets each time a room is entered
-            // The first websocket will get closed, but will cause a player to be created and immediately disconnected
-            // To prevent this, have a player send something over the web socket before creating a
-            // client
-
-            info!("Waiting for client to confirm they exist");
-            let mut use_this_socket: bool = false;
-            while (!use_this_socket) {
-                let ws_msg = websocket.recv().await;
-
-                match ws_msg {
-                    Some(Ok(msg)) => use_this_socket = true,
-                    Some(Err(err)) => {
-                        tracing::error!("Error receiving message from websocket connection: {err}");
-                        return;
-                    }
-                    None => {
-                        tracing::info!("Player disconnected before a client could be created");
-                        return;
-                    }
-                }
-            } */
-
             match WebgameClient::join(websocket, game_tx) {
                 Ok(client) => {
                     info!("Spawning a client");
@@ -189,9 +169,13 @@ impl WebgameClient {
                 //recent
                 Some(snapshot) = self.rx.recv() => {self.handle_connection_rx(&snapshot).await}
                 ws_msg = self.ws.recv() => {self.handle_connection_tx(ws_msg).await}
+                _timed_out = sleep(Duration::from_secs(60)) => {
+                    tracing::info!("Connection timed out, no messages received in heartbeat window");
+                    self.leave_game()
+                }
             }
         }
 
-        tracing::info!("Exiting the game!");
+        tracing::info!("Websocket connection ending");
     }
 }

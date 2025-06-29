@@ -7,7 +7,12 @@ use super::engine_wrapper::{
 };
 
 use std::fmt;
-use tokio::sync::mpsc;
+
+use tokio::{
+    sync::mpsc,
+    time::{Duration, sleep},
+};
+
 use tracing::info;
 
 pub struct WebGame {
@@ -73,8 +78,11 @@ impl WebGame {
             tokio::select! {
                 Some(msg) = self.rx.recv() => {
                     info!("Processing a player request");
-
                     self.state.process_request(&msg);
+                }
+                _timed_out = sleep(Duration::from_secs(120)) => {
+                    tracing::info!("Game has timed out, quitting");
+                    game_valid = false;
                 }
             }
         }

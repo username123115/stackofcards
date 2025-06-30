@@ -7,35 +7,33 @@ use super::{
 use crate::engine::core::types::*;
 use identifiers::*;
 
-use serde::{Deserialize, Serialize};
-use ts_rs::TS;
-
 use std::sync::Arc;
+use thiserror::Error;
 
-#[derive(Debug, Clone)]
+#[derive(Error, Debug, Clone)]
 pub enum GameError {
-    Fatal(FatalGameError),
-    Recoverable(RecoverableGameError),
+    #[error("Game encountered an error that can't be recovered from")]
+    Fatal(#[from] FatalGameError),
+    #[error("Game encountered an error that is recoverable")]
+    Recoverable(#[from] RecoverableGameError),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Error, Debug, Clone)]
 pub enum FatalGameError {
-    StateRuntime(state::RuntimeError),
+    #[error("State is corrupted")]
+    StateRuntime(#[from] state::StateModifyError),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Error, Debug, Clone)]
 pub enum RecoverableGameError {
+    #[error("Game in wrong status")]
     WrongStatus,
 }
 
-pub fn state_error_to_game(state_error: state::StateMethodError) -> GameError {
+pub fn state_error_to_game(state_error: state::StateError) -> GameError {
     match state_error {
-        state::StateMethodError::WrongStatus => {
-            GameError::Recoverable(RecoverableGameError::WrongStatus)
-        }
-        state::StateMethodError::InternalError(e) => {
-            GameError::Fatal(FatalGameError::StateRuntime(e))
-        }
+        state::StateError::WrongStatus => GameError::Recoverable(RecoverableGameError::WrongStatus),
+        state::StateError::Modify(e) => GameError::Fatal(FatalGameError::StateRuntime(e)),
     }
 }
 
@@ -45,11 +43,11 @@ pub enum NonFatalGameError {}
 pub struct ExecutionContext {
     pub statements_evaluated: u32,
     pub statement_limit: u32,
-    pub root_phase: statements::Statement,
+    pub root_phase: Arc<statements::Statement>,
 }
 
 impl ExecutionContext {
-    pub fn new(root_phase: statements::Statement) -> Self {
+    pub fn new(root_phase: Arc<statements::Statement>) -> Self {
         Self {
             statements_evaluated: 0,
             statement_limit: 1000,

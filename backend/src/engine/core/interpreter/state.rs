@@ -1,7 +1,4 @@
-use super::{
-    config,
-    lang::{expressions, phases, statements, types_instances},
-};
+use super::config;
 use crate::engine::core::types::identifiers::*;
 use crate::engine::core::types::*;
 
@@ -9,11 +6,13 @@ use std::cmp::min;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub type GameZoneID = u64;
-pub type PlayerOrderIndex = u64;
-
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
+
+use thiserror::Error;
+
+pub type GameZoneID = u64;
+pub type PlayerOrderIndex = u64;
 
 #[derive(Debug, Clone)]
 pub struct GameActiveZone {
@@ -26,8 +25,8 @@ pub struct GameActiveZone {
 
 #[derive(Debug, Clone)]
 pub struct GameZoneOwnership {
-    player: PlayerOrderIndex,
-    zone_name: Option<VariableIdentifier>,
+    pub player: PlayerOrderIndex,
+    pub zone_name: Option<VariableIdentifier>,
 }
 
 impl GameActiveZone {
@@ -101,7 +100,7 @@ impl CardState {
         class: &ZoneClassIdentifier,
         owner: Option<GameZoneOwnership>,
         name: Option<VariableIdentifier>,
-    ) -> Result<GameZoneID, RuntimeError> {
+    ) -> Result<GameZoneID, StateModifyError> {
         if let Some(_) = self.config.zone_classes.get(class) {
             /* if let Some(idx) = owner {
                 if idx >= self.players.len() as u64 {
@@ -116,7 +115,7 @@ impl CardState {
             self.zones.insert(zone_id, z);
             return Ok(zone_id);
         } else {
-            return Err(RuntimeError::Init(InitError::Zone(class.clone())));
+            return Err(StateModifyError::Init(InitError::Zone(class.clone())));
         }
     }
 
@@ -149,29 +148,37 @@ pub struct GameState {
     pub cards: CardState,
 }
 
-//State method didn't execute correctly
-#[derive(Debug, Clone)]
-pub enum StateMethodError {
-    WrongStatus,                 //Recoverable, just wait for status to change
-    InternalError(RuntimeError), //Fatal
+#[derive(Error, Debug, Clone)]
+pub enum StateError {
+    #[error("incorrect status while performing action")]
+    WrongStatus,
+    #[error("error while modifying state")]
+    Modify(#[from] StateModifyError), //Fatal
 }
 
-#[derive(Debug, Clone)]
-pub enum RuntimeError {
-    Init(InitError),
-    MissingResource(MissingResourceError),
+#[derive(Error, Debug, Clone)]
+pub enum StateModifyError {
+    #[error("Can't initialize resource")]
+    Init(#[from] InitError),
+    #[error("Bad resource reference")]
+    MissingResource(#[from] ResourceReferenceError),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Error, Debug, Clone)]
 pub enum InitError {
+    #[error("Problem creating zone {0}")]
     Zone(ZoneClassIdentifier),
+    #[error("Problem creating player {0}")]
     Player(PlayerClassIdentifier),
 }
 
-#[derive(Debug, Clone)]
-pub enum MissingResourceError {
+#[derive(Error, Debug, Clone)]
+pub enum ResourceReferenceError {
+    #[error("Player of index {0} doesn't exist")]
     Player(PlayerOrderIndex),
+    #[error("Bad card reference: {0}")]
     Card(u64),
+    #[error("Bad zone reference: {0}")]
     Zone(GameZoneID),
 }
 
@@ -261,7 +268,7 @@ impl GameState {
     }
 
     // Checks if game has enough players and starts
-    pub fn init_game(&mut self) -> Result<(), StateMethodError> {
+    pub fn init_game(&mut self) -> Result<(), StateError> {
         if self.game_ready() {
             self.status = GameStatus::Playing;
 
@@ -273,7 +280,7 @@ impl GameState {
                 {
                     Ok(_) => (),
                     Err(s) => {
-                        return Err(StateMethodError::InternalError(s));
+                        return Err(StateError::Modify(s));
                     }
                 }
             }
@@ -294,17 +301,17 @@ impl GameState {
                             ) {
                                 Ok(_) => (),
                                 Err(s) => {
-                                    return Err(StateMethodError::InternalError(s));
+                                    return Err(StateError::Modify(s));
                                 }
                             }
                         } else {
-                            return Err(StateMethodError::InternalError(RuntimeError::Init(
+                            return Err(StateError::Modify(StateModifyError::Init(
                                 InitError::Player(player_class_name.clone()),
                             )));
                         }
                     }
                 } else {
-                    return Err(StateMethodError::InternalError(RuntimeError::Init(
+                    return Err(StateError::Modify(StateModifyError::Init(
                         InitError::Player(player_class_name.clone()),
                     )));
                 }
@@ -312,7 +319,7 @@ impl GameState {
 
             Ok(())
         } else {
-            return Err(StateMethodError::WrongStatus);
+            return Err(StateError::WrongStatus);
         }
     }
 }

@@ -37,3 +37,4 @@ lalrpop-util = { version = "0.21.0", features = ["lexer", "unicode"] }
 argon2 = "0.5.3"
 anyhow = "1.0.98"
 axum-login = "0.17.0"
+thiserror = "2.0.12"

@@ -9,6 +9,8 @@ use std::ops::Range;
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
+use thiserror::Error;
+
 #[derive(TS, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub struct GameConfig {
@@ -69,4 +71,10 @@ impl GameConfig {
             numbers: HashSet::new(),
         }
     }
+}
+
+#[derive(Error, Debug)]
+pub enum ConfigError {
+    #[error("The phase '{0}' does not exist")]
+    NonexistantPhase(String),
 }

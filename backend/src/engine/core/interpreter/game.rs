@@ -7,6 +7,9 @@ use super::{
 use crate::engine::core::types::*;
 use identifiers::*;
 
+use serde::{Deserialize, Serialize};
+use ts_rs::TS;
+
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -39,42 +42,46 @@ pub fn state_error_to_game(state_error: state::StateMethodError) -> GameError {
 pub enum NonFatalGameError {}
 
 #[derive(Debug, Clone)]
-pub struct ExecutionContext<'a> {
+pub struct ExecutionContext {
     pub statements_evaluated: u32,
     pub statement_limit: u32,
-    pub statement_stack: Vec<&'a statements::Statement>,
-    pub root_statement: &'a statements::Statement,
+    pub block_stack: Vec<u32>,
+    pub block_instruction_pointer: u32,
+    pub current_phase: PhaseIdentifier,
 }
 
-impl<'a> ExecutionContext<'a> {
-    pub fn new(root_statement: &'a statements::Statement) -> ExecutionContext<'a> {
+impl ExecutionContext {
+    pub fn new() -> Self {
         Self {
             statements_evaluated: 0,
             statement_limit: 1000,
-            statement_stack: Vec::new(),
-            root_statement,
+            block_stack: Vec::new(),
+            block_instruction_pointer: 0,
+            current_phase: "Changeme".into(),
         }
     }
 
     pub fn change_phase(&mut self, phase: &str) {
-        self.statement_stack.clear();
+        self.block_stack.clear();
+        self.block_instruction_pointer = 0;
+        self.current_phase = String::from(phase);
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct Game<'a> {
+pub struct Game {
     config: Arc<config::GameConfig>,
     state: state::GameState,
-    ex_ctx: ExecutionContext<'a>,
+    ex_ctx: ExecutionContext,
 }
 
-impl Game<'_> {
+impl Game {
     pub fn new(config: config::GameConfig) -> Self {
         let config_rc = Arc::new(config);
         Self {
             config: config_rc.clone(),
             state: state::GameState::new(config_rc),
-            ex_ctx: ExecutionContext::new(&statements::Statement::Empty),
+            ex_ctx: ExecutionContext::new(),
         }
     }
 
@@ -119,14 +126,6 @@ impl Game<'_> {
         return Ok(());
     }
 
-    pub fn evaluate_statement(&mut self, statement: &statements::Statement) {
-        self.ex_ctx.statements_evaluated += 1;
-        if self.ex_ctx.statements_evaluated > self.ex_ctx.statement_limit {
-            self.on_reached_eval_limit();
-            return;
-        }
-    }
-
     pub fn lookup_single_zone(&self, target: &zones::SingleZoneTarget) -> VariableIdentifier {
         todo!("IMPLEMENT ME");
     }
@@ -165,6 +164,14 @@ impl Game<'_> {
     }
 
     pub fn throw_error(&mut self, reason: String) {}
+
+    pub fn evaluate_statement(&mut self, statement: &statements::Statement) {
+        self.ex_ctx.statements_evaluated += 1;
+        if self.ex_ctx.statements_evaluated > self.ex_ctx.statement_limit {
+            self.on_reached_eval_limit();
+            return;
+        }
+    }
 
     pub fn evaluate_number(
         &self,

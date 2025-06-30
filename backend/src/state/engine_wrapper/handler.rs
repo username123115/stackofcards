@@ -1,5 +1,4 @@
 use crate::engine::core::interpreter;
-use interpreter::config;
 use std::collections::{HashMap, VecDeque};
 
 use super::{connections, interface, names, status::InterpreterStatus, wrapper};
@@ -18,16 +17,6 @@ pub struct WebGameState {
 }
 
 impl WebGameState {
-    pub fn new(config: &config::GameConfig) -> Self {
-        Self {
-            connections: HashMap::new(),
-            player_order: Vec::new(),
-            public_action_queue: VecDeque::new(),
-            game: interpreter::game::Game::new(config.clone()),
-            status: InterpreterStatus::Setup,
-        }
-    }
-
     pub fn get_player_snapshot(&self) -> wrapper::PlayerSnapshot {
         let mut psnapshot = wrapper::PlayerSnapshot {
             players: self
@@ -55,8 +44,7 @@ impl WebGameState {
         }
         psnapshot
     }
-
-    fn get_public_snapshot(&mut self) -> wrapper::GameSnapshot {
+    fn get_snapshot(&mut self) -> wrapper::GameSnapshot {
         wrapper::GameSnapshot {
             actions: self.public_action_queue.drain(..).collect(),
             private_actions: Vec::new(),
@@ -87,7 +75,7 @@ impl WebGameState {
         &mut self,
         private_actions: Option<HashMap<wrapper::PlayerId, Vec<wrapper::GameAction>>>,
     ) {
-        let public = self.get_public_snapshot();
+        let public = self.get_snapshot();
         let mut invalid: Vec<wrapper::PlayerId> = Vec::new();
 
         for (player_id, player) in &mut self.connections {
@@ -100,8 +88,11 @@ impl WebGameState {
                     ..public.clone()
                 };
                 if let Err(e) = tx.send(copy) {
-                    tracing::error!("Broadcast to closed channel!, removing player! {e}");
-                    //TODO: unintended
+                    info!("Broadcast to closed channel!, removing player! {e}");
+                    //TODO: This shouldn't happen at all and results in annoying behaviors if it
+                    //does, maybe panic instead? The Client associated with this tx should
+                    //initiate a disconnect before dropping the receiver
+                    //There's actually a race condition now that I think about it where the
                     //disconnect hasn't reached us but the client has already dropped
                     invalid.push(player_id.clone())
                 }

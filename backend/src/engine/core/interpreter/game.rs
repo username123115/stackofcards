@@ -45,26 +45,16 @@ pub enum NonFatalGameError {}
 pub struct ExecutionContext {
     pub statements_evaluated: u32,
     pub statement_limit: u32,
-    pub block_stack: Vec<u32>,
-    pub block_instruction_pointer: u32,
-    pub current_phase: PhaseIdentifier,
+    pub root_phase: statements::Statement,
 }
 
 impl ExecutionContext {
-    pub fn new() -> Self {
+    pub fn new(root_phase: statements::Statement) -> Self {
         Self {
             statements_evaluated: 0,
             statement_limit: 1000,
-            block_stack: Vec::new(),
-            block_instruction_pointer: 0,
-            current_phase: "Changeme".into(),
+            root_phase,
         }
-    }
-
-    pub fn change_phase(&mut self, phase: &str) {
-        self.block_stack.clear();
-        self.block_instruction_pointer = 0;
-        self.current_phase = String::from(phase);
     }
 }
 
@@ -78,10 +68,17 @@ pub struct Game {
 impl Game {
     pub fn new(config: config::GameConfig) -> Self {
         let config_rc = Arc::new(config);
+        let root_phase = config_rc
+            .clone()
+            .phases
+            .get(&config_rc.clone().initial_phase)
+            .unwrap()
+            .evaluate
+            .clone();
         Self {
             config: config_rc.clone(),
             state: state::GameState::new(config_rc),
-            ex_ctx: ExecutionContext::new(),
+            ex_ctx: ExecutionContext::new(root_phase),
         }
     }
 
@@ -108,10 +105,6 @@ impl Game {
         self.state.players.clone()
     }
 
-    // Identify zones by owner (Players will hold references)
-    // Identify zones by class
-    //
-
     pub fn init(&mut self) -> Result<(), GameError> {
         if !self.is_ready() {
             return Err(GameError::Recoverable(RecoverableGameError::WrongStatus));
@@ -120,8 +113,6 @@ impl Game {
             Ok(_) => (),
             Err(e) => return Err(state_error_to_game(e)),
         };
-
-        self.ex_ctx.change_phase(&self.config.initial_phase);
 
         return Ok(());
     }

@@ -34,6 +34,7 @@ function ConfigDisplay({ config, saveEdits = null }:
 				<div className={cStyles.rounded}>
 					{saveEdits ?
 						<select value={currentConfig.initial_phase} onChange={(e) => setCurrentConfig({ ...currentConfig, initial_phase: e.target.value })}>
+							<option value=""> None </option>
 							{
 								Object.keys(config.phases).map(
 									(pname) => <option value={pname}> {pname} </option>

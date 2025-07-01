@@ -107,8 +107,6 @@ impl ExecutionContext {
     }
 
     pub fn get_current_statement(&mut self) -> Option<Arc<Statement>> {
-        // just attempt an upgrade and ignore results
-        let _ = self.upgrade_statement();
         let mut pop_stack: bool = false;
         let result = match self.statement_stack.last() {
             Some(instr) => match instr {

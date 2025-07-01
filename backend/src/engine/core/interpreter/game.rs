@@ -6,6 +6,7 @@ use super::{
 
 use crate::engine::core::types::*;
 use identifiers::*;
+use statements::Statement;
 
 use std::sync::Arc;
 use thiserror::Error;
@@ -40,18 +41,110 @@ pub fn state_error_to_game(state_error: state::StateError) -> GameError {
 pub enum NonFatalGameError {}
 
 #[derive(Debug, Clone)]
+pub struct ExecutionBlockContext {
+    exec_idx: u32,                   //keep private
+    statements: Vec<Arc<Statement>>, //keep private
+}
+
+impl ExecutionBlockContext {
+    pub fn new(statements: Vec<Arc<Statement>>) -> Self {
+        Self {
+            exec_idx: 0,
+            statements,
+        }
+    }
+    pub fn get_current(&self) -> Option<Arc<Statement>> {
+        if self.exec_idx < self.statements.len() as u32 {
+            return Some(self.statements[self.exec_idx as usize].clone());
+        }
+        None
+    }
+
+    pub fn is_finished_exec(&self) -> bool {
+        self.exec_idx >= self.statements.len() as u32
+    }
+
+    pub fn next_statement(&mut self) -> bool {
+        if self.is_finished_exec() {
+            return true;
+        } else {
+            self.exec_idx += 1;
+            return self.is_finished_exec();
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum StatementPointer {
+    Single(Arc<Statement>),
+    Block(ExecutionBlockContext),
+}
+
+#[derive(Debug, Clone)]
 pub struct ExecutionContext {
     pub statements_evaluated: u32,
     pub statement_limit: u32,
-    pub root_phase: Arc<statements::Statement>,
+    pub statement_stack: Vec<StatementPointer>,
+    pub root_phase: Arc<Statement>,
+}
+
+#[derive(Error, Debug, Clone)]
+pub enum ExecutionContextError {
+    #[error("Execution has finished")]
+    OutOfStatements,
+    #[error("Statement was of wrong type")]
+    IncorrectVariant,
 }
 
 impl ExecutionContext {
-    pub fn new(root_phase: Arc<statements::Statement>) -> Self {
+    pub fn new(root_phase: Arc<Statement>) -> Self {
         Self {
             statements_evaluated: 0,
             statement_limit: 1000,
+            statement_stack: Vec::new(),
             root_phase,
+        }
+    }
+
+    pub fn get_current_statement(&mut self) -> Option<Arc<Statement>> {
+        // just attempt an upgrade and ignore results
+        let _ = self.upgrade_statement();
+        let mut pop_stack: bool = false;
+        let result = match self.statement_stack.last() {
+            Some(instr) => match instr {
+                StatementPointer::Single(s) => Some(s.clone()),
+                StatementPointer::Block(bctx) => {
+                    if let Some(cb) = bctx.get_current() {
+                        Some(cb)
+                    } else {
+                        pop_stack = true;
+                        None
+                    }
+                }
+            },
+            None => None,
+        };
+        if pop_stack {
+            self.statement_stack.pop();
+            return self.get_current_statement();
+        } else {
+            result
+        }
+    }
+
+    pub fn upgrade_statement(&mut self) -> Result<(), ExecutionContextError> {
+        let target = self.get_current_statement();
+        match target {
+            None => Err(ExecutionContextError::OutOfStatements),
+            Some(stmt) => match &*stmt {
+                Statement::Block(v) => {
+                    self.statement_stack.pop();
+                    let new_ctx = ExecutionBlockContext::new(v.clone());
+                    self.statement_stack.push(StatementPointer::Block(new_ctx));
+                    Ok(())
+                }
+                _ => Err(ExecutionContextError::IncorrectVariant),
+            },
         }
     }
 }
@@ -155,7 +248,7 @@ impl Game {
 
     pub fn throw_error(&mut self, reason: String) {}
 
-    pub fn evaluate_statement(&mut self, statement: &statements::Statement) {
+    pub fn evaluate_statement(&mut self, statement: &Statement) {
         self.ex_ctx.statements_evaluated += 1;
         if self.ex_ctx.statements_evaluated > self.ex_ctx.statement_limit {
             self.on_reached_eval_limit();

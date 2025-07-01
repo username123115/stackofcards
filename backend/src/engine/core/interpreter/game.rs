@@ -53,6 +53,11 @@ impl ExecutionBlockContext {
             statements,
         }
     }
+
+    pub fn incr(&mut self, delta: u32) {
+        self.exec_idx += delta;
+    }
+
     pub fn get_current(&self) -> Option<Arc<Statement>> {
         if self.exec_idx < self.statements.len() as u32 {
             return Some(self.statements[self.exec_idx as usize].clone());
@@ -94,6 +99,8 @@ pub enum ExecutionContextError {
     OutOfStatements,
     #[error("Statement was of wrong type")]
     IncorrectVariant,
+    #[error("Statement did not refer to a block")]
+    WrongStatementPointer,
 }
 
 impl ExecutionContext {
@@ -144,6 +151,31 @@ impl ExecutionContext {
                 _ => Err(ExecutionContextError::IncorrectVariant),
             },
         }
+    }
+
+    pub fn incr_current(&mut self, incr: u32) -> Result<(), ExecutionContextError> {
+        if incr == 0 {
+            return Ok(());
+        }
+        let _ = self.upgrade_statement();
+        match self.statement_stack.last_mut() {
+            None => return Err(ExecutionContextError::OutOfStatements),
+            Some(sp) => {
+                match sp {
+                    StatementPointer::Single(_stmt) => {
+                        return Err(ExecutionContextError::WrongStatementPointer);
+                    }
+                    StatementPointer::Block(blk) => blk.incr(incr),
+                };
+            }
+        };
+        Ok(())
+    }
+
+    pub fn push_and_incr(&mut self, statement: Arc<Statement>, incr: u32) {
+        self.incr_current(incr);
+        self.statement_stack
+            .push(StatementPointer::Single(statement));
     }
 }
 

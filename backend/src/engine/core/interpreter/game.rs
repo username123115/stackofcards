@@ -66,6 +66,7 @@ pub struct Game {
 impl Game {
     pub fn new(config: config::GameConfig) -> Self {
         let config_rc = Arc::new(config);
+        //TODO: return error
         let root_phase = config_rc
             .clone()
             .phases

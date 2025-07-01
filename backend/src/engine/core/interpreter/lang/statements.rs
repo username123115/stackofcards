@@ -1,17 +1,18 @@
 use super::expressions;
 use crate::engine::core::types::{cards, identifiers::*, patterns, players, zones};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use ts_rs::TS;
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
 #[ts(export)]
 pub enum Statement {
     Empty,
-    Block(Vec<Statement>),
+    Block(Vec<Arc<Statement>>),
     Conditional(ConditionalStatement), //if else block
     While {
         condition: Box<expressions::BooleanExpression>,
-        r#do: Box<Statement>,
+        r#do: Arc<Statement>,
     },
     Broadcast {
         msg: String,
@@ -49,8 +50,8 @@ pub enum Statement {
 #[ts(export)]
 pub struct ConditionalStatement {
     pub condition: Box<expressions::BooleanExpression>,
-    pub go_true: Box<Statement>,
-    pub go_false: Box<Statement>,
+    pub go_true: Arc<Statement>,
+    pub go_false: Arc<Statement>,
 }
 
 #[derive(TS, Debug, Serialize, Deserialize, Clone)]
@@ -66,7 +67,7 @@ pub struct Offer {
 pub struct OfferCase {
     condition: Option<Box<expressions::BooleanExpression>>,
     choices: Vec<OfferChoice>,
-    handle: Box<Statement>,
+    handle: Arc<Statement>,
     message: String,
 }
 

@@ -87,9 +87,20 @@ pub enum StatementPointer {
 
 #[derive(Debug, Clone)]
 pub struct ExecutionContext {
+    pub location: StatementPointer,
+}
+
+impl ExecutionContext {
+    pub fn new(location: StatementPointer) -> Self {
+        Self { location }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ExecutionState {
     pub statements_evaluated: u32,
     pub statement_limit: u32,
-    pub statement_stack: Vec<StatementPointer>,
+    pub statement_stack: Vec<ExecutionContext>,
     pub root_phase: Arc<Statement>,
 }
 
@@ -103,7 +114,7 @@ pub enum ExecutionContextError {
     WrongStatementPointer,
 }
 
-impl ExecutionContext {
+impl ExecutionState {
     pub fn new(root_phase: Arc<Statement>) -> Self {
         Self {
             statements_evaluated: 0,
@@ -116,7 +127,7 @@ impl ExecutionContext {
     pub fn get_current_statement(&mut self) -> Option<Arc<Statement>> {
         let mut pop_stack: bool = false;
         let result = match self.statement_stack.last() {
-            Some(instr) => match instr {
+            Some(instr) => match &instr.location {
                 StatementPointer::Single(s) => Some(s.clone()),
                 StatementPointer::Block(bctx) => {
                     if let Some(cb) = bctx.get_current() {
@@ -143,9 +154,19 @@ impl ExecutionContext {
             None => Err(ExecutionContextError::OutOfStatements),
             Some(stmt) => match &*stmt {
                 Statement::Block(v) => {
-                    self.statement_stack.pop();
-                    let new_ctx = ExecutionBlockContext::new(v.clone());
-                    self.statement_stack.push(StatementPointer::Block(new_ctx));
+                    let replace = self.statement_stack.pop();
+                    let new_ctx = StatementPointer::Block(ExecutionBlockContext::new(v.clone()));
+
+                    match replace {
+                        Some(mut ec) => {
+                            ec.location = new_ctx;
+                            self.statement_stack.push(ec);
+                        }
+                        None => {
+                            self.statement_stack.push(ExecutionContext::new(new_ctx));
+                        }
+                    }
+
                     Ok(())
                 }
                 _ => Err(ExecutionContextError::IncorrectVariant),
@@ -159,7 +180,7 @@ impl ExecutionContext {
         }
         let _ = self.upgrade_statement();
         match self.statement_stack.last_mut() {
-            None => return Err(ExecutionContextError::OutOfStatements),
+            None => return Ok(()),
             Some(sp) => {
                 match sp {
                     StatementPointer::Single(_stmt) => {
@@ -183,7 +204,7 @@ impl ExecutionContext {
 pub struct Game {
     config: Arc<config::GameConfig>,
     state: state::GameState,
-    ex_ctx: ExecutionContext,
+    ex_ctx: ExecutionState,
 }
 
 impl Game {
@@ -200,7 +221,7 @@ impl Game {
         Self {
             config: config_rc.clone(),
             state: state::GameState::new(config_rc),
-            ex_ctx: ExecutionContext::new(root_phase),
+            ex_ctx: ExecutionState::new(root_phase),
         }
     }
 

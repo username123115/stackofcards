@@ -116,12 +116,14 @@ pub enum ExecutionContextError {
 
 impl ExecutionState {
     pub fn new(root_phase: Arc<Statement>) -> Self {
-        Self {
+        let mut r = Self {
             statements_evaluated: 0,
             statement_limit: 1000,
             statement_stack: Vec::new(),
             root_phase,
-        }
+        };
+        r.incr_and_push(r.root_phase.clone(), 0);
+        r
     }
 
     pub fn get_current_statement(&mut self) -> Option<Arc<Statement>> {
@@ -178,25 +180,37 @@ impl ExecutionState {
         if incr == 0 {
             return Ok(());
         }
+        let mut pop_stack: bool = false;
         let _ = self.upgrade_statement();
         match self.statement_stack.last_mut() {
             None => return Ok(()),
             Some(sp) => {
                 match &mut sp.location {
-                    StatementPointer::Single(_stmt) => {
-                        return Err(ExecutionContextError::WrongStatementPointer);
+                    StatementPointer::Single(stmt) => {
+                        if let Statement::Block(_) = &*stmt.clone() {
+                            return Err(ExecutionContextError::WrongStatementPointer);
+                        }
+                        pop_stack = true;
                     }
                     StatementPointer::Block(blk) => blk.incr(incr),
                 };
             }
         };
+        if pop_stack {
+            self.statement_stack.pop();
+        }
         Ok(())
     }
 
-    pub fn push_and_incr(&mut self, statement: Arc<Statement>, incr: u32) {
-        self.incr_current(incr);
+    pub fn incr_and_push(
+        &mut self,
+        statement: Arc<Statement>,
+        incr: u32,
+    ) -> Result<(), ExecutionContextError> {
+        let r = self.incr_current(incr);
         self.statement_stack
             .push(ExecutionContext::new(StatementPointer::Single(statement)));
+        r
     }
 }
 

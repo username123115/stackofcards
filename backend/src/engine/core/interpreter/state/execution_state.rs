@@ -139,6 +139,7 @@ impl ExecutionState {
         }
     }
 
+    //this is only really intended for incr = 0 and 1, effects the top of stack only
     pub fn incr_current(&mut self, incr: u32) -> Result<(), ExecutionStateError> {
         if incr == 0 {
             return Ok(());

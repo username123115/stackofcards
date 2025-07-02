@@ -107,12 +107,35 @@ impl Game {
                             .incr_and_push(statement_to_execute, 1)
                             .map_err(wrap_exec_state_error)?;
                     }
+                    Statement::While { condition, r#do } => {
+                        let valid = self.evaluate_bool(&condition);
+                        if valid {
+                            self.ex_state.push_statement(r#do.clone());
+                        }
+                    }
                     //TODO
                     Statement::Broadcast { msg, to } => {
                         status = EngineStatus::Broadcast(msg.clone());
                     }
                     Statement::DeclareWinner(player) => todo!("impl"),
                     Statement::SetNumber { name, value } => todo!("impl"),
+                    Statement::AdvancePlayerStateByType {
+                        to_advance,
+                        type_name,
+                    } => todo!("impl"),
+                    Statement::AdvancePlayerState(to_advance) => todo!("impl"),
+                    Statement::MoveCardsTo { source, dest } => todo!("impl"),
+
+                    Statement::GenerateCards { cards, dest } => todo!("impl"),
+                    Statement::Deal {
+                        num_cards,
+                        source,
+                        dest,
+                    } => todo!("impl"),
+
+                    Statement::Shuffle(zones) => todo!("impl"),
+                    Statement::EnterPhase(pname) => todo!("impl"),
+                    Statement::Offer(offer) => todo!("impl"),
                     _ => todo!("impl"),
                 }
 

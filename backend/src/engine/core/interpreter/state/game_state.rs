@@ -12,6 +12,7 @@ use ts_rs::TS;
 use thiserror::Error;
 
 pub type GameZoneID = u64;
+pub type CardID = u64;
 pub type PlayerOrderIndex = u64;
 
 #[derive(Debug, Clone)]
@@ -32,7 +33,7 @@ pub struct GameZoneOwnership {
 impl GameActiveZone {
     pub fn new(
         zone_id: GameZoneID,
-        cards: Vec<u64>,
+        cards: Vec<CardID>,
         class: ZoneClassIdentifier,
         owner: Option<GameZoneOwnership>,
         name: Option<VariableIdentifier>,
@@ -66,7 +67,7 @@ pub enum GameWaitingStatus {
 pub struct CardState {
     config: Arc<config::GameConfig>,
     zones: HashMap<GameZoneID, GameActiveZone>,
-    cards: HashMap<u64, cards::Card>,
+    cards: HashMap<CardID, cards::Card>,
     zones_created: GameZoneID,
     cards_created: u64,
 }
@@ -89,14 +90,14 @@ impl CardState {
         self.zones_created
     }
 
-    pub fn next_card_id(&mut self) -> u64 {
+    pub fn next_card_id(&mut self) -> CardID {
         self.cards_created += 1;
         self.cards_created
     }
 
     pub fn create_zone(
         &mut self,
-        cards: Vec<u64>,
+        cards: Vec<CardID>,
         class: &ZoneClassIdentifier,
         owner: Option<GameZoneOwnership>,
         name: Option<VariableIdentifier>,
@@ -119,13 +120,13 @@ impl CardState {
         }
     }
 
-    pub fn new_card(&mut self, card: cards::Card) -> u64 {
+    pub fn new_card(&mut self, card: cards::Card) -> CardID {
         let card_id = self.next_card_id();
         self.cards.insert(card_id, card);
         card_id
     }
 
-    pub fn new_cardset(&mut self, set: &cards::CardSet) -> Vec<u64> {
+    pub fn new_cardset(&mut self, set: &cards::CardSet) -> Vec<CardID> {
         let mut result = Vec::with_capacity(set.ranks.len() * set.suits.len());
         for suit in set.suits.iter() {
             for rank in set.ranks.iter() {
@@ -177,7 +178,7 @@ pub enum ResourceReferenceError {
     #[error("Player of index {0} doesn't exist")]
     Player(PlayerOrderIndex),
     #[error("Bad card reference: {0}")]
-    Card(u64),
+    Card(CardID),
     #[error("Bad zone reference: {0}")]
     Zone(GameZoneID),
 }
@@ -294,7 +295,7 @@ impl GameState {
                                 Vec::new(),
                                 &zone_class_name,
                                 Some(GameZoneOwnership {
-                                    player: idx as u64,
+                                    player: idx as PlayerOrderIndex,
                                     zone_name: Some(zone_name.clone()),
                                 }),
                                 None,

@@ -1,7 +1,7 @@
 use super::{
     config,
     lang::{expressions, phases, statements, types_instances},
-    state,
+    state::game_state,
 };
 
 use crate::engine::core::types::*;
@@ -22,7 +22,7 @@ pub enum GameError {
 #[derive(Error, Debug, Clone)]
 pub enum FatalGameError {
     #[error("State is corrupted")]
-    StateRuntime(#[from] state::StateModifyError),
+    StateRuntime(#[from] game_state::StateModifyError),
 }
 
 #[derive(Error, Debug, Clone)]
@@ -31,10 +31,12 @@ pub enum RecoverableGameError {
     WrongStatus,
 }
 
-pub fn state_error_to_game(state_error: state::StateError) -> GameError {
+pub fn state_error_to_game(state_error: game_state::StateError) -> GameError {
     match state_error {
-        state::StateError::WrongStatus => GameError::Recoverable(RecoverableGameError::WrongStatus),
-        state::StateError::Modify(e) => GameError::Fatal(FatalGameError::StateRuntime(e)),
+        game_state::StateError::WrongStatus => {
+            GameError::Recoverable(RecoverableGameError::WrongStatus)
+        }
+        game_state::StateError::Modify(e) => GameError::Fatal(FatalGameError::StateRuntime(e)),
     }
 }
 
@@ -217,8 +219,8 @@ impl ExecutionState {
 #[derive(Debug, Clone)]
 pub struct Game {
     config: Arc<config::GameConfig>,
-    state: state::GameState,
-    ex_ctx: ExecutionState,
+    state: game_state::GameState,
+    ex_state: ExecutionState,
 }
 
 impl Game {
@@ -234,17 +236,17 @@ impl Game {
             .clone();
         Self {
             config: config_rc.clone(),
-            state: state::GameState::new(config_rc),
-            ex_ctx: ExecutionState::new(root_phase),
+            state: game_state::GameState::new(config_rc),
+            ex_state: ExecutionState::new(root_phase),
         }
     }
 
-    pub fn get_status(&self) -> state::GameStatus {
+    pub fn get_status(&self) -> game_state::GameStatus {
         self.state.status.clone()
     }
 
     pub fn is_waiting(&self) -> bool {
-        if let state::GameStatus::Waiting(_) = self.get_status() {
+        if let game_state::GameStatus::Waiting(_) = self.get_status() {
             return true;
         }
         false
@@ -314,8 +316,8 @@ impl Game {
     pub fn throw_error(&mut self, reason: String) {}
 
     pub fn evaluate_statement(&mut self, statement: &Statement) {
-        self.ex_ctx.statements_evaluated += 1;
-        if self.ex_ctx.statements_evaluated > self.ex_ctx.statement_limit {
+        self.ex_state.statements_evaluated += 1;
+        if self.ex_state.statements_evaluated > self.ex_state.statement_limit {
             self.on_reached_eval_limit();
             return;
         }

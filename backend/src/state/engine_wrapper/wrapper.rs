@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use ts_rs::TS;
 
 use crate::engine::core::interpreter::state;
+use state::game_state;
 
 #[derive(TS, Debug, Clone, Deserialize, Serialize)]
 #[ts(export)]
@@ -38,7 +39,7 @@ pub struct GameSnapshot {
     pub actions: Vec<GameAction>,
     pub private_actions: Vec<GameAction>,
     pub players: Option<PlayerSnapshot>,
-    pub status: state::GameStatus,
+    pub status: game_state::GameStatus,
     pub public_cards: HashMap<u32, cards::Card>,
     pub zones: Vec<ZoneSnapshot>,
 }
@@ -58,7 +59,7 @@ impl GameSnapshot {
             actions: Vec::new(),
             private_actions: Vec::new(),
             players: None,
-            status: state::GameStatus::Invalid,
+            status: game_state::GameStatus::Invalid,
             public_cards: HashMap::new(),
             zones: Vec::new(),
         }

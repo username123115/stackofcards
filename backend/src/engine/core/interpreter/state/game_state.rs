@@ -1,4 +1,4 @@
-use super::config;
+use crate::engine::core::interpreter::config;
 use crate::engine::core::types::identifiers::*;
 use crate::engine::core::types::*;
 

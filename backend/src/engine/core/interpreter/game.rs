@@ -182,7 +182,7 @@ impl ExecutionState {
         match self.statement_stack.last_mut() {
             None => return Ok(()),
             Some(sp) => {
-                match sp {
+                match &mut sp.location {
                     StatementPointer::Single(_stmt) => {
                         return Err(ExecutionContextError::WrongStatementPointer);
                     }
@@ -196,7 +196,7 @@ impl ExecutionState {
     pub fn push_and_incr(&mut self, statement: Arc<Statement>, incr: u32) {
         self.incr_current(incr);
         self.statement_stack
-            .push(StatementPointer::Single(statement));
+            .push(ExecutionContext::new(StatementPointer::Single(statement)));
     }
 }
 

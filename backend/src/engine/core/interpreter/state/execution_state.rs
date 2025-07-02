@@ -4,7 +4,7 @@ use thiserror::Error;
 
 use std::sync::Arc;
 #[derive(Debug, Clone)]
-pub struct ExecutionBlockContext {
+pub struct BlockContext {
     exec_idx: u32,                   //keep private
     statements: Vec<Arc<Statement>>, //keep private
 }
@@ -17,7 +17,7 @@ pub struct ExecutionState {
     pub root_phase: Arc<Statement>,
 }
 
-impl ExecutionBlockContext {
+impl BlockContext {
     pub fn new(statements: Vec<Arc<Statement>>) -> Self {
         Self {
             exec_idx: 0,
@@ -53,7 +53,7 @@ impl ExecutionBlockContext {
 #[derive(Debug, Clone)]
 pub enum StatementPointer {
     Single(Arc<Statement>),
-    Block(ExecutionBlockContext),
+    Block(BlockContext),
 }
 
 #[derive(Debug, Clone)]
@@ -85,7 +85,7 @@ impl ExecutionState {
             statement_stack: Vec::new(),
             root_phase,
         };
-        r.incr_and_push(r.root_phase.clone(), 0);
+        r.push_statement(r.root_phase.clone());
         r
     }
 
@@ -120,7 +120,7 @@ impl ExecutionState {
             Some(stmt) => match &*stmt {
                 Statement::Block(v) => {
                     let replace = self.statement_stack.pop();
-                    let new_ctx = StatementPointer::Block(ExecutionBlockContext::new(v.clone()));
+                    let new_ctx = StatementPointer::Block(BlockContext::new(v.clone()));
 
                     match replace {
                         Some(mut ec) => {
@@ -174,5 +174,10 @@ impl ExecutionState {
         self.statement_stack
             .push(ExecutionContext::new(StatementPointer::Single(statement)));
         r
+    }
+
+    pub fn push_statement(&mut self, statement: Arc<Statement>) {
+        self.statement_stack
+            .push(ExecutionContext::new(StatementPointer::Single(statement)));
     }
 }

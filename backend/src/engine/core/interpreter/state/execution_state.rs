@@ -68,7 +68,7 @@ impl ExecutionContext {
 }
 
 #[derive(Error, Debug, Clone)]
-pub enum ExecutionContextError {
+pub enum ExecutionStateError {
     #[error("Execution has finished")]
     OutOfStatements,
     #[error("Statement was of wrong type")]
@@ -113,10 +113,10 @@ impl ExecutionState {
         }
     }
 
-    pub fn upgrade_statement(&mut self) -> Result<(), ExecutionContextError> {
+    pub fn upgrade_statement(&mut self) -> Result<(), ExecutionStateError> {
         let target = self.get_current_statement();
         match target {
-            None => Err(ExecutionContextError::OutOfStatements),
+            None => Err(ExecutionStateError::OutOfStatements),
             Some(stmt) => match &*stmt {
                 Statement::Block(v) => {
                     let replace = self.statement_stack.pop();
@@ -134,12 +134,12 @@ impl ExecutionState {
 
                     Ok(())
                 }
-                _ => Err(ExecutionContextError::IncorrectVariant),
+                _ => Err(ExecutionStateError::IncorrectVariant),
             },
         }
     }
 
-    pub fn incr_current(&mut self, incr: u32) -> Result<(), ExecutionContextError> {
+    pub fn incr_current(&mut self, incr: u32) -> Result<(), ExecutionStateError> {
         if incr == 0 {
             return Ok(());
         }
@@ -151,7 +151,7 @@ impl ExecutionState {
                 match &mut sp.location {
                     StatementPointer::Single(stmt) => {
                         if let Statement::Block(_) = &*stmt.clone() {
-                            return Err(ExecutionContextError::WrongStatementPointer);
+                            return Err(ExecutionStateError::WrongStatementPointer);
                         }
                         pop_stack = true;
                     }
@@ -169,7 +169,7 @@ impl ExecutionState {
         &mut self,
         statement: Arc<Statement>,
         incr: u32,
-    ) -> Result<(), ExecutionContextError> {
+    ) -> Result<(), ExecutionStateError> {
         let r = self.incr_current(incr);
         self.statement_stack
             .push(ExecutionContext::new(StatementPointer::Single(statement)));

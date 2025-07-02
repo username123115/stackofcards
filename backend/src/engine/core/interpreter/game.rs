@@ -43,6 +43,23 @@ pub fn state_error_to_game(state_error: game_state::StateError) -> GameError {
 
 pub enum NonFatalGameError {}
 
+pub enum EngineStatus {
+    Finished,
+    Ready,
+    Sleep(u32),
+    Broadcast(String),
+}
+
+#[derive(Error, Debug)]
+pub enum ExecutionError {
+    #[error("Executor instruction state became corrupted")]
+    ExecutionState(#[from] execution_state::ExecutionStateError),
+}
+
+pub fn wrap_exec_state_error(e: execution_state::ExecutionStateError) -> ExecutionError {
+    ExecutionError::ExecutionState(e)
+}
+
 #[derive(Debug, Clone)]
 pub struct Game {
     config: Arc<config::GameConfig>,
@@ -65,6 +82,45 @@ impl Game {
             config: config_rc.clone(),
             state: game_state::GameState::new(config_rc),
             ex_state: ExecutionState::new(root_phase),
+        }
+    }
+
+    pub fn eval_statement(&mut self) -> Result<EngineStatus, ExecutionError> {
+        match self.ex_state.get_current_statement() {
+            None => Ok(EngineStatus::Finished),
+            Some(statement) => {
+                let mut status = EngineStatus::Ready;
+                match &*statement {
+                    Statement::Empty => status = EngineStatus::Ready,
+                    Statement::Block(_stmts) => {
+                        self.ex_state
+                            .upgrade_statement()
+                            .map_err(wrap_exec_state_error)?;
+                    }
+                    Statement::Conditional(cond_statement) => {
+                        let condition = self.evaluate_bool(&cond_statement.condition);
+                        let statement_to_execute = match condition {
+                            true => cond_statement.go_true.clone(),
+                            false => cond_statement.go_false.clone(),
+                        };
+                        self.ex_state
+                            .incr_and_push(statement_to_execute, 1)
+                            .map_err(wrap_exec_state_error)?;
+                    }
+                    //TODO
+                    Statement::Broadcast { msg, to } => {
+                        status = EngineStatus::Broadcast(msg.clone());
+                    }
+                    Statement::DeclareWinner(player) => todo!("impl"),
+                    Statement::SetNumber { name, value } => todo!("impl"),
+                    _ => todo!("impl"),
+                }
+
+                self.ex_state
+                    .incr_current(1)
+                    .map_err(wrap_exec_state_error)?;
+                Ok(status)
+            }
         }
     }
 

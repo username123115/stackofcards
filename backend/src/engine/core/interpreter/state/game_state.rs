@@ -16,18 +16,18 @@ pub type CardID = u64;
 pub type PlayerOrderIndex = u64;
 
 #[derive(Debug, Clone)]
+pub enum ZoneName {
+    Variable(VariableIdentifier),
+    Template(VariableIdentifier),
+}
+
+#[derive(Debug, Clone)]
 pub struct GameActiveZone {
     pub zone_id: GameZoneID,
     pub cards: Vec<u64>,
     pub class: ZoneClassIdentifier,
-    pub owner: Option<GameZoneOwnership>,
-    pub name: Option<VariableIdentifier>,
-}
-
-#[derive(Debug, Clone)]
-pub struct GameZoneOwnership {
-    pub player: PlayerOrderIndex,
-    pub zone_name: Option<VariableIdentifier>,
+    pub owner: Option<PlayerOrderIndex>,
+    pub name: Option<ZoneName>,
 }
 
 impl GameActiveZone {
@@ -35,8 +35,8 @@ impl GameActiveZone {
         zone_id: GameZoneID,
         cards: Vec<CardID>,
         class: ZoneClassIdentifier,
-        owner: Option<GameZoneOwnership>,
-        name: Option<VariableIdentifier>,
+        owner: Option<PlayerOrderIndex>,
+        name: Option<ZoneName>,
     ) -> Self {
         Self {
             zone_id,
@@ -99,8 +99,8 @@ impl CardState {
         &mut self,
         cards: Vec<CardID>,
         class: &ZoneClassIdentifier,
-        owner: Option<GameZoneOwnership>,
-        name: Option<VariableIdentifier>,
+        owner: Option<PlayerOrderIndex>,
+        name: Option<ZoneName>,
     ) -> Result<GameZoneID, StateModifyError> {
         if let Some(_) = self.config.zone_classes.get(class) {
             /* if let Some(idx) = owner {
@@ -268,6 +268,19 @@ impl GameState {
         return false;
     }
 
+    pub fn get_zone_by_name(&self, name: &str) -> Option<GameZoneID> {
+        for (zid, zone) in &self.cards.zones {
+            if let Some(zone_name) = &zone.name {
+                if let ZoneName::Variable(s) = zone_name {
+                    if s == name {
+                        return Some(zid.clone());
+                    }
+                }
+            }
+        }
+        None
+    }
+
     // Checks if game has enough players and starts
     pub fn init_game(&mut self) -> Result<(), StateError> {
         if self.game_ready() {
@@ -275,10 +288,12 @@ impl GameState {
 
             //Create initial zones
             for (name, class) in self.config.initial_zones.iter() {
-                match self
-                    .cards
-                    .create_zone(Vec::new(), &class, None, Some(name.clone()))
-                {
+                match self.cards.create_zone(
+                    Vec::new(),
+                    &class,
+                    None,
+                    Some(ZoneName::Variable(name.clone())),
+                ) {
                     Ok(_) => (),
                     Err(s) => {
                         return Err(StateError::Modify(s));
@@ -294,11 +309,8 @@ impl GameState {
                             match self.cards.create_zone(
                                 Vec::new(),
                                 &zone_class_name,
-                                Some(GameZoneOwnership {
-                                    player: idx as PlayerOrderIndex,
-                                    zone_name: Some(zone_name.clone()),
-                                }),
-                                None,
+                                Some(idx as PlayerOrderIndex),
+                                Some(ZoneName::Template(zone_name.clone())),
                             ) {
                                 Ok(_) => (),
                                 Err(s) => {

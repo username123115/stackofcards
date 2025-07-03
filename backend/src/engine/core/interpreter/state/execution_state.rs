@@ -1,4 +1,5 @@
-use crate::engine::core::interpreter::lang::statements;
+use super::{game_state, var_state};
+use crate::engine::core::interpreter::{config, lang::statements};
 use statements::Statement;
 use thiserror::Error;
 
@@ -14,7 +15,8 @@ pub struct ExecutionState {
     pub statements_evaluated: u32,
     pub statement_limit: u32,
     pub statement_stack: Vec<ExecutionContext>,
-    pub root_phase: Arc<Statement>,
+    pub current_root: Arc<Statement>,
+    pub root_vars: var_state::RootVarMapping,
 }
 
 impl BlockContext {
@@ -59,11 +61,15 @@ pub enum StatementPointer {
 #[derive(Debug, Clone)]
 pub struct ExecutionContext {
     pub location: StatementPointer,
+    pub variables: var_state::VarMapping,
 }
 
 impl ExecutionContext {
     pub fn new(location: StatementPointer) -> Self {
-        Self { location }
+        Self {
+            location,
+            variables: var_state::VarMapping::new(),
+        }
     }
 }
 
@@ -75,18 +81,42 @@ pub enum ExecutionStateError {
     IncorrectVariant,
     #[error("Statement did not refer to a block")]
     WrongStatementPointer,
+    #[error("Unable to init state")]
+    InitFailure,
 }
 
 impl ExecutionState {
-    pub fn new(root_phase: Arc<Statement>) -> Self {
+    pub fn new(current_root: Arc<Statement>) -> Self {
         let mut r = Self {
             statements_evaluated: 0,
             statement_limit: 1000,
             statement_stack: Vec::new(),
-            root_phase,
+            current_root,
+            root_vars: var_state::RootVarMapping::new(),
         };
-        r.push_statement(r.root_phase.clone());
+        r.push_statement(r.current_root.clone());
         r
+    }
+
+    pub fn init(
+        &mut self,
+        config: &config::GameConfig,
+        state: &game_state::GameState,
+    ) -> Result<(), ExecutionStateError> {
+        for nvar in &config.numbers {
+            self.root_vars.number.insert(nvar.clone(), 0);
+        }
+
+        for (zvar, _) in &config.initial_zones {
+            let zone_ref_opt = state.get_zone_by_name(zvar);
+            match zone_ref_opt {
+                Some(r) => {
+                    self.root_vars.zone.insert(zvar.clone(), r.clone());
+                }
+                None => return Err(ExecutionStateError::InitFailure),
+            }
+        }
+        Ok(())
     }
 
     pub fn get_current_statement(&mut self) -> Option<Arc<Statement>> {

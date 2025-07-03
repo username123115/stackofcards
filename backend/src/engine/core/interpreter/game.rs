@@ -179,6 +179,11 @@ impl Game {
             Err(e) => return Err(state_error_to_game(e)),
         };
 
+        // Number vars
+        for nvar in &self.config.numbers {
+            self.ex_state.root_vars.number.insert(nvar.clone(), 0);
+        }
+
         return Ok(());
     }
 

@@ -22,8 +22,10 @@ pub enum GameError {
 
 #[derive(Error, Debug, Clone)]
 pub enum FatalGameError {
-    #[error("State is corrupted")]
+    #[error("Resource state is corrupted")]
     StateRuntime(#[from] game_state::StateModifyError),
+    #[error("Error occured in executor")]
+    ExecutorError(#[from] execution_state::ExecutionStateError),
 }
 
 #[derive(Error, Debug, Clone)]
@@ -39,6 +41,10 @@ pub fn state_error_to_game(state_error: game_state::StateError) -> GameError {
         }
         game_state::StateError::Modify(e) => GameError::Fatal(FatalGameError::StateRuntime(e)),
     }
+}
+
+pub fn exec_error_to_game(exec_error: execution_state::ExecutionStateError) -> GameError {
+    return GameError::Fatal(FatalGameError::ExecutorError(exec_error));
 }
 
 pub enum NonFatalGameError {}
@@ -174,15 +180,10 @@ impl Game {
         if !self.is_ready() {
             return Err(GameError::Recoverable(RecoverableGameError::WrongStatus));
         }
-        match self.state.init_game() {
-            Ok(_) => (),
-            Err(e) => return Err(state_error_to_game(e)),
-        };
-
-        // Number vars
-        for nvar in &self.config.numbers {
-            self.ex_state.root_vars.number.insert(nvar.clone(), 0);
-        }
+        self.state.init_game().map_err(state_error_to_game)?;
+        self.ex_state
+            .init(&*self.config, &self.state)
+            .map_err(exec_error_to_game)?;
 
         return Ok(());
     }
